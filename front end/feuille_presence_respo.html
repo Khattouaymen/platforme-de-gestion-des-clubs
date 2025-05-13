@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Feuille de Présence</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body class="bg-light p-4">
+
+  <div class="container bg-white p-4 rounded shadow">
+    <h2 class="text-center text-primary mb-4">Feuille de Présence</h2>
+
+    <div class="row align-items-center mb-3 g-2">
+      <div class="col-md-4">
+        <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un nom...">
+      </div>
+      <div class="col-md-5 d-flex flex-wrap gap-2">
+        <button class="btn btn-success" onclick="cocherTout()">Tout cocher</button>
+        <button class="btn btn-secondary" onclick="decocherTout()">Tout décocher</button>
+        <button class="btn btn-outline-dark" onclick="imprimer()">🖨️ Imprimer</button>
+        <button class="btn btn-outline-danger" onclick="exporterPDF()">📄 PDF</button>
+      </div>
+      <div class="col-md-3 text-end fw-bold text-primary">
+        <span id="stats">Présents : 0 / 0</span>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Présence</th>
+          </tr>
+        </thead>
+        <tbody id="tablePresence">
+          <tr>
+            <td>Nasiri</td>
+            <td>Hamza</td>
+            <td><input type="checkbox" onchange="mettreAJourStats()"></td>
+          </tr>
+          <tr>
+            <td>Khattou</td>
+            <td>Aymen</td>
+            <td><input type="checkbox" onchange="mettreAJourStats()"></td>
+          </tr>
+          <tr>
+            <td>Masaeodi</td>
+            <td>Younes</td>
+            <td><input type="checkbox" onchange="mettreAJourStats()"></td>
+          </tr>
+          <tr>
+            <td>taher</td>
+            <td>taher</td>
+            <td><input type="checkbox" onchange="mettreAJourStats()"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function mettreAJourStats() {
+      const checkboxes = document.querySelectorAll("#tablePresence input[type='checkbox']");
+      const total = checkboxes.length;
+      const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+      document.getElementById("stats").textContent = `Présents : ${checked} / ${total}`;
+    }
+
+    function cocherTout() {
+      document.querySelectorAll("#tablePresence input[type='checkbox']").forEach(cb => cb.checked = true);
+      mettreAJourStats();
+    }
+
+    function decocherTout() {
+      document.querySelectorAll("#tablePresence input[type='checkbox']").forEach(cb => cb.checked = false);
+      mettreAJourStats();
+    }
+
+    function imprimer() {
+      window.print();
+    }
+
+    function exporterPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(14);
+      doc.text("Feuille de Présence ", 14, 15);
+
+      const rows = [];
+      document.querySelectorAll("#tablePresence tr").forEach(row => {
+        const nom = row.cells[0].innerText;
+        const prenom = row.cells[1].innerText;
+        const present = row.cells[2].querySelector("input").checked ? "✔️" : "❌";
+        rows.push([nom, prenom, present]);
+      });
+
+      doc.autoTable({
+        head: [["Nom", "Prénom", "Présent"]],
+        body: rows,
+        startY: 25,
+        styles: { fontSize: 10 }
+      });
+
+      doc.save("feuille_presence.pdf");
+    }
+
+    document.getElementById("searchInput").addEventListener("input", function () {
+      const val = this.value.toLowerCase();
+      document.querySelectorAll("#tablePresence tr").forEach(row => {
+        const nom = row.cells[0].innerText.toLowerCase();
+        const prenom = row.cells[1].innerText.toLowerCase();
+        row.style.display = (nom.includes(val) || prenom.includes(val)) ? "" : "none";
+      });
+    });
+
+    window.onload = mettreAJourStats;
+  </script>
+
+</body>
+</html>

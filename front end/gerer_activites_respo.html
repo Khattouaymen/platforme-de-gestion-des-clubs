@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gérer les Activités</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gérer les Activités</h2>
+    <div>
+      <a href="#" class="btn btn-secondary btn-sm me-2">Voir le Calendrier</a>
+      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createActivityModal">
+        Créer une Activité
+      </button>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Date</th>
+          <th>Lieu</th>
+          <th>Participants max</th>
+          <th>Clôture auto</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>01</td>
+          <td>Hackathon IA</td>
+          <td>12/05/2025</td>
+          <td>Salle 1</td>
+          <td>20</td>
+          <td>Oui</td>
+          <td><span class="badge bg-success">Validée</span></td>
+          <td>
+            <button class="btn btn-warning btn-sm">Modifier</button>
+            <button class="btn btn-danger btn-sm">Supprimer</button>
+          </td>
+        </tr>
+        <tr>
+          <td>02</td>
+          <td>Tournoi Sportif</td>
+          <td>18/05/2025</td>
+          <td>Terrain EST</td>
+          <td>16</td>
+          <td>Non</td>
+          <td><span class="badge bg-warning text-dark">En attente</span></td>
+          <td>
+            <button class="btn btn-warning btn-sm">Modifier</button>
+            <button class="btn btn-danger btn-sm">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal : Créer une Activité -->
+<div class="modal fade" id="createActivityModal" tabindex="-1" aria-labelledby="createActivityModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createActivityModalLabel">Créer une Nouvelle Activité</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="nomActivite" class="form-label">Nom de l’activité</label>
+            <input type="text" class="form-control" id="nomActivite" placeholder="Ex : Conférence sur l’IA">
+          </div>
+
+          <div class="mb-3">
+            <label for="dateActivite" class="form-label">Date</label>
+            <input type="date" class="form-control" id="dateActivite">
+          </div>
+
+          <div class="mb-3">
+            <label for="lieuActivite" class="form-label">Lieu</label>
+            <input type="text" class="form-control" id="lieuActivite" placeholder="Salle 1, Amphithéâtre...">
+          </div>
+
+          <div class="mb-3">
+            <label for="participantsMax" class="form-label">Participants maximum</label>
+            <input type="number" class="form-control" id="participantsMax">
+          </div>
+
+          <div class="mb-3">
+            <label for="cloture" class="form-label">Clôture automatique</label>
+            <select class="form-select" id="cloture">
+              <option value="oui">Oui</option>
+              <option value="non">Non</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" rows="3" placeholder="Description de l’activité..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Créer l’activité</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
