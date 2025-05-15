@@ -3,13 +3,104 @@
 ob_start();
 ?>
 
-<div class="container" id="container">         <div class="form-container sign-up">
+<style>
+    /* Styles CSS pour le formulaire de connexion/inscription */
+    .container#container {
+        background-color: #fff;
+        border-radius: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        width: 768px;
+        max-width: 100%;
+        min-height: 580px;
+        margin: 50px auto;
+        position: relative;
+    }
+    
+    .form-container form {
+        background-color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 0 50px;
+        height: 100%;
+        text-align: center;
+    }
+    
+    .form-container input, .form-container select {
+        background-color: #eee;
+        border: none;
+        padding: 12px 15px;
+        margin: 8px 0;
+        width: 100%;
+        border-radius: 5px;
+    }
+    
+    button {
+        border-radius: 20px;
+        border: 1px solid #007bff;
+        background-color: #007bff;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 12px 45px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: transform 80ms ease-in;
+        cursor: pointer;
+    }
+    
+    button:hover {
+        background-color: #0069d9;
+        border-color: #0062cc;
+    }
+    
+    button:active {
+        transform: scale(0.95);
+    }
+    
+    button:focus {
+        outline: none;
+    }
+    
+    button.hidden {
+        background-color: transparent;
+        border-color: #ffffff;
+    }
+
+    button.hidden:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+</style>
+
+<div class="container" id="container"><div class="form-container sign-up">
              <form action="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/auth/register" method="POST">
                  <h1>Créer un compte</h1>
                  <span>ou utilisez votre email pour vous inscrire</span>
-                 <input type="text" name="username" placeholder="nom d'utilisateur" required>
-                 <input type="email" name="email" placeholder="Email" required>
+                 
+                 <?php if (isset($errors) && !empty($errors)): ?>
+                    <div class="alert alert-danger w-100" role="alert">
+                        <ul class="mb-0 text-start">
+                            <?php foreach ($errors as $err): ?>
+                                <li><?php echo $err; ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                 <?php endif; ?>
+                 
+                 <div class="row w-100">
+                    <div class="col-md-6">
+                        <input type="text" name="nom" placeholder="Nom" value="<?php echo isset($nom) ? $nom : ''; ?>" required>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" name="prenom" placeholder="Prénom" value="<?php echo isset($prenom) ? $prenom : ''; ?>" required>
+                    </div>
+                 </div>
+                 <input type="email" name="email" placeholder="Email" value="<?php echo isset($email) ? $email : ''; ?>" required>
                  <input type="password" name="password" placeholder="mot de passe" required>
+                 <input type="password" name="confirm_password" placeholder="Confirmer le mot de passe" required>
+                 <div class="form-text w-100 text-start mb-3">Le mot de passe doit contenir au moins 6 caractères.</div>
                  <select name="user_type" class="form-select mb-3" required>
                      <option value="">Sélectionnez votre rôle</option>
                      <option value="etudiant">Étudiant</option>
@@ -279,6 +370,3 @@ body{
     transform: translateX(200%);
 }
 </style>
-
-
-

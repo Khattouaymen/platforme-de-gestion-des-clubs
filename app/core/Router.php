@@ -11,12 +11,19 @@ class Router {
         $action = 'index';
         $params = [];        // Récupération de l'URL
         $url = $this->getUrl();
-        
-        // Routes spéciales
+          // Routes spéciales
         if (isset($url[0]) && $url[0] === 'login') {
             require_once APP_PATH . '/controllers/HomeController.php';
             $controllerInstance = new HomeController();
             call_user_func([$controllerInstance, 'login']);
+            return;
+        }
+        
+        // Route pour l'inscription - redirige vers login qui contient maintenant les deux formulaires
+        if (isset($url[0]) && $url[0] === 'register') {
+            require_once APP_PATH . '/controllers/HomeController.php';
+            $controllerInstance = new HomeController();
+            call_user_func([$controllerInstance, 'register']);
             return;
         }
         

@@ -57,8 +57,7 @@ class HomeController extends Controller {
         
         $this->view('home/login', $data);
     }
-    
-    /**
+      /**
      * Page d'inscription
      * 
      * @return void
@@ -69,12 +68,8 @@ class HomeController extends Controller {
             $this->redirect('/dashboard');
         }
         
-        $data = [
-            'title' => 'Inscription',
-            'error' => ''
-        ];
-        
-        $this->view('home/register', $data);
+        // Rediriger vers la page de connexion qui contient maintenant le formulaire d'inscription
+        $this->redirect('/login');
     }
     
     /**
