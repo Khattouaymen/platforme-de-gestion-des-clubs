@@ -84,8 +84,7 @@ class ClubModel extends Model {
         $sql = "DELETE FROM club WHERE id = :id";
         return $this->execute($sql, ['id' => $id]) > 0;
     }
-    
-    /**
+      /**
      * Met à jour le nombre de membres d'un club
      * 
      * @param int $id ID du club
@@ -97,6 +96,43 @@ class ClubModel extends Model {
         $params = ['count' => $count, 'id' => $id];
         
         return $this->execute($sql, $params) > 0;
+    }
+    
+    /**
+     * Assigne un responsable à un club
+     * 
+     * @param int $clubId ID du club
+     * @param int $etudiantId ID de l'étudiant
+     * @return bool Succès de l'opération
+     */
+    public function assignResponsable($clubId, $etudiantId) {
+        // Vérifier d'abord si l'étudiant est déjà responsable d'un club
+        $checkSql = "SELECT COUNT(*) as count FROM responsableclub WHERE id_etudiant = :etudiantId";
+        $result = $this->single($checkSql, ['etudiantId' => $etudiantId]);
+        
+        if ($result['count'] > 0) {
+            return false; // L'étudiant est déjà responsable d'un club
+        }
+        
+        // Insérer le nouvel enregistrement
+        $sql = "INSERT INTO responsableclub (id_etudiant, club_id) VALUES (:etudiantId, :clubId)";
+        $params = ['etudiantId' => $etudiantId, 'clubId' => $clubId];
+        
+        return $this->execute($sql, $params) > 0;
+    }
+    
+    /**
+     * Obtient le responsable d'un club
+     * 
+     * @param int $clubId ID du club
+     * @return array|false Informations sur le responsable ou false
+     */
+    public function getResponsable($clubId) {
+        $sql = "SELECT e.* FROM etudiant e
+                JOIN responsableclub r ON e.id_etudiant = r.id_etudiant
+                WHERE r.club_id = :clubId";
+        
+        return $this->single($sql, ['clubId' => $clubId]);
     }
 }
 ?>

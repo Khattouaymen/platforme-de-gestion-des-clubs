@@ -74,14 +74,25 @@ class EtudiantModel extends UserModel {
         $sql = "SELECT * FROM etudiant WHERE id_etudiant = :id";
         return $this->single($sql, ['id' => $id]);
     }
-    
-    /**
+      /**
      * Récupère tous les étudiants
      * 
      * @return array Liste des étudiants
      */
     public function getAll() {
         $sql = "SELECT * FROM etudiant";
+        return $this->multiple($sql);
+    }
+    
+    /**
+     * Récupère les étudiants qui ne sont pas déjà responsables d'un club
+     * 
+     * @return array Liste des étudiants disponibles pour être responsables
+     */
+    public function getAvailableForResponsable() {
+        $sql = "SELECT e.* FROM etudiant e 
+                LEFT JOIN responsableclub r ON e.id_etudiant = r.id_etudiant 
+                WHERE r.id_etudiant IS NULL";
         return $this->multiple($sql);
     }
     

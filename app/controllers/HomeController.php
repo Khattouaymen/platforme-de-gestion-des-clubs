@@ -43,11 +43,15 @@ class HomeController extends Controller {
      * Page de connexion
      * 
      * @return void
-     */
-    public function login() {
+     */    public function login() {
         // Si l'utilisateur est déjà connecté, rediriger
         if (isset($_SESSION['user_id'])) {
-            $this->redirect('/dashboard');
+            // Rediriger selon le type d'utilisateur
+            if ($_SESSION['user_type'] === 'admin') {
+                $this->redirect('/admin');
+            } else {
+                $this->redirect('/etudiant');
+            }
         }
         
         $data = [
@@ -61,11 +65,15 @@ class HomeController extends Controller {
      * Page d'inscription
      * 
      * @return void
-     */
-    public function register() {
+     */    public function register() {
         // Si l'utilisateur est déjà connecté, rediriger
         if (isset($_SESSION['user_id'])) {
-            $this->redirect('/dashboard');
+            // Rediriger selon le type d'utilisateur
+            if ($_SESSION['user_type'] === 'admin') {
+                $this->redirect('/admin');
+            } else {
+                $this->redirect('/etudiant');
+            }
         }
         
         // Rediriger vers la page de connexion qui contient maintenant le formulaire d'inscription

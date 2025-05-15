@@ -40,22 +40,20 @@ class AdminController extends Controller {
      * 
      * @return void
      */
-    public function index() {
-        // Récupérer les informations de l'administrateur
+    public function index() {        // Récupérer les informations de l'administrateur
         $admin = $this->adminModel->getById($_SESSION['user_id']);
         
         // Récupérer les statistiques
         $clubs = $this->clubModel->getAll();
         $clubCount = count($clubs);
-        
-        $etudiants = $this->etudiantModel->getAll();
-        $etudiantCount = count($etudiants);
+        $etudiants = $this->etudiantModel->getAll();        $etudiantCount = count($etudiants);
         
         $data = [
-            'title' => 'Tableau de bord - Administrateur',
+            'title' => 'Tableau de Bord Administrateur',
             'admin' => $admin,
-            'clubCount' => $clubCount,
-            'etudiantCount' => $etudiantCount
+            'club_count' => $clubCount,
+            'etudiant_count' => $etudiantCount,
+            'asset' => function($path) { return $this->asset($path); }
         ];
         
         $this->view('admin/dashboard', $data);
@@ -70,9 +68,33 @@ class AdminController extends Controller {
         // Récupérer tous les clubs
         $clubs = $this->clubModel->getAll();
         
+        // Gérer les messages d'alerte
+        $alertSuccess = null;
+        $alertError = null;
+        
+        // Messages de succès
+        if (isset($_GET['success'])) {
+            $alertSuccess = "Le club a été ajouté avec succès.";
+        } elseif (isset($_GET['update_success'])) {
+            $alertSuccess = "Le club a été mis à jour avec succès.";
+        } elseif (isset($_GET['delete_success'])) {
+            $alertSuccess = "Le club a été supprimé avec succès.";
+        }
+        
+        // Messages d'erreur
+        if (isset($_GET['error'])) {
+            $alertError = urldecode($_GET['error']);
+        } elseif (isset($_GET['update_error'])) {
+            $alertError = "Une erreur est survenue lors de la mise à jour du club.";        } elseif (isset($_GET['delete_error'])) {
+            $alertError = "Une erreur est survenue lors de la suppression du club.";
+        }
+        
         $data = [
             'title' => 'Gestion des clubs',
-            'clubs' => $clubs
+            'clubs' => $clubs,
+            'alertSuccess' => $alertSuccess,
+            'alertError' => $alertError,
+            'asset' => function($path) { return $this->asset($path); }
         ];
         
         $this->view('admin/clubs', $data);
@@ -86,36 +108,14 @@ class AdminController extends Controller {
     public function addClub() {
         // Vérifier si la requête est de type POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $data = [
-                'title' => 'Ajouter un club'
-            ];
-            
-            $this->view('admin/add_club', $data);
+            $this->redirect('/admin/clubs');
             return;
         }
         
         // Récupérer les données du formulaire
         $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
         $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
-        
-        // Traitement du logo
-        $logoUrl = '';
-        if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = PUBLIC_PATH . '/assets/images/logos/';
-            
-            // Créer le répertoire s'il n'existe pas
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-            
-            $fileName = basename($_FILES['logo']['name']);
-            $targetFile = $uploadDir . $fileName;
-            
-            // Déplacer le fichier téléchargé vers le répertoire de destination
-            if (move_uploaded_file($_FILES['logo']['tmp_name'], $targetFile)) {
-                $logoUrl = '/assets/images/logos/' . $fileName;
-            }
-        }
+        $logoUrl = filter_input(INPUT_POST, 'logo', FILTER_SANITIZE_URL);
         
         // Valider les entrées
         $errors = [];
@@ -129,42 +129,32 @@ class AdminController extends Controller {
         }
         
         if (empty($logoUrl)) {
-            $errors[] = 'Le logo est obligatoire';
+            // Si aucun logo n'est fourni, utilisez un logo par défaut
+            $logoUrl = '/assets/images/logo_creative.jpg';
         }
         
         // S'il y a des erreurs
         if (!empty($errors)) {
-            $data = [
-                'title' => 'Ajouter un club',
-                'errors' => $errors,
-                'nom' => $nom,
-                'description' => $description
-            ];
-            
-            $this->view('admin/add_club', $data);
+            // Rediriger vers la page des clubs avec les erreurs
+            $errorMessage = implode(', ', $errors);
+            $this->redirect('/admin/clubs?error=' . urlencode($errorMessage));
             return;
         }
         
-        // Ajouter le club
+        // Préparer les données du club
         $clubData = [
             'nom' => $nom,
             'description' => $description,
             'logo' => $logoUrl
         ];
         
+        // Ajouter le club
         $clubId = $this->clubModel->create($clubData);
         
         if ($clubId) {
             $this->redirect('/admin/clubs?success=1');
         } else {
-            $data = [
-                'title' => 'Ajouter un club',
-                'error' => 'Une erreur est survenue lors de l\'ajout du club',
-                'nom' => $nom,
-                'description' => $description
-            ];
-            
-            $this->view('admin/add_club', $data);
+            $this->redirect('/admin/clubs?error=Une+erreur+est+survenue+lors+de+l%27ajout+du+club');
         }
     }
     
@@ -185,18 +175,13 @@ class AdminController extends Controller {
         $club = $this->clubModel->getById($id);
         
         if (!$club) {
-            $this->redirect('/admin/clubs');
+            $this->redirect('/admin/clubs?error=Club+introuvable');
             return;
         }
         
         // Vérifier si la requête est de type POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $data = [
-                'title' => 'Modifier un club',
-                'club' => $club
-            ];
-            
-            $this->view('admin/edit_club', $data);
+            $this->redirect('/admin/clubs');
             return;
         }
         
@@ -204,46 +189,29 @@ class AdminController extends Controller {
         $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
         $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
         
-        // Traitement du logo
-        $logoUrl = $club['Logo_URL'];
-        if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = PUBLIC_PATH . '/assets/images/logos/';
-            
-            // Créer le répertoire s'il n'existe pas
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-            
-            $fileName = basename($_FILES['logo']['name']);
-            $targetFile = $uploadDir . $fileName;
-            
-            // Déplacer le fichier téléchargé vers le répertoire de destination
-            if (move_uploaded_file($_FILES['logo']['tmp_name'], $targetFile)) {
-                $logoUrl = '/assets/images/logos/' . $fileName;
-            }
-        }
-        
         // Valider les entrées
         $errors = [];
         
         if (empty($nom)) {
             $errors[] = 'Le nom est obligatoire';
         }
-        
-        if (empty($description)) {
+          if (empty($description)) {
             $errors[] = 'La description est obligatoire';
         }
         
         // S'il y a des erreurs
         if (!empty($errors)) {
-            $data = [
-                'title' => 'Modifier un club',
-                'club' => $club,
-                'errors' => $errors
-            ];
-            
-            $this->view('admin/edit_club', $data);
+            $errorMessage = implode(', ', $errors);
+            $this->redirect("/admin/clubs?error=" . urlencode($errorMessage));
             return;
+        }
+        
+        // Traitement de l'URL du logo
+        $logoUrl = filter_input(INPUT_POST, 'logo', FILTER_SANITIZE_URL);
+        
+        // Si aucune URL n'est fournie, conserver l'ancien logo
+        if (empty($logoUrl)) {
+            $logoUrl = $club['Logo_URL'];
         }
         
         // Mettre à jour le club
@@ -258,13 +226,7 @@ class AdminController extends Controller {
         if ($success) {
             $this->redirect('/admin/clubs?update_success=1');
         } else {
-            $data = [
-                'title' => 'Modifier un club',
-                'club' => $club,
-                'error' => 'Une erreur est survenue lors de la mise à jour du club'
-            ];
-            
-            $this->view('admin/edit_club', $data);
+            $this->redirect('/admin/clubs?update_error=1');
         }
     }
     
@@ -274,8 +236,7 @@ class AdminController extends Controller {
      * @param int $id ID du club
      * @return void
      */
-    public function deleteClub($id = null) {
-        // Vérifier si l'ID est valide
+    public function deleteClub($id = null) {        // Vérifier si l'ID est valide
         if ($id === null) {
             $this->redirect('/admin/clubs');
             return;
@@ -289,6 +250,34 @@ class AdminController extends Controller {
         } else {
             $this->redirect('/admin/clubs?delete_error=1');
         }
+    }
+    
+    /**
+     * Récupérer les informations d'un club (AJAX)
+     * 
+     * @param int $id ID du club
+     * @return void
+     */
+    public function getClub($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            echo json_encode(['success' => false, 'message' => 'ID de club invalide']);
+            return;
+        }
+        
+        // Récupérer les informations du club
+        $club = $this->clubModel->getById($id);
+        
+        if (!$club) {
+            echo json_encode(['success' => false, 'message' => 'Club introuvable']);
+            return;
+        }
+        
+        // Renvoyer les données au format JSON
+        echo json_encode([
+            'success' => true,
+            'club' => $club
+        ]);
     }
     
     /**
@@ -317,14 +306,42 @@ class AdminController extends Controller {
         // Récupérer les données pour les statistiques
         $clubs = $this->clubModel->getAll();
         $etudiants = $this->etudiantModel->getAll();
-        
-        $data = [
+          $data = [
             'title' => 'Statistiques',
             'clubs' => $clubs,
-            'etudiants' => $etudiants
+            'etudiants' => $etudiants,
+            'asset' => function($path) { return $this->asset($path); }
         ];
         
         $this->view('admin/statistiques', $data);
+    }
+    
+    /**
+     * Gestion des ressources
+     * 
+     * @return void
+     */
+    public function ressources() {
+        $data = [
+            'title' => 'Gestion des ressources',
+            'asset' => function($path) { return $this->asset($path); }
+        ];
+        
+        $this->view('admin/ressources', $data);
+    }
+    
+    /**
+     * Gestion des demandes d'activités
+     * 
+     * @return void
+     */
+    public function demandes() {
+        $data = [
+            'title' => 'Gestion des demandes',
+            'asset' => function($path) { return $this->asset($path); }
+        ];
+        
+        $this->view('admin/demandes', $data);
     }
 }
 ?>

@@ -1,0 +1,75 @@
+<?php
+/**
+ * Traite l'ajout d'un club via le formulaire modal
+ * 
+ * @return void
+ */
+public function clubsAdd() {
+    // Vérifier si la requête est de type POST
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('/admin/clubs');
+        return;
+    }
+    
+    // Récupérer les données du formulaire
+    $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
+    $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
+    
+    // Validation des données
+    $errors = [];
+    
+    if (empty($nom)) {
+        $errors[] = 'Le nom du club est obligatoire';
+    }
+    
+    if (empty($description)) {
+        $errors[] = 'La description est obligatoire';
+    }
+    
+    // S'il y a des erreurs
+    if (!empty($errors)) {
+        $_SESSION['club_errors'] = $errors;
+        $_SESSION['club_form_data'] = [
+            'nom' => $nom,
+            'description' => $description
+        ];
+        $this->redirect('/admin/clubs');
+        return;
+    }
+    
+    // Traitement du logo (optionnel pour simplifier)
+    $logoUrl = '';
+    if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = PUBLIC_PATH . '/assets/images/logos/';
+        
+        // Créer le répertoire s'il n'existe pas
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+        
+        $fileName = basename($_FILES['logo']['name']);
+        $targetFile = $uploadDir . $fileName;
+        
+        // Déplacer le fichier téléchargé vers le répertoire de destination
+        if (move_uploaded_file($_FILES['logo']['tmp_name'], $targetFile)) {
+            $logoUrl = '/assets/images/logos/' . $fileName;
+        }
+    }
+    
+    // Ajouter le club
+    $clubData = [
+        'nom' => $nom,
+        'description' => $description,
+        'logo' => $logoUrl
+    ];
+    
+    $clubId = $this->clubModel->create($clubData);
+    
+    if ($clubId) {
+        $_SESSION['alert_success'] = 'Le club a été ajouté avec succès';
+    } else {
+        $_SESSION['alert_error'] = 'Une erreur est survenue lors de l\'ajout du club';
+    }
+    
+    $this->redirect('/admin/clubs');
+}

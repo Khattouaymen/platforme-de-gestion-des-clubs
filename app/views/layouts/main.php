@@ -4,39 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title><?php echo $title ?? 'Gestion des Clubs'; ?></title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?php echo isset($asset) ? $asset('assets/css/style.css') : '/public/assets/css/style.css'; ?>">
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="<?php echo isset($asset) ? $asset('assets/css/admin.css') : '/public/assets/css/admin.css'; ?>">
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<body>    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark <?php echo isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin' ? 'bg-danger' : 'bg-primary'; ?>">
         <div class="container">
             <a class="navbar-brand" href="/">Gestion des Clubs</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/clubs">Clubs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/activites">Activités</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">À propos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/contact">Contact</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
+                <ul class="navbar-nav me-auto">                    <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin'): ?>
+                        <!-- Barre de navigation spécifique pour l'admin -->
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/statistiques') !== false ? 'active' : ''; ?>" href="/admin/statistiques">Statistiques</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/ressources') !== false ? 'active' : ''; ?>" href="/admin/ressources">Gestion des Ressources</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/demandes') !== false ? 'active' : ''; ?>" href="/admin/demandes">Gestion des Demandes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/clubs') !== false ? 'active' : ''; ?>" href="/admin/clubs">Gestion des Clubs</a>
+                        </li>
+                    <?php else: ?>
+                        <!-- Barre de navigation standard pour les autres utilisateurs -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/clubs">Clubs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/activites">Activités</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about">À propos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact">Contact</a>
+                        </li>
+                    <?php endif; ?>
+                </ul>                <ul class="navbar-nav">
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
