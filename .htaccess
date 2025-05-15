@@ -1,0 +1,12 @@
+# Activer le moteur de réécriture
+RewriteEngine On
+
+# Conditions de réécriture
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Règle de réécriture pour le contrôleur et l'action
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+
+# Si l'URL est la racine, charger index.php
+RewriteRule ^$ index.php [QSA,L]

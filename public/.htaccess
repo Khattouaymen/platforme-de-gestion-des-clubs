@@ -1,0 +1,12 @@
+# Activer le moteur de réécriture
+RewriteEngine On
+
+# La réécriture ne s'applique pas aux fichiers et dossiers existants
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Bloquer l'accès direct aux dossiers importants
+RewriteRule ^(app|config) - [F,L]
+
+# Point tous vers le répertoire assets pour les ressources statiques
+RewriteRule ^assets/(.*)$ /public/assets/$1 [L]

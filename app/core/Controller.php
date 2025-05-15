@@ -41,8 +41,7 @@ class Controller {
             die("La vue '{$view}' n'existe pas");
         }
     }
-    
-    /**
+      /**
      * Redirige vers une autre URL
      * 
      * @param string $url URL de redirection
@@ -51,6 +50,23 @@ class Controller {
     protected function redirect($url) {
         header('Location: ' . $url);
         exit;
+    }
+    
+    /**
+     * Génère l'URL d'une ressource (asset)
+     * 
+     * @param string $path Chemin relatif vers la ressource
+     * @return string URL de la ressource
+     */
+    protected function asset($path) {
+        // Supprime le slash initial s'il existe
+        $path = ltrim($path, '/');
+        
+        // Détermine si nous sommes à la racine ou dans un sous-dossier
+        $baseUrl = '';
+        
+        // Retourne l'URL de la ressource
+        return $baseUrl . '/public/' . $path;
     }
 }
 ?>

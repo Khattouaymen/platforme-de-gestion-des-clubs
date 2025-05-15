@@ -2,21 +2,86 @@
 // Définir le contenu
 ob_start();
 ?>
-
-<!-- Hero Section -->
-<section class="hero-section text-center py-5">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title><?php echo $title ?? 'Gestion des Clubs'; ?></title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="<?php echo isset($asset) ? $asset('assets/css/style.css') : '/public/assets/css/style.css'; ?>">
+</head>
+<!-- Hero Section inspiré de la page d'accueil originale -->
+<section class="hero text-center">
     <div class="container">
-        <h1 class="display-4">Bienvenue sur la plateforme de Gestion des Clubs</h1>
-        <p class="lead">Découvrez les clubs, participez aux activités et développez vos talents</p>
-        <div class="mt-4">
-            <a href="/clubs" class="btn btn-primary me-2">Voir les clubs</a>
-            <a href="/activites" class="btn btn-outline-primary">Découvrir les activités</a>
+        <h1 class="display-4 fw-bold">Bienvenue dans la plateforme de gestion des clubs universitaires</h1>
+        <a href="<?php echo isset($asset) ? $asset('home/login') : '/login'; ?>" class="btn btn-warning btn-connexion mt-4">Connexion</a>
+    </div>
+</section>
+
+<!-- Section pourquoi -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Pourquoi cette application ?</h2>
+        <p class="text-center">Les clubs universitaires sont essentiels pour 
+            développer l'esprit d'équipe, la créativité et l'engagement des 
+            étudiants. Cette plateforme vise à centraliser la gestion,
+            automatiser les processus,
+            et faciliter la communication entre l'administration,
+            les responsables et les étudiants.</p>
+    </div>
+</section>
+
+<!-- Clubs passés -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Clubs des années précédentes</h2>
+        <div class="row align-items-center">
+            <div class="col-md-4 d-flex justify-content-end">
+                <img src="<?php echo isset($asset) ? $asset('assets/images/logo_creative.jpg') : 'public/assets/images/logo_creative.jpg'; ?>" alt="logo_creative" class="img-fluid rounded shadow" style="width: 200px;" />
+            </div>
+            <div class="col-md-6">
+                <h2>CLUB creative community</h2>
+                <p>Creative Community est un club étudiant dédié à la créativité et aux arts.
+                    Il offre un espace d'expression pour les talents en design, photographie,
+                    écriture et création de contenu à travers des ateliers et des activités 
+                    interactives stimulant l'innovation et la sensibilité artistique.
+                </p>
+            </div>
+        </div>
+
+        <div class="row align-items-center my-4">
+            <div class="col-md-6 d-flex justify-content-end">
+                <img src="<?php echo isset($asset) ? $asset('assets/images/logo_cyberdune.jpg') : 'public/assets/images/logo_cyberdune.jpg'; ?>" alt="logo_cyberdune" class="img-fluid rounded shadow" style="width: 200px;">
+            </div>
+            <div class="col-md-6">
+                <h2>Club CYBER_DUNE</h2>
+                <p>CyberDune est un club étudiant orienté vers le numérique 
+                    et les technologies. Il a pour objectif de développer les compétences des étudiants en programmation,
+                    cybersécurité, intelligence artificielle et technologies modernes à travers des ateliers,
+                    des compétitions et des activités éducatives.
+                </p>
+            </div>
+        </div>
+
+        <div class="row align-items-center mt-4">
+            <div class="col-md-4 d-flex justify-content-end">
+                <img src="<?php echo isset($asset) ? $asset('assets/images/logo_sportif.jpg') : 'public/assets/images/logo_sportif.jpg'; ?>" alt="logo_sportif" class="img-fluid rounded shadow" style="width: 200px;">
+            </div>
+            <div class="col-md-6">
+                <h2>Club Sportif</h2>
+                <p>Le Club Sportif Universitaire est un espace dédié aux passionnés de sport,
+                    visant à promouvoir l'activité physique,
+                    l'esprit d'équipe et la compétition saine à travers des entraînements réguliers, 
+                    des tournois et divers événements sportifs</p>
+            </div>
         </div>
     </div>
 </section>
 
 <!-- Featured Clubs Section -->
-<section class="featured-clubs py-5">
+<section class="py-5">
     <div class="container">
         <h2 class="text-center mb-4">Clubs populaires</h2>
         
@@ -53,7 +118,7 @@ ob_start();
 </section>
 
 <!-- Upcoming Activities Section -->
-<section class="upcoming-activities py-5 bg-light">
+<section class="py-5 bg-light">
     <div class="container">
         <h2 class="text-center mb-4">Activités à venir</h2>
         
@@ -101,7 +166,7 @@ ob_start();
 </section>
 
 <!-- Call to Action Section -->
-<section class="cta-section py-5 text-center">
+<section class="py-5 text-center">
     <div class="container">
         <h2 class="mb-3">Rejoignez notre communauté dès aujourd'hui !</h2>
         <p class="lead mb-4">Créez un compte pour pouvoir rejoindre des clubs, participer à des activités et interagir avec d'autres étudiants</p>
@@ -109,7 +174,9 @@ ob_start();
     </div>
 </section>
 
-<?php
-$content = ob_get_clean();
-require APP_PATH . '/views/layouts/main.php';
-?>
+<!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="/assets/js/script.js"></script>
+
+

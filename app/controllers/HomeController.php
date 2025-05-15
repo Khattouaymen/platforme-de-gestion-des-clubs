@@ -22,8 +22,7 @@ class HomeController extends Controller {
      * Page d'accueil
      * 
      * @return void
-     */
-    public function index() {
+     */    public function index() {
         // Récupérer les clubs pour la page d'accueil
         $clubs = $this->clubModel->getAll();
         
@@ -33,7 +32,8 @@ class HomeController extends Controller {
         $data = [
             'title' => 'Accueil - Gestion des Clubs',
             'clubs' => $clubs,
-            'activites' => $activites
+            'activites' => $activites,
+            'asset' => function($path) { return $this->asset($path); }
         ];
         
         $this->view('home/index', $data);
