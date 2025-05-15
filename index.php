@@ -8,6 +8,10 @@ define('APP_PATH', ROOT_PATH . '/app');
 define('CONFIG_PATH', ROOT_PATH . '/config');
 define('PUBLIC_PATH', ROOT_PATH . '/public');
 
+// Activer l'affichage des erreurs en développement
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Inclure la configuration de la base de données
 require_once(CONFIG_PATH . '/database.php');
 

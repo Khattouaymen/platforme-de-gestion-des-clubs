@@ -1,7 +1,9 @@
 <?php
+// Le layout de base sera utilisé ici
 // Définir le contenu
 ob_start();
 ?>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title><?php echo $title ?? 'Gestion des Clubs'; ?></title>
@@ -12,11 +14,12 @@ ob_start();
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?php echo isset($asset) ? $asset('assets/css/style.css') : '/public/assets/css/style.css'; ?>">
 </head>
+
 <!-- Hero Section inspiré de la page d'accueil originale -->
-<section class="hero text-center">
+<section class="hero text-center py-5 bg-light">
     <div class="container">
         <h1 class="display-4 fw-bold">Bienvenue dans la plateforme de gestion des clubs universitaires</h1>
-        <a href="<?php echo isset($asset) ? $asset('home/login') : '/login'; ?>" class="btn btn-warning btn-connexion mt-4">Connexion</a>
+        <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/login" class="btn btn-warning btn-connexion mt-4">Connexion</a>
     </div>
 </section>
 

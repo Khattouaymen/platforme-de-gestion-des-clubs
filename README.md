@@ -40,13 +40,21 @@ Le projet suit une architecture MVC (Modèle-Vue-Contrôleur) structurée comme 
 
 ## Installation
 
-1. Clonez le dépôt sur votre serveur web
-2. Importez le fichier `gestion_clubs.sql` dans votre base de données MySQL
-3. Configurez les paramètres de connexion à la base de données dans `config/database.php`
-4. Configurez votre serveur web pour pointer vers le répertoire du projet
-5. Assurez-vous que le module de réécriture d'URL (mod_rewrite) est activé sur Apache
+1. Placez tous les fichiers dans votre serveur web (WAMP, XAMPP, etc.)
+2. Importez la base de données en exécutant : 
+   ```
+   php import_database.php
+   ```
+3. Configurez les paramètres de connexion à la base de données dans `config/database.php` si nécessaire
+4. Assurez-vous que le module de réécriture d'URL (mod_rewrite) est activé sur Apache
 
-Consultez le fichier `CONFIGURATION.md` pour des instructions détaillées sur la configuration du serveur web.
+## Démarrage rapide
+
+1. Démarrez votre serveur web (WAMP, XAMPP, etc.)
+2. Accédez à l'application via votre navigateur: `http://localhost/sfe/`
+3. Connectez-vous avec le compte administrateur par défaut:
+   - Email: admin@example.com
+   - Mot de passe: admin123
 
 ## Utilisation
 

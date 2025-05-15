@@ -20,8 +20,7 @@ class Controller {
         
         return null;
     }
-    
-    /**
+      /**
      * Charge une vue avec des données
      * 
      * @param string $view Chemin de la vue
@@ -36,7 +35,7 @@ class Controller {
         $viewFile = APP_PATH . '/views/' . $view . '.php';
         
         if (file_exists($viewFile)) {
-            require_once $viewFile;
+            require $viewFile;
         } else {
             die("La vue '{$view}' n'existe pas");
         }
@@ -51,19 +50,29 @@ class Controller {
         header('Location: ' . $url);
         exit;
     }
-    
-    /**
+      /**
      * Génère l'URL d'une ressource (asset)
      * 
      * @param string $path Chemin relatif vers la ressource
      * @return string URL de la ressource
-     */
-    protected function asset($path) {
+     */    protected function asset($path) {
         // Supprime le slash initial s'il existe
         $path = ltrim($path, '/');
         
-        // Détermine si nous sommes à la racine ou dans un sous-dossier
+        // Détermine le chemin de base selon l'environnement (Apache ou serveur intégré)
         $baseUrl = '';
+        
+        // Détection automatique de l'environnement
+        if (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Development Server') !== false) {
+            // Serveur de développement PHP intégré
+            $baseUrl = 'http://' . $_SERVER['HTTP_HOST'];
+        } else {
+            // Serveur Apache ou autre
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'];
+            $scriptName = dirname($_SERVER['SCRIPT_NAME']);
+            $baseUrl = $protocol . '://' . $host . rtrim($scriptName, '/');
+        }
         
         // Retourne l'URL de la ressource
         return $baseUrl . '/public/' . $path;
