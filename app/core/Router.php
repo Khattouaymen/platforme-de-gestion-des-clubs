@@ -114,6 +114,13 @@ class Router {
             require_once APP_PATH . '/controllers/AuthController.php';
             $controllerInstance = new AuthController();
             
+            // Cas spécial pour l'inscription des responsables
+            if (isset($url[1]) && $url[1] === 'register' && isset($url[2]) && $url[2] === 'responsable' && isset($url[3])) {
+                $token = $url[3];
+                call_user_func([$controllerInstance, 'registerResponsable'], $token);
+                return;
+            }
+            
             // Vérifier si l'action est spécifiée
             if (isset($url[1]) && !empty($url[1])) {
                 $action = $url[1];
