@@ -3,6 +3,10 @@ require_once APP_PATH . '/core/Controller.php';
 require_once APP_PATH . '/models/AdminModel.php';
 require_once APP_PATH . '/models/ClubModel.php';
 require_once APP_PATH . '/models/EtudiantModel.php';
+require_once APP_PATH . '/models/RessourceModel.php';
+require_once APP_PATH . '/models/DemandeClubModel.php';
+require_once APP_PATH . '/models/DemandeActiviteModel.php';
+require_once APP_PATH . '/models/DemandeAdhesionModel.php';
 
 /**
  * Classe AdminController - Contrôleur pour les administrateurs
@@ -11,6 +15,10 @@ class AdminController extends Controller {
     private $adminModel;
     private $clubModel;
     private $etudiantModel;
+    private $ressourceModel;
+    private $demandeClubModel;
+    private $demandeActiviteModel;
+    private $demandeAdhesionModel;
     
     /**
      * Constructeur
@@ -22,6 +30,10 @@ class AdminController extends Controller {
         $this->adminModel = new AdminModel();
         $this->clubModel = new ClubModel();
         $this->etudiantModel = new EtudiantModel();
+        $this->ressourceModel = new RessourceModel();
+        $this->demandeClubModel = new DemandeClubModel();
+        $this->demandeActiviteModel = new DemandeActiviteModel();
+        $this->demandeAdhesionModel = new DemandeAdhesionModel();
     }
     
     /**
@@ -305,29 +317,248 @@ class AdminController extends Controller {
     public function statistiques() {
         // Récupérer les données pour les statistiques
         $clubs = $this->clubModel->getAll();
+        $clubCount = count($clubs);
+        
         $etudiants = $this->etudiantModel->getAll();
-          $data = [
+        $etudiantCount = count($etudiants);
+        
+        // Demandes en attente
+        $demandesClub = $this->demandeClubModel->getByStatut('en_attente');
+        $demandesClubCount = count($demandesClub);
+        
+        $demandesAdhesion = $this->demandeAdhesionModel->getByStatut('en_attente');
+        $demandesAdhesionCount = count($demandesAdhesion);
+        
+        $data = [
             'title' => 'Statistiques',
             'clubs' => $clubs,
             'etudiants' => $etudiants,
+            'club_count' => $clubCount,
+            'etudiant_count' => $etudiantCount,
+            'demandes_club_count' => $demandesClubCount,
+            'demandes_adhesion_count' => $demandesAdhesionCount,
             'asset' => function($path) { return $this->asset($path); }
         ];
         
         $this->view('admin/statistiques', $data);
     }
-    
-    /**
+      /**
      * Gestion des ressources
      * 
      * @return void
      */
     public function ressources() {
+        // Récupérer toutes les ressources
+        $ressources = $this->ressourceModel->getAll();
+        
+        // Récupérer tous les clubs pour le formulaire d'ajout
+        $clubs = $this->clubModel->getAll();
+        
+        // Gérer les messages d'alerte
+        $alertSuccess = null;
+        $alertError = null;
+        
+        // Messages de succès
+        if (isset($_GET['success'])) {
+            $alertSuccess = "La ressource a été ajoutée avec succès.";
+        } elseif (isset($_GET['update_success'])) {
+            $alertSuccess = "La ressource a été mise à jour avec succès.";
+        } elseif (isset($_GET['delete_success'])) {
+            $alertSuccess = "La ressource a été supprimée avec succès.";
+        }
+        
+        // Messages d'erreur
+        if (isset($_GET['error'])) {
+            $alertError = urldecode($_GET['error']);
+        }
+        
         $data = [
             'title' => 'Gestion des ressources',
+            'ressources' => $ressources,
+            'clubs' => $clubs,
+            'alertSuccess' => $alertSuccess,
+            'alertError' => $alertError,
             'asset' => function($path) { return $this->asset($path); }
         ];
         
         $this->view('admin/ressources', $data);
+    }
+    
+    /**
+     * Ajouter une ressource
+     * 
+     * @return void
+     */
+    public function addRessource() {
+        // Vérifier si la requête est de type POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/admin/ressources');
+            return;
+        }
+        
+        // Récupérer les données du formulaire
+        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
+        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_STRING);
+        $quantite = filter_input(INPUT_POST, 'quantite', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'default' => 1]]);
+        $clubId = filter_input(INPUT_POST, 'club_id', FILTER_VALIDATE_INT);
+        $disponibilite = filter_input(INPUT_POST, 'disponibilite', FILTER_SANITIZE_STRING);
+        
+        // Valider les entrées
+        $errors = [];
+        
+        if (empty($nom)) {
+            $errors[] = 'Le nom est obligatoire';
+        }
+        
+        if (empty($type) || !in_array($type, ['materiel', 'humain', 'financier', 'autre'])) {
+            $errors[] = 'Le type est obligatoire et doit être valide';
+        }
+        
+        // S'il y a des erreurs
+        if (!empty($errors)) {
+            $errorMessage = implode(', ', $errors);
+            $this->redirect('/admin/ressources?error=' . urlencode($errorMessage));
+            return;
+        }
+        
+        // Préparer les données de la ressource
+        $ressourceData = [
+            'nom' => $nom,
+            'type' => $type,
+            'quantite' => $quantite,
+            'club_id' => $clubId ?: null,
+            'disponibilite' => $disponibilite ?: 'disponible'
+        ];
+        
+        // Ajouter la ressource
+        $ressourceId = $this->ressourceModel->create($ressourceData);
+        
+        if ($ressourceId) {
+            $this->redirect('/admin/ressources?success=1');
+        } else {
+            $this->redirect('/admin/ressources?error=Une+erreur+est+survenue+lors+de+l%27ajout+de+la+ressource');
+        }
+    }
+    
+    /**
+     * Modifier une ressource
+     * 
+     * @param int $id ID de la ressource
+     * @return void
+     */
+    public function editRessource($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            $this->redirect('/admin/ressources');
+            return;
+        }
+        
+        // Récupérer les informations de la ressource
+        $ressource = $this->ressourceModel->getById($id);
+        
+        if (!$ressource) {
+            $this->redirect('/admin/ressources?error=Ressource+introuvable');
+            return;
+        }
+        
+        // Vérifier si la requête est de type POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/admin/ressources');
+            return;
+        }
+        
+        // Récupérer les données du formulaire
+        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
+        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_STRING);
+        $quantite = filter_input(INPUT_POST, 'quantite', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'default' => 1]]);
+        $clubId = filter_input(INPUT_POST, 'club_id', FILTER_VALIDATE_INT);
+        $disponibilite = filter_input(INPUT_POST, 'disponibilite', FILTER_SANITIZE_STRING);
+        
+        // Valider les entrées
+        $errors = [];
+        
+        if (empty($nom)) {
+            $errors[] = 'Le nom est obligatoire';
+        }
+        
+        if (empty($type) || !in_array($type, ['materiel', 'humain', 'financier', 'autre'])) {
+            $errors[] = 'Le type est obligatoire et doit être valide';
+        }
+        
+        // S'il y a des erreurs
+        if (!empty($errors)) {
+            $errorMessage = implode(', ', $errors);
+            $this->redirect('/admin/ressources?error=' . urlencode($errorMessage));
+            return;
+        }
+        
+        // Mettre à jour la ressource
+        $ressourceData = [
+            'nom' => $nom,
+            'type' => $type,
+            'quantite' => $quantite,
+            'club_id' => $clubId ?: null,
+            'disponibilite' => $disponibilite ?: 'disponible'
+        ];
+        
+        $success = $this->ressourceModel->update($id, $ressourceData);
+        
+        if ($success) {
+            $this->redirect('/admin/ressources?update_success=1');
+        } else {
+            $this->redirect('/admin/ressources?error=Une+erreur+est+survenue+lors+de+la+mise+à+jour+de+la+ressource');
+        }
+    }
+    
+    /**
+     * Supprimer une ressource
+     * 
+     * @param int $id ID de la ressource
+     * @return void
+     */
+    public function deleteRessource($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            $this->redirect('/admin/ressources');
+            return;
+        }
+        
+        // Supprimer la ressource
+        $success = $this->ressourceModel->delete($id);
+        
+        if ($success) {
+            $this->redirect('/admin/ressources?delete_success=1');
+        } else {
+            $this->redirect('/admin/ressources?error=Une+erreur+est+survenue+lors+de+la+suppression+de+la+ressource');
+        }
+    }
+    
+    /**
+     * Récupérer les informations d'une ressource (AJAX)
+     * 
+     * @param int $id ID de la ressource
+     * @return void
+     */
+    public function getRessource($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            echo json_encode(['success' => false, 'message' => 'ID de ressource invalide']);
+            return;
+        }
+        
+        // Récupérer les informations de la ressource
+        $ressource = $this->ressourceModel->getById($id);
+        
+        if (!$ressource) {
+            echo json_encode(['success' => false, 'message' => 'Ressource introuvable']);
+            return;
+        }
+        
+        // Renvoyer les données au format JSON
+        echo json_encode([
+            'success' => true,
+            'ressource' => $ressource
+        ]);
     }
     
     /**
@@ -336,12 +567,248 @@ class AdminController extends Controller {
      * @return void
      */
     public function demandes() {
+        // Récupérer les demandes d'approbation de clubs
+        $demandesClub = [
+            'en_attente' => $this->demandeClubModel->getByStatut('en_attente'),
+            'approuve' => $this->demandeClubModel->getByStatut('approuve'),
+            'rejete' => $this->demandeClubModel->getByStatut('rejete')
+        ];
+        
+        // Récupérer les demandes d'adhésion
+        $demandesAdhesion = [
+            'en_attente' => $this->demandeAdhesionModel->getByStatut('en_attente'),
+            'acceptee' => $this->demandeAdhesionModel->getByStatut('acceptee'),
+            'refusee' => $this->demandeAdhesionModel->getByStatut('refusee')
+        ];
+        
+        // Récupérer les demandes d'activité
+        $demandesActivite = $this->demandeActiviteModel->getAll();
+        
+        // Gérer les messages d'alerte
+        $alertSuccess = null;
+        $alertError = null;
+        
+        // Messages de succès
+        if (isset($_GET['success'])) {
+            $alertSuccess = "La demande a été traitée avec succès.";
+        }
+        
+        // Messages d'erreur
+        if (isset($_GET['error'])) {
+            $alertError = urldecode($_GET['error']);
+        }
+        
         $data = [
             'title' => 'Gestion des demandes',
+            'demandesClub' => $demandesClub,
+            'demandesAdhesion' => $demandesAdhesion,
+            'demandesActivite' => $demandesActivite,
+            'alertSuccess' => $alertSuccess,
+            'alertError' => $alertError,
             'asset' => function($path) { return $this->asset($path); }
         ];
         
         $this->view('admin/demandes', $data);
+    }
+
+    /**
+     * Approuver une demande de club
+     * 
+     * @param int $id ID de la demande
+     * @return void
+     */
+    public function approveDemandeClub($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            $this->redirect('/admin/demandes');
+            return;
+        }
+        
+        // Approuver la demande et créer le club
+        $clubId = $this->demandeClubModel->approveAndCreateClub($id, $this->clubModel);
+        
+        if ($clubId) {
+            $this->redirect('/admin/demandes?success=1');
+        } else {
+            $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+de+l%27approbation+de+la+demande');
+        }
+    }
+    
+    /**
+     * Rejeter une demande de club
+     * 
+     * @param int $id ID de la demande
+     * @return void
+     */
+    public function rejectDemandeClub($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            $this->redirect('/admin/demandes');
+            return;
+        }
+        
+        // Rejeter la demande
+        $success = $this->demandeClubModel->reject($id);
+        
+        if ($success) {
+            $this->redirect('/admin/demandes?success=1');
+        } else {
+            $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+du+rejet+de+la+demande');
+        }
+    }
+    
+    /**
+     * Accepter une demande d'adhésion
+     * 
+     * @param int $id ID de la demande
+     * @return void
+     */
+    public function acceptDemandeAdhesion($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            $this->redirect('/admin/demandes');
+            return;
+        }
+        
+        // Accepter la demande et ajouter l'étudiant au club
+        $success = $this->demandeAdhesionModel->accepterEtAjouterMembre($id);
+        
+        if ($success) {
+            $this->redirect('/admin/demandes?success=1');
+        } else {
+            $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+de+l%27acceptation+de+la+demande');
+        }
+    }
+    
+    /**
+     * Refuser une demande d'adhésion
+     * 
+     * @param int $id ID de la demande
+     * @return void
+     */
+    public function refuseDemandeAdhesion($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            $this->redirect('/admin/demandes');
+            return;
+        }
+        
+        // Refuser la demande
+        $success = $this->demandeAdhesionModel->refuser($id);
+        
+        if ($success) {
+            $this->redirect('/admin/demandes?success=1');
+        } else {
+            $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+du+refus+de+la+demande');
+        }
+    }
+    
+    /**
+     * Approuver une demande d'activité
+     * 
+     * @param int $id ID de la demande
+     * @return void
+     */
+    public function approveDemandeActivite($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            $this->redirect('/admin/demandes');
+            return;
+        }
+        
+        // Charger le modèle d'activité si ce n'est pas déjà fait
+        if (!isset($this->activiteModel)) {
+            require_once APP_PATH . '/models/ActiviteModel.php';
+            $this->activiteModel = new ActiviteModel();
+        }
+        
+        // Approuver la demande et créer l'activité
+        $activiteId = $this->demandeActiviteModel->approveAndCreateActivite($id, $this->activiteModel);
+        
+        if ($activiteId) {
+            $this->redirect('/admin/demandes?success=1');
+        } else {
+            $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+de+l%27approbation+de+la+demande+d%27activité');
+        }
+    }
+    
+    /**
+     * Rejeter une demande d'activité
+     * 
+     * @param int $id ID de la demande
+     * @return void
+     */
+    public function rejectDemandeActivite($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            $this->redirect('/admin/demandes');
+            return;
+        }
+        
+        // Supprimer la demande (rejet)
+        $success = $this->demandeActiviteModel->delete($id);
+        
+        if ($success) {
+            $this->redirect('/admin/demandes?success=1');
+        } else {
+            $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+du+rejet+de+la+demande+d%27activité');
+        }
+    }
+
+    /**
+     * Récupérer les informations d'une demande de club (AJAX)
+     * 
+     * @param int $id ID de la demande
+     * @return void
+     */
+    public function getDemandeClub($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            echo json_encode(['success' => false, 'message' => 'ID de demande invalide']);
+            return;
+        }
+        
+        // Récupérer les informations de la demande
+        $demande = $this->demandeClubModel->getById($id);
+        
+        if (!$demande) {
+            echo json_encode(['success' => false, 'message' => 'Demande introuvable']);
+            return;
+        }
+        
+        // Renvoyer les données au format JSON
+        echo json_encode([
+            'success' => true,
+            'demande' => $demande
+        ]);
+    }
+    
+    /**
+     * Récupérer les informations d'une demande d'activité (AJAX)
+     * 
+     * @param int $id ID de la demande
+     * @return void
+     */
+    public function getDemandeActivite($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            echo json_encode(['success' => false, 'message' => 'ID de demande invalide']);
+            return;
+        }
+        
+        // Récupérer les informations de la demande
+        $demande = $this->demandeActiviteModel->getById($id);
+        
+        if (!$demande) {
+            echo json_encode(['success' => false, 'message' => 'Demande introuvable']);
+            return;
+        }
+        
+        // Renvoyer les données au format JSON
+        echo json_encode([
+            'success' => true,
+            'demande' => $demande
+        ]);
     }
 }
 ?>

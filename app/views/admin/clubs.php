@@ -5,9 +5,9 @@ ob_start();
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">Gestion des Clubs</h1>
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addClubModal">
-            <i class="fas fa-plus"></i> Ajouter un club
+        <h2>Gestion des Clubs</h2>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClubModal">
+            Ajouter un Club
         </button>
     </div>
 
@@ -26,74 +26,67 @@ ob_start();
     <?php endif; ?>
 
     <!-- Tableau des clubs -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
+    <div class="table-responsive">
+        <table class="table table-bordered text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nom du Club</th>
+                    <th>Description</th>
+                    <th>Logo</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>                <?php if (isset($clubs) && !empty($clubs)): ?>
+                    <?php foreach ($clubs as $club): ?>
                         <tr>
-                            <th>ID</th>
-                            <th>Nom</th>
-                            <th>Description</th>
-                            <th>Date de création</th>
-                            <th>Responsable</th>
-                            <th>Actions</th>
+                            <td><?php echo $club['id']; ?></td>
+                            <td><?php echo $club['nom']; ?></td>
+                            <td><?php echo substr($club['description'], 0, 50) . (strlen($club['description']) > 50 ? '...' : ''); ?></td>
+                            <td>
+                                <?php if(isset($club['Logo_URL']) && !empty($club['Logo_URL'])): ?>
+                                    <img src="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?><?php echo $club['Logo_URL']; ?>" alt="logo" width="60">
+                                <?php else: ?>
+                                    <img src="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/assets/images/logo_creative.jpg" alt="logo" width="60">
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-warning btn-sm" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editClubModal" 
+                                    data-id="<?php echo $club['id']; ?>"
+                                    data-action="edit">
+                                    Modifier
+                                </button>
+                                <br><br>
+                                <button type="button" class="btn btn-danger btn-sm" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#deleteClubModal" 
+                                    data-id="<?php echo $club['id']; ?>"
+                                    data-name="<?php echo $club['nom']; ?>">
+                                    Rejeter
+                                </button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>                        <?php if (isset($clubs) && !empty($clubs)): ?>
-                            <?php foreach ($clubs as $club): ?>
-                                <tr>
-                                    <td><?php echo $club['id']; ?></td>
-                                    <td><?php echo $club['nom']; ?></td>
-                                    <td><?php echo substr($club['description'], 0, 50) . (strlen($club['description']) > 50 ? '...' : ''); ?></td>
-                                    <td><?php echo isset($club['date_creation']) ? date('d/m/Y', strtotime($club['date_creation'])) : 'N/A'; ?></td>
-                                    <td><?php echo $club['responsable_nom'] ?? 'Non assigné'; ?></td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-sm btn-primary" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#viewClubModal" 
-                                                data-id="<?php echo $club['id']; ?>"
-                                                data-action="view">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-warning" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#editClubModal" 
-                                                data-id="<?php echo $club['id']; ?>"
-                                                data-action="edit">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-danger" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#deleteClubModal" 
-                                                data-id="<?php echo $club['id']; ?>"
-                                                data-name="<?php echo $club['nom']; ?>">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="6" class="text-center">Aucun club trouvé</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="5" class="text-center">Aucun club trouvé</td>
+                    </tr>
+                <?php endif; ?>                </tbody>
+            </table>
         </div>
     </div>
-</div>
 
 <!-- Modal Ajouter Club -->
 <div class="modal fade" id="addClubModal" tabindex="-1" aria-labelledby="addClubModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header">
                 <h5 class="modal-title" id="addClubModalLabel">Ajouter un club</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>            <form action="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/clubs/add" method="POST">
+            </div>
+            <form action="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/clubs/add" method="POST">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="nom" class="form-label">Nom du club</label>
@@ -196,16 +189,15 @@ ob_start();
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteClubModalLabel">Confirmer la suppression</h5>
+                <h5 class="modal-title" id="deleteClubModalLabel">Confirmer le rejet</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer le club <strong id="deleteClubName"></strong>?</p>
+            <div class="modal-body">                <p>Êtes-vous sûr de vouloir rejeter le club <strong id="deleteClubName"></strong>?</p>
                 <p class="text-danger">Cette action est irréversible.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Supprimer</a>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Rejeter</a>
             </div>
         </div>
     </div>
