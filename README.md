@@ -70,4 +70,4 @@ Le projet suit une architecture MVC (Modèle-Vue-Contrôleur) structurée comme 
 
 ## Crédits
 
-Développé par [Votre Nom] dans le cadre d'un projet de fin d'études.
+Développé par KHATTOU AYMEN dans le cadre d'un stage de fin d'études.
