@@ -19,8 +19,7 @@ class Controller {
         }
         
         return null;
-    }
-      /**
+    }    /**
      * Charge une vue avec des données
      * 
      * @param string $view Chemin de la vue
@@ -35,7 +34,21 @@ class Controller {
         $viewFile = APP_PATH . '/views/' . $view . '.php';
         
         if (file_exists($viewFile)) {
+            // Démarrer la mise en mémoire tampon
+            ob_start();
             require $viewFile;
+            $content = ob_get_clean();
+            
+            // Définir une fonction asset pour les fichiers statiques
+            $asset = function($path) {
+                return '/public/' . ltrim($path, '/');
+            };
+            
+            // Définir un titre par défaut
+            $title = $title ?? 'Gestion des Clubs';
+            
+            // Charger le layout principal
+            require APP_PATH . '/views/layouts/main.php';
         } else {
             die("La vue '{$view}' n'existe pas");
         }

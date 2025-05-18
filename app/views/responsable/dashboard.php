@@ -1,47 +1,39 @@
-<!-- filepath: c:\Users\Pavilion\sfe\app\views\responsable\dashboard.php -->
-
-<div class="content-wrapper">
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Tableau de Bord - Responsable de Club</h1>
+<!-- Tableau de bord du responsable -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="mb-4">Tableau de Bord - Responsable de Club</h1>
+    </div>
+    <div class="col-md-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb float-end">
+                <li class="breadcrumb-item"><a href="/responsable">Accueil</a></li>
+                <li class="breadcrumb-item active">Tableau de Bord</li>
+            </ol>
+        </nav>
+    </div>
+</div>    <!-- Informations du club -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center bg-white">
+                    <h3 class="card-title mb-0 d-flex align-items-center">
+                        <?php if (!empty($club['logo'])): ?>
+                            <img src="<?= $club['logo'] ?>" alt="Logo du club" class="rounded-circle me-2" style="max-height: 50px;">
+                        <?php endif; ?>
+                        <?= $club['nom'] ?>
+                    </h3>
+                    <div class="card-tools">
+                        <a href="/responsable/configurationClub" class="btn btn-sm btn-primary">
+                            <i class="fas fa-cog"></i> Configurer
+                        </a>
+                    </div>
                 </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="/responsable">Accueil</a></li>
-                        <li class="breadcrumb-item active">Tableau de Bord</li>
-                    </ol>
+                <div class="card-body">
+                    <p><?= $club['description'] ?></p>
                 </div>
             </div>
         </div>
     </div>
-
-    <section class="content">
-        <div class="container-fluid">
-            <!-- Informations du club -->
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <?php if (!empty($club['logo'])): ?>
-                                    <img src="<?= $club['logo'] ?>" alt="Logo du club" class="img-circle mr-2" style="max-height: 50px;">
-                                <?php endif; ?>
-                                <?= $club['nom'] ?>
-                            </h3>
-                            <div class="card-tools">
-                                <a href="/responsable/configurationClub" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-cog"></i> Configurer
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <p><?= $club['description'] ?></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Statistiques -->
             <div class="row">

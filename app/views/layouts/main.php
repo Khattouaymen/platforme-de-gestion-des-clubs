@@ -17,8 +17,7 @@
             <a class="navbar-brand" href="/">Gestion des Clubs</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            </button>            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">                    <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin'): ?>
                         <!-- Barre de navigation spécifique pour l'admin -->
                         <li class="nav-item">
@@ -32,6 +31,20 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/clubs') !== false ? 'active' : ''; ?>" href="/admin/clubs">Gestion des Clubs</a>
+                        </li>
+                    <?php elseif (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'responsable'): ?>
+                        <!-- Barre de navigation spécifique pour le responsable -->
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $_SERVER['REQUEST_URI'] === '/responsable' ? 'active' : ''; ?>" href="/responsable">Tableau de Bord</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/responsable/configuration') !== false ? 'active' : ''; ?>" href="/responsable/configurationClub">Configuration Club</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/responsable/gestion_activites') !== false ? 'active' : ''; ?>" href="/responsable/gestionActivites">Gestion Activités</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/responsable/membres') !== false ? 'active' : ''; ?>" href="/responsable/membres">Membres</a>
                         </li>
                     <?php else: ?>
                         <!-- Barre de navigation standard pour les autres utilisateurs -->
@@ -57,12 +70,14 @@
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user"></i> <?php echo $_SESSION['user_name']; ?>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <?php if ($_SESSION['user_type'] === 'etudiant'): ?>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">                                <?php if ($_SESSION['user_type'] === 'etudiant'): ?>
                                     <li><a class="dropdown-item" href="/etudiant">Tableau de bord</a></li>
                                     <li><a class="dropdown-item" href="/etudiant/profil">Mon profil</a></li>
                                 <?php elseif ($_SESSION['user_type'] === 'admin'): ?>
                                     <li><a class="dropdown-item" href="/admin">Tableau de bord</a></li>
+                                <?php elseif ($_SESSION['user_type'] === 'responsable'): ?>
+                                    <li><a class="dropdown-item" href="/responsable">Tableau de bord</a></li>
+                                    <li><a class="dropdown-item" href="/responsable/configurationClub">Mon club</a></li>
                                 <?php endif; ?>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/auth/logout">Déconnexion</a></li>
