@@ -35,60 +35,77 @@
         </div>
     </div>
 
-            <!-- Statistiques -->
-            <div class="row">
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-info">
-                        <div class="inner">
-                            <h3><?= count($membres) ?></h3>
-                            <p>Membres</p>
+        <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+            <div class="card text-white bg-primary h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h3 class="display-6 fw-bold"><?= count($membres) ?></h3>
+                            <p class="card-text">Membres</p>
                         </div>
-                        <div class="icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <a href="/responsable/gestionMembres" class="small-box-footer">
-                            Plus d'infos <i class="fas fa-arrow-circle-right"></i>
-                        </a>
+                        <i class="fas fa-users fa-2x opacity-50"></i>
                     </div>
                 </div>
+                <div class="card-footer bg-primary bg-opacity-75 border-0">
+                    <a href="/responsable/gestionMembres" class="text-white text-decoration-none d-block">
+                        Plus d'infos <i class="fas fa-arrow-circle-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
 
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-success">
-                        <div class="inner">
-                            <h3><?= count($activites) ?></h3>
-                            <p>Activités</p>
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+            <div class="card text-white bg-success h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h3 class="display-6 fw-bold"><?= count($activites) ?></h3>
+                            <p class="card-text">Activités</p>
                         </div>
-                        <div class="icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        <a href="/responsable/gestionActivites" class="small-box-footer">
-                            Plus d'infos <i class="fas fa-arrow-circle-right"></i>
-                        </a>
+                        <i class="fas fa-calendar-alt fa-2x opacity-50"></i>
                     </div>
                 </div>
+                <div class="card-footer bg-success bg-opacity-75 border-0">
+                    <a href="/responsable/gestionActivites" class="text-white text-decoration-none d-block">
+                        Plus d'infos <i class="fas fa-arrow-circle-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
 
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-warning">
-                        <div class="inner">
-                            <h3><?= count($demandesAdhesion) ?></h3>
-                            <p>Demandes d'Adhésion</p>
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+            <div class="card text-white bg-warning h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h3 class="display-6 fw-bold"><?= count($demandesAdhesion) ?></h3>
+                            <p class="card-text">Demandes d'Adhésion</p>
                         </div>
-                        <div class="icon">
-                            <i class="fas fa-user-plus"></i>
-                        </div>
-                        <a href="/responsable/gestionDemandesAdhesion" class="small-box-footer">
-                            Plus d'infos <i class="fas fa-arrow-circle-right"></i>
-                        </a>
+                        <i class="fas fa-user-plus fa-2x opacity-50"></i>
                     </div>
                 </div>
+                <div class="card-footer bg-warning bg-opacity-75 border-0">
+                    <a href="/responsable/gestionDemandesAdhesion" class="text-white text-decoration-none d-block">
+                        Plus d'infos <i class="fas fa-arrow-circle-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
 
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-danger">
-                        <div class="inner">
-                            <h3><i class="fas fa-blog"></i></h3>
-                            <p>Blog du Club</p>
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+            <div class="card text-white bg-danger h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h3 class="display-6 fw-bold"><i class="fas fa-blog"></i></h3>
+                            <p class="card-text">Blog du Club</p>
                         </div>
-                        <div class="icon">
+                        <i class="fas fa-rss fa-2x opacity-50"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-danger bg-opacity-75 border-0">
                             <i class="fas fa-newspaper"></i>
                         </div>
                         <a href="/responsable/gestionBlog" class="small-box-footer">
