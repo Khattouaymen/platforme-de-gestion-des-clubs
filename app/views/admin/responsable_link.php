@@ -1,6 +1,5 @@
 <?php
 // Définir le contenu
-ob_start();
 ?>
 
 <div class="container py-4">
@@ -73,8 +72,4 @@ function generateNewLink() {
 }
 </script>
 
-<?php
-$content = ob_get_clean();
-$title = 'Lien d\'inscription pour responsable de club';
-require APP_PATH . '/views/layouts/main.php';
-?>
+

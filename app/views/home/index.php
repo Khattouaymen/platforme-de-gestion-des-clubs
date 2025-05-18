@@ -1,7 +1,5 @@
 <?php
 // Le layout de base sera utilisé ici
-// Définir le contenu
-ob_start();
 ?>
 
 <head>

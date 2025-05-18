@@ -1,8 +1,3 @@
-<?php
-// Définir le contenu
-ob_start();
-?>
-
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">Clubs disponibles</h1>
@@ -48,13 +43,5 @@ ob_start();
                     </div>
                 </div>
             <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
+        <?php endif; ?>    </div>
 </div>
-
-<?php
-$content = ob_get_clean();
-
-// Appeler le layout avec le contenu
-require_once APP_PATH . '/views/layouts/main.php';
-?>

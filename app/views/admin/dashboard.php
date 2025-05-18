@@ -1,6 +1,5 @@
 <?php
-// Définir le contenu
-ob_start();
+// Contenu du tableau de bord admin
 ?>
 
 <header class="bg-danger text-white text-center py-4">
@@ -189,12 +188,5 @@ ob_start();
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </div>    </div>
 </main>
-
-<?php
-$content = ob_get_clean();
-$title = 'Tableau de Bord Administrateur';
-require APP_PATH . '/views/layouts/main.php';
-?>

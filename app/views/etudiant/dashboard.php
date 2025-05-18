@@ -1,8 +1,3 @@
-<?php
-// Définir le contenu
-ob_start();
-?>
-
 <div class="container py-4">
     <!-- Message de succès -->
     <?php if (isset($_GET['success'])): ?>
@@ -103,14 +98,6 @@ ob_start();
                 </div>
             </div>
         </div>
-    </div>
-    <?php endif; ?>
+    </div>    <?php endif; ?>
 
 </div>
-
-<?php
-$content = ob_get_clean();
-
-// Appeler le layout avec le contenu
-require_once APP_PATH . '/views/layouts/main.php';
-?>

@@ -1,6 +1,5 @@
 <?php
 // Définir le contenu
-ob_start();
 ?>
 
 <div class="container py-4">
@@ -393,7 +392,4 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-<?php
-$content = ob_get_clean();
-require_once APP_PATH . '/views/layouts/main.php';
-?>
+

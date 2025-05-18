@@ -1,6 +1,5 @@
 <?php
 // Définir le contenu
-ob_start();
 ?>
 
 <div class="container py-4">
@@ -243,15 +242,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnPrint').addEventListener('click', function() {
         window.print();
     });
-    
-    // Fonctionnalité d'export (simulation)
+      // Fonctionnalité d'export (simulation)
     document.getElementById('btnExport').addEventListener('click', function() {
         alert('Fonctionnalité d\'export en cours de développement. Les données seraient exportées au format Excel.');
     });
 });
 </script>
-
-<?php
-$content = ob_get_clean();
-require_once APP_PATH . '/views/layouts/main.php';
-?>

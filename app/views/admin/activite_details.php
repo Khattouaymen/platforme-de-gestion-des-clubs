@@ -1,6 +1,5 @@
 <?php
 // Définir le contenu
-ob_start();
 ?>
 
 <div class="container py-4">
@@ -108,8 +107,4 @@ ob_start();
     </div>
 </div>
 
-<?php
-$content = ob_get_clean();
-$title = 'Détails de l\'activité: ' . $activite['titre'];
-require APP_PATH . '/views/layouts/main.php';
-?>
+

@@ -1,6 +1,5 @@
 <?php
-// Définir le contenu
-ob_start();
+// Contenu de la page de gestion des responsables
 ?>
 
 <div class="container py-4">
@@ -142,9 +141,4 @@ ob_start();
     </div>
 </div>
 
-<?php
-$content = ob_get_clean();
 
-// Appeler le layout avec le contenu
-require_once APP_PATH . '/views/layouts/main.php';
-?>

@@ -1,6 +1,5 @@
 <?php
 // Définir le contenu
-ob_start();
 ?>
 
 <div class="container py-4">
@@ -551,9 +550,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
-<?php
-$content = ob_get_clean();
-$title = 'Gestion des Demandes - Administration';
-require APP_PATH . '/views/layouts/main.php';
-?>
