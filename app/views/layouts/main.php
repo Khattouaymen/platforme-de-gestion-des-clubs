@@ -107,11 +107,12 @@
         <div class="container">
             <p class="mb-0">© <?php echo date('Y'); ?> Gestion des Clubs. Tous droits réservés.</p>
         </div>
-    </footer>
-
-    <!-- Bootstrap JS Bundle with Popper -->
+    </footer>    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JavaScript -->
-    <script src="/assets/js/script.js"></script>
+    <script src="<?php echo isset($asset) ? $asset('assets/js/script.js') : '/public/assets/js/script.js'; ?>"></script>    <!-- Script standard pour Bootstrap -->
+    <script>
+        // Aucun script personnalisé pour les modals - utilisation de Bootstrap standard
+    </script>
 </body>
 </html>

@@ -29,11 +29,11 @@ class AuthController extends Controller {
             $this->redirect('/');
             return;
         }
-        
-        // Récupérer les données du formulaire
+          // Récupérer les données du formulaire
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'];
-        $userType = filter_input(INPUT_POST, 'user_type', FILTER_SANITIZE_STRING);
+        // Remplacer FILTER_SANITIZE_STRING déprécié par htmlspecialchars
+        $userType = isset($_POST['user_type']) ? htmlspecialchars($_POST['user_type'], ENT_QUOTES, 'UTF-8') : '';
         
         // Valider les entrées
         if (empty($email) || empty($password) || empty($userType)) {
@@ -48,13 +48,20 @@ class AuthController extends Controller {
         
         // Authentifier l'utilisateur selon son type
         $user = null;
-        
-        if ($userType === 'etudiant') {
+          if ($userType === 'etudiant') {
             $user = $this->etudiantModel->authenticate($email, $password);
             if ($user) {
                 $_SESSION['user_id'] = $user['id_etudiant'];
                 $_SESSION['user_type'] = 'etudiant';
                 $_SESSION['user_name'] = $user['prenom'] . ' ' . $user['nom'];
+                  // Vérifier si l'étudiant est un responsable de club
+                $result = $this->etudiantModel->checkIfResponsable($user['id_etudiant']);
+                
+                if ($result) {
+                    $_SESSION['user_type'] = 'responsable';
+                    $this->redirect('/responsable');
+                    return;
+                }
                 
                 $this->redirect('/etudiant');
                 return;
@@ -288,10 +295,8 @@ class AuthController extends Controller {
             }
             
             // Créer une entrée dans la table responsableclub sera fait plus tard
-            // quand un club sera créé ou quand l'admin assignera un club à ce responsable
-            
-            // Marquer le token comme utilisé
-            $this->adminModel->useToken($token);
+            // quand un club sera créé ou quand l'admin assignera un club à ce responsable            // Marquer le token comme utilisé et l'associer à l'étudiant
+            $this->adminModel->useToken($token, $etudiantId);
             
             // Connecter automatiquement l'utilisateur en tant qu'étudiant
             // (il sera reconnu comme responsable une fois assigné à un club)

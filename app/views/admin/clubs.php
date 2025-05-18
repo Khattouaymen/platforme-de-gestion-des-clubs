@@ -42,10 +42,15 @@ ob_start();
                         <tr>
                             <td><?php echo $club['id']; ?></td>
                             <td><?php echo $club['nom']; ?></td>
-                            <td><?php echo substr($club['description'], 0, 50) . (strlen($club['description']) > 50 ? '...' : ''); ?></td>
-                            <td>
+                            <td><?php echo substr($club['description'], 0, 50) . (strlen($club['description']) > 50 ? '...' : ''); ?></td>                            <td>
                                 <?php if(isset($club['Logo_URL']) && !empty($club['Logo_URL'])): ?>
-                                    <img src="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?><?php echo $club['Logo_URL']; ?>" alt="logo" width="60">
+                                    <?php
+                                    // Vérifier si l'URL est déjà complète (commence par http:// ou https://)
+                                    if (strpos($club['Logo_URL'], 'http://') === 0 || strpos($club['Logo_URL'], 'https://') === 0): ?>
+                                        <img src="<?php echo $club['Logo_URL']; ?>" alt="logo" width="60">
+                                    <?php else: ?>
+                                        <img src="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/<?php echo ltrim($club['Logo_URL'], '/'); ?>" alt="logo" width="60">
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <img src="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/assets/images/logo_creative.jpg" alt="logo" width="60">
                                 <?php endif; ?>
@@ -322,10 +327,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('clubMembers').textContent = club.nombre_membres || '0';
                     document.getElementById('clubDate').textContent = club.date_creation ? 
                         new Date(club.date_creation).toLocaleDateString('fr-FR') : 'N/A';
-                    
-                    if (club.Logo_URL) {
-                        document.getElementById('clubLogo').src = 
-                            `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>${club.Logo_URL}`;
+                      if (club.Logo_URL) {
+                        // Vérifier si l'URL est déjà complète
+                        if (club.Logo_URL.startsWith('http://') || club.Logo_URL.startsWith('https://')) {
+                            document.getElementById('clubLogo').src = club.Logo_URL;
+                        } else {
+                            document.getElementById('clubLogo').src = 
+                                `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/${club.Logo_URL.replace(/^\//, '')}`;
+                        }
                         document.getElementById('clubLogo').style.display = 'block';
                     } else {
                         document.getElementById('clubLogo').style.display = 'none';

@@ -91,6 +91,16 @@ ob_start();
                 </div>
             </div>
         </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <i class="fas fa-user-shield fa-2x text-danger mb-3"></i>
+                    <h5 class="card-title">Gestion Responsables</h5>
+                    <p class="card-text">Assigner les étudiants comme responsables de clubs</p>
+                    <a href="/admin/gestionResponsables" class="btn btn-danger w-100">Gérer</a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Gestion des demandes -->

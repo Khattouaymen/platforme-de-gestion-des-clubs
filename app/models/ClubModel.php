@@ -363,5 +363,18 @@ class ClubModel extends Model {
                 WHERE rc.club_id = :clubId";
         return $this->single($sql, ['clubId' => $clubId]);
     }
+
+    /**
+     * Récupère l'ID du club géré par un responsable
+     * 
+     * @param int $responsableId ID de l'étudiant responsable
+     * @return int|false ID du club ou false si non trouvé
+     */
+    public function getClubIdByResponsableId($responsableId) {
+        $sql = "SELECT club_id FROM responsableclub WHERE id_etudiant = :responsableId";
+        $result = $this->single($sql, ['responsableId' => $responsableId]);
+        
+        return $result ? $result['club_id'] : false;
+    }
 }
 ?>

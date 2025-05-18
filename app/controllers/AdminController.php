@@ -1038,5 +1038,123 @@ class AdminController extends Controller {
             'demande' => $demande
         ]);
     }
+
+    /**
+     * Affiche la page de gestion des responsables de club
+     * 
+     * @return void
+     */
+    public function gestionResponsables() {
+        // Récupérer la liste des étudiants qui sont marqués comme futurs responsables
+        $futursResponsables = $this->adminModel->getFutureResponsables();
+        
+        // Récupérer la liste des responsables actuels
+        $responsables = $this->adminModel->getResponsables();
+        
+        // Récupérer la liste des clubs pour les menus déroulants
+        $clubs = $this->clubModel->getAll();
+        
+        $data = [
+            'title' => 'Gestion des Responsables',
+            'futursResponsables' => $futursResponsables,
+            'responsables' => $responsables,
+            'clubs' => $clubs,
+            'asset' => function($path) { return $this->asset($path); }
+        ];
+        
+        $this->view('admin/gestion_responsables', $data);
+    }
+    
+    /**
+     * Assigne un étudiant comme responsable d'un club
+     * 
+     * @return void
+     */
+    public function assignerResponsable() {
+        // Vérifier si la requête est de type POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/admin/gestionResponsables?error=Méthode non autorisée');
+            return;
+        }
+        
+        // Récupérer et valider les données du formulaire
+        $etudiantId = isset($_POST['etudiant_id']) ? (int)$_POST['etudiant_id'] : 0;
+        $clubId = isset($_POST['club_id']) ? (int)$_POST['club_id'] : 0;
+        
+        if ($etudiantId <= 0 || $clubId <= 0) {
+            $this->redirect('/admin/gestionResponsables?error=Données invalides');
+            return;
+        }
+        
+        // Assigner l'étudiant comme responsable du club
+        $success = $this->adminModel->assignerResponsable($etudiantId, $clubId);
+        
+        if ($success) {
+            $this->redirect('/admin/gestionResponsables?success=Étudiant assigné comme responsable avec succès');
+        } else {
+            $this->redirect('/admin/gestionResponsables?error=Erreur lors de l\'assignation. Veuillez réessayer.');
+        }
+    }
+    
+    /**
+     * Change le club d'un responsable
+     * 
+     * @return void
+     */
+    public function changerClubResponsable() {
+        // Vérifier si la requête est de type POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/admin/gestionResponsables?error=Méthode non autorisée');
+            return;
+        }
+        
+        // Récupérer et valider les données du formulaire
+        $responsableId = isset($_POST['responsable_id']) ? (int)$_POST['responsable_id'] : 0;
+        $clubId = isset($_POST['club_id']) ? (int)$_POST['club_id'] : 0;
+        
+        if ($responsableId <= 0 || $clubId <= 0) {
+            $this->redirect('/admin/gestionResponsables?error=Données invalides');
+            return;
+        }
+        
+        // Changer le club du responsable
+        $success = $this->adminModel->changerClubResponsable($responsableId, $clubId);
+        
+        if ($success) {
+            $this->redirect('/admin/gestionResponsables?success=Club du responsable changé avec succès');
+        } else {
+            $this->redirect('/admin/gestionResponsables?error=Erreur lors du changement de club. Veuillez réessayer.');
+        }
+    }
+    
+    /**
+     * Retire le rôle de responsable à un étudiant
+     * 
+     * @return void
+     */
+    public function retirerResponsable() {
+        // Vérifier si la requête est de type POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/admin/gestionResponsables?error=Méthode non autorisée');
+            return;
+        }
+        
+        // Récupérer et valider les données du formulaire
+        $responsableId = isset($_POST['responsable_id']) ? (int)$_POST['responsable_id'] : 0;
+        
+        if ($responsableId <= 0) {
+            $this->redirect('/admin/gestionResponsables?error=Données invalides');
+            return;
+        }
+        
+        // Retirer le rôle de responsable à l'étudiant
+        $success = $this->adminModel->retirerResponsable($responsableId);
+        
+        if ($success) {
+            $this->redirect('/admin/gestionResponsables?success=Rôle de responsable retiré avec succès');
+        } else {
+            $this->redirect('/admin/gestionResponsables?error=Erreur lors du retrait du rôle de responsable. Veuillez réessayer.');
+        }
+    }
 }
 ?>
