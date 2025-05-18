@@ -75,55 +75,12 @@
                                         </div>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+                            <?php endforeach; ?>                        <?php else: ?>
                             <tr>
                                 <td colspan="7" class="text-center">Aucune ressource trouvée</td>
                             </tr>
                         <?php endif; ?>
-                            <td>Salle A101</td>
-                            <td>Salle de réunion</td>
-                            <td>30 personnes</td>
-                            <td><span class="badge bg-success">Disponible</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editResourceModal">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Salle B202</td>
-                            <td>Amphithéâtre</td>
-                            <td>100 personnes</td>
-                            <td><span class="badge bg-danger">Réservée</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editResourceModal">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Equipment A</td>
-                            <td>Matériel audiovisuel</td>
-                            <td>N/A</td>
-                            <td><span class="badge bg-success">Disponible</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editResourceModal">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>                    </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -313,83 +270,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- Modal pour ajouter une ressource -->
-<div class="modal fade" id="addResourceModal" tabindex="-1" aria-labelledby="addResourceModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addResourceModalLabel">Ajouter une ressource</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="/admin/ressources/add" method="POST">
-                    <div class="mb-3">
-                        <label for="nom" class="form-label">Nom</label>
-                        <input type="text" class="form-control" id="nom" name="nom" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="type" class="form-label">Type</label>
-                        <select class="form-select" id="type" name="type" required>
-                            <option value="">Sélectionner un type</option>
-                            <option value="Salle de réunion">Salle de réunion</option>
-                            <option value="Amphithéâtre">Amphithéâtre</option>
-                            <option value="Matériel audiovisuel">Matériel audiovisuel</option>
-                            <option value="Autre">Autre</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="capacite" class="form-label">Capacité (si applicable)</label>
-                        <input type="text" class="form-control" id="capacite" name="capacite">
-                    </div>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="disponible" name="disponible" checked>
-                        <label class="form-check-label" for="disponible">Disponible</label>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Ajouter</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Modal pour modifier une ressource -->
-<div class="modal fade" id="editResourceModal" tabindex="-1" aria-labelledby="editResourceModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editResourceModalLabel">Modifier une ressource</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="/admin/ressources/edit" method="POST">
-                    <input type="hidden" name="id" id="edit_id" value="">
-                    <div class="mb-3">
-                        <label for="edit_nom" class="form-label">Nom</label>
-                        <input type="text" class="form-control" id="edit_nom" name="nom" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_type" class="form-label">Type</label>
-                        <select class="form-select" id="edit_type" name="type" required>
-                            <option value="">Sélectionner un type</option>
-                            <option value="Salle de réunion">Salle de réunion</option>
-                            <option value="Amphithéâtre">Amphithéâtre</option>
-                            <option value="Matériel audiovisuel">Matériel audiovisuel</option>
-                            <option value="Autre">Autre</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_capacite" class="form-label">Capacité (si applicable)</label>
-                        <input type="text" class="form-control" id="edit_capacite" name="capacite">
-                    </div>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="edit_disponible" name="disponible">
-                        <label class="form-check-label" for="edit_disponible">Disponible</label>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Modifier</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 
