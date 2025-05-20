@@ -8,10 +8,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?php echo isset($asset) ? $asset('assets/css/style.css') : '/public/assets/css/style.css'; ?>">
-    <!-- Admin CSS -->
-    <link rel="stylesheet" href="<?php echo isset($asset) ? $asset('assets/css/admin.css') : '/public/assets/css/admin.css'; ?>">
+    <!-- Admin CSS -->    <link rel="stylesheet" href="<?php echo isset($asset) ? $asset('assets/css/admin.css') : '/public/assets/css/admin.css'; ?>">
 </head>
-<body>    <!-- Navbar -->
+<body>
+    <?php if (!isset($hideNavbar) || $hideNavbar !== true): ?>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark <?php echo isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin' ? 'bg-danger' : 'bg-primary'; ?>">
         <div class="container">
             <a class="navbar-brand" href="/">Gestion des Clubs</a>
@@ -90,11 +91,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/register">Inscription</a>
                         </li>
-                    <?php endif; ?>
-                </ul>
+                    <?php endif; ?>                </ul>
             </div>
         </div>
     </nav>
+    <?php endif; ?>
 
     <!-- Main Content -->
     <main class="py-4">
@@ -118,11 +119,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3 mt-5">
-        <div class="container">
-            <p class="mb-0">© <?php echo date('Y'); ?> Gestion des Clubs. Tous droits réservés.</p>
-        </div>
-    </footer>    <!-- Bootstrap JS Bundle with Popper -->
+      <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JavaScript -->
     <script src="<?php echo isset($asset) ? $asset('assets/js/script.js') : '/public/assets/js/script.js'; ?>"></script>    <!-- Script standard pour Bootstrap -->

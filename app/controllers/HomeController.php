@@ -53,10 +53,10 @@ class HomeController extends Controller {
                 $this->redirect('/etudiant');
             }
         }
-        
-        $data = [
+          $data = [
             'title' => 'Connexion',
-            'error' => ''
+            'error' => '',
+            'hideNavbar' => true  // Paramètre pour cacher la navbar
         ];
         
         $this->view('home/login', $data);

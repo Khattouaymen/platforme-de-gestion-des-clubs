@@ -1,8 +1,6 @@
 <?php
-// Définir le contenu
-?>
-
-<style>
+// Page de login sans navbar
+?><style>
     /* Styles CSS pour le formulaire de connexion/inscription */
     .container#container {
         background-color: #fff;
@@ -12,7 +10,7 @@
         width: 768px;
         max-width: 100%;
         min-height: 580px;
-        margin: 50px auto;
+        margin: auto;
         position: relative;
     }
     
