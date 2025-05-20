@@ -55,33 +55,32 @@
                                         <tr>
                                             <td colspan="8" class="text-center">Aucune demande d'activité pour le moment</td>
                                         </tr>
-                                    <?php else: ?>
-                                        <?php foreach ($demandes as $demande): ?>
+                                    <?php else: ?>                                        <?php foreach ($demandes as $demande): ?>
                                             <tr>
-                                                <td><?= $demande['id'] ?></td>
-                                                <td><?= $demande['titre'] ?></td>
-                                                <td><?= date('d/m/Y H:i', strtotime($demande['date_debut'])) ?></td>
-                                                <td><?= date('d/m/Y H:i', strtotime($demande['date_fin'])) ?></td>
-                                                <td><?= $demande['lieu'] ?></td>
+                                                <td><?= $demande['id'] ?? '?' ?></td>
+                                                <td><?= $demande['titre'] ?? $demande['nom_activite'] ?? 'Sans titre' ?></td>
+                                                <td><?= isset($demande['date_debut']) ? date('d/m/Y H:i', strtotime($demande['date_debut'])) : (isset($demande['date_activite']) ? date('d/m/Y', strtotime($demande['date_activite'])) : 'Non définie') ?></td>
+                                                <td><?= isset($demande['date_fin']) ? date('d/m/Y H:i', strtotime($demande['date_fin'])) : 'Non définie' ?></td>
+                                                <td><?= $demande['lieu'] ?? 'Non défini' ?></td>
                                                 <td>
-                                                    <?php if ($demande['statut'] == 'approuvee'): ?>
+                                                    <?php if (isset($demande['statut']) && $demande['statut'] == 'approuvee'): ?>
                                                         <span class="badge badge-success">Approuvée</span>
-                                                    <?php elseif ($demande['statut'] == 'refusee'): ?>
+                                                    <?php elseif (isset($demande['statut']) && $demande['statut'] == 'refusee'): ?>
                                                         <span class="badge badge-danger">Refusée</span>
                                                     <?php else: ?>
                                                         <span class="badge badge-warning">En attente</span>
                                                     <?php endif; ?>
                                                 </td>
-                                                <td><?= date('d/m/Y', strtotime($demande['date_creation'])) ?></td>
+                                                <td><?= isset($demande['date_creation']) ? date('d/m/Y', strtotime($demande['date_creation'])) : 'Non définie' ?></td>
                                                 <td>
                                                     <button class="btn btn-xs btn-info view-btn" data-toggle="modal" data-target="#viewModal" 
-                                                            data-id="<?= $demande['id'] ?>"
-                                                            data-titre="<?= htmlspecialchars($demande['titre']) ?>"
-                                                            data-description="<?= htmlspecialchars($demande['description']) ?>"
-                                                            data-dateDebut="<?= $demande['date_debut'] ?>"
-                                                            data-dateFin="<?= $demande['date_fin'] ?>"
-                                                            data-lieu="<?= htmlspecialchars($demande['lieu']) ?>"
-                                                            data-statut="<?= $demande['statut'] ?>"
+                                                            data-id="<?= $demande['id'] ?? '' ?>"
+                                                            data-titre="<?= htmlspecialchars($demande['titre'] ?? $demande['nom_activite'] ?? '') ?>"
+                                                            data-description="<?= htmlspecialchars($demande['description'] ?? '') ?>"
+                                                            data-dateDebut="<?= $demande['date_debut'] ?? $demande['date_activite'] ?? '' ?>"
+                                                            data-dateFin="<?= $demande['date_fin'] ?? '' ?>"
+                                                            data-lieu="<?= htmlspecialchars($demande['lieu'] ?? '') ?>"
+                                                            data-statut="<?= $demande['statut'] ?? 'en_attente' ?>"
                                                             data-commentaire="<?= htmlspecialchars($demande['commentaire'] ?? '') ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
@@ -121,13 +120,12 @@
                                             <td colspan="7" class="text-center">Aucune activité approuvée pour le moment</td>
                                         </tr>
                                     <?php else: ?>
-                                        <?php foreach ($activites as $activite): ?>
-                                            <tr>
-                                                <td><?= $activite['id'] ?></td>
-                                                <td><?= $activite['titre'] ?></td>
-                                                <td><?= date('d/m/Y H:i', strtotime($activite['date_debut'])) ?></td>
-                                                <td><?= date('d/m/Y H:i', strtotime($activite['date_fin'])) ?></td>
-                                                <td><?= $activite['lieu'] ?></td>
+                                        <?php foreach ($activites as $activite): ?>                                            <tr>
+                                                <td><?= $activite['activite_id'] ?? $activite['id'] ?? '?' ?></td>
+                                                <td><?= $activite['titre'] ?? 'Sans titre' ?></td>
+                                                <td><?= isset($activite['date_debut']) ? date('d/m/Y H:i', strtotime($activite['date_debut'])) : 'Non définie' ?></td>
+                                                <td><?= isset($activite['date_fin']) ? date('d/m/Y H:i', strtotime($activite['date_fin'])) : 'Non définie' ?></td>
+                                                <td><?= $activite['lieu'] ?? 'Non défini' ?></td>
                                                 <td>
                                                     <?php if (isset($activite['nb_participants'])): ?>
                                                         <?= $activite['nb_participants'] ?>
@@ -136,16 +134,16 @@
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <a href="/responsable/presenceActivite/<?= $activite['id'] ?>" class="btn btn-xs btn-success">
+                                                    <a href="/responsable/presenceActivite/<?= $activite['activite_id'] ?? $activite['id'] ?? '#' ?>" class="btn btn-xs btn-success">
                                                         <i class="fas fa-clipboard-check"></i> Présence
                                                     </a>
                                                     <button class="btn btn-xs btn-info view-activite-btn" data-toggle="modal" data-target="#viewActiviteModal" 
-                                                            data-id="<?= $activite['id'] ?>"
-                                                            data-titre="<?= htmlspecialchars($activite['titre']) ?>"
-                                                            data-description="<?= htmlspecialchars($activite['description']) ?>"
-                                                            data-dateDebut="<?= $activite['date_debut'] ?>"
-                                                            data-dateFin="<?= $activite['date_fin'] ?>"
-                                                            data-lieu="<?= htmlspecialchars($activite['lieu']) ?>">
+                                                            data-id="<?= $activite['activite_id'] ?? $activite['id'] ?? '' ?>"
+                                                            data-titre="<?= htmlspecialchars($activite['titre'] ?? '') ?>"
+                                                            data-description="<?= htmlspecialchars($activite['description'] ?? '') ?>"
+                                                            data-dateDebut="<?= $activite['date_debut'] ?? '' ?>"
+                                                            data-dateFin="<?= $activite['date_fin'] ?? '' ?>"
+                                                            data-lieu="<?= htmlspecialchars($activite['lieu'] ?? '') ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </td>
@@ -264,23 +262,22 @@
 </div>
 
 <script>
-$(document).ready(function() {
-    // Afficher les détails de la demande d'activité
+$(document).ready(function() {    // Afficher les détails de la demande d'activité
     $('.view-btn').click(function() {
         var id = $(this).data('id');
         var titre = $(this).data('titre');
         var description = $(this).data('description');
-        var dateDebut = new Date($(this).data('datedebut'));
-        var dateFin = new Date($(this).data('datefin'));
+        var dateDebut = $(this).data('datedebut') ? new Date($(this).data('datedebut')) : null;
+        var dateFin = $(this).data('datefin') ? new Date($(this).data('datefin')) : null;
         var lieu = $(this).data('lieu');
         var statut = $(this).data('statut');
         var commentaire = $(this).data('commentaire');
         
-        $('#modal-titre').text(titre);
-        $('#modal-description').text(description);
-        $('#modal-date-debut').text(dateDebut.toLocaleString('fr-FR'));
-        $('#modal-date-fin').text(dateFin.toLocaleString('fr-FR'));
-        $('#modal-lieu').text(lieu);
+        $('#modal-titre').text(titre || 'Sans titre');
+        $('#modal-description').text(description || 'Aucune description');
+        $('#modal-date-debut').text(dateDebut ? dateDebut.toLocaleString('fr-FR') : 'Non définie');
+        $('#modal-date-fin').text(dateFin ? dateFin.toLocaleString('fr-FR') : 'Non définie');
+        $('#modal-lieu').text(lieu || 'Non défini');
         
         if (statut === 'approuvee') {
             $('#modal-statut').html('<span class="badge badge-success">Approuvée</span>');
@@ -297,21 +294,20 @@ $(document).ready(function() {
             $('#commentaire-container').hide();
         }
     });
-    
-    // Afficher les détails de l'activité
+      // Afficher les détails de l'activité
     $('.view-activite-btn').click(function() {
         var id = $(this).data('id');
         var titre = $(this).data('titre');
         var description = $(this).data('description');
-        var dateDebut = new Date($(this).data('datedebut'));
-        var dateFin = new Date($(this).data('datefin'));
+        var dateDebut = $(this).data('datedebut') ? new Date($(this).data('datedebut')) : null;
+        var dateFin = $(this).data('datefin') ? new Date($(this).data('datefin')) : null;
         var lieu = $(this).data('lieu');
         
-        $('#modal-activite-titre').text(titre);
-        $('#modal-activite-description').text(description);
-        $('#modal-activite-date-debut').text(dateDebut.toLocaleString('fr-FR'));
-        $('#modal-activite-date-fin').text(dateFin.toLocaleString('fr-FR'));
-        $('#modal-activite-lieu').text(lieu);
+        $('#modal-activite-titre').text(titre || 'Sans titre');
+        $('#modal-activite-description').text(description || 'Aucune description');
+        $('#modal-activite-date-debut').text(dateDebut ? dateDebut.toLocaleString('fr-FR') : 'Non définie');
+        $('#modal-activite-date-fin').text(dateFin ? dateFin.toLocaleString('fr-FR') : 'Non définie');
+        $('#modal-activite-lieu').text(lieu || 'Non défini');
         $('#modal-activite-presence-link').attr('href', '/responsable/presenceActivite/' + id);
     });
 });

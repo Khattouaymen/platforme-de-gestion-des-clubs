@@ -7,6 +7,7 @@ require_once APP_PATH . '/models/RessourceModel.php';
 require_once APP_PATH . '/models/DemandeClubModel.php';
 require_once APP_PATH . '/models/DemandeActiviteModel.php';
 require_once APP_PATH . '/models/DemandeAdhesionModel.php';
+require_once APP_PATH . '/models/ReservationModel.php';
 
 /**
  * Classe AdminController - Contrôleur pour les administrateurs
@@ -19,10 +20,11 @@ class AdminController extends Controller {
     private $demandeClubModel;
     private $demandeActiviteModel;
     private $demandeAdhesionModel;
+    private $reservationModel;
     
     /**
      * Constructeur
-     */
+     */    
     public function __construct() {
         // Vérifier si l'utilisateur est connecté en tant qu'administrateur
         $this->checkAuth();
@@ -34,6 +36,7 @@ class AdminController extends Controller {
         $this->demandeClubModel = new DemandeClubModel();
         $this->demandeActiviteModel = new DemandeActiviteModel();
         $this->demandeAdhesionModel = new DemandeAdhesionModel();
+        $this->reservationModel = new ReservationModel();
     }
     
     /**
@@ -52,13 +55,15 @@ class AdminController extends Controller {
      * 
      * @return void
      */
-    public function index() {        // Récupérer les informations de l'administrateur
+    public function index() {        
+        // Récupérer les informations de l'administrateur
         $admin = $this->adminModel->getById($_SESSION['user_id']);
         
         // Récupérer les statistiques
         $clubs = $this->clubModel->getAll();
         $clubCount = count($clubs);
-        $etudiants = $this->etudiantModel->getAll();        $etudiantCount = count($etudiants);
+        $etudiants = $this->etudiantModel->getAll();        
+        $etudiantCount = count($etudiants);
         
         $data = [
             'title' => 'Tableau de Bord Administrateur',
@@ -97,7 +102,8 @@ class AdminController extends Controller {
         if (isset($_GET['error'])) {
             $alertError = urldecode($_GET['error']);
         } elseif (isset($_GET['update_error'])) {
-            $alertError = "Une erreur est survenue lors de la mise à jour du club.";        } elseif (isset($_GET['delete_error'])) {
+            $alertError = "Une erreur est survenue lors de la mise à jour du club.";        
+        } elseif (isset($_GET['delete_error'])) {
             $alertError = "Une erreur est survenue lors de la suppression du club.";
         }
         
@@ -248,7 +254,8 @@ class AdminController extends Controller {
      * @param int $id ID du club
      * @return void
      */
-    public function deleteClub($id = null) {        // Vérifier si l'ID est valide
+    public function deleteClub($id = null) {        
+        // Vérifier si l'ID est valide
         if ($id === null) {
             $this->redirect('/admin/clubs');
             return;
@@ -1154,6 +1161,113 @@ class AdminController extends Controller {
             $this->redirect('/admin/gestionResponsables?success=Rôle de responsable retiré avec succès');
         } else {
             $this->redirect('/admin/gestionResponsables?error=Erreur lors du retrait du rôle de responsable. Veuillez réessayer.');
+        }
+    }
+
+    /**
+     * Gestion des réservations de ressources
+     * 
+     * @return void
+     */
+    public function gererReservations() {
+        // Récupérer toutes les réservations
+        $reservations = $this->reservationModel->getAll();
+        
+        // Filtrer par statut si demandé
+        $filtreStatut = $_GET['statut'] ?? 'tous';
+        if ($filtreStatut !== 'tous') {
+            $reservationsFiltrees = array_filter($reservations, function($r) use ($filtreStatut) {
+                return $r['statut'] === $filtreStatut;
+            });
+            $reservations = $reservationsFiltrees;
+        }
+        
+        $data = [
+            'title' => 'Gestion des Réservations',
+            'reservations' => $reservations,
+            'filtreStatut' => $filtreStatut,
+            'asset' => function($path) { return $this->asset($path); }
+        ];
+        
+        $this->view('admin/reservations', $data);
+    }
+    
+    /**
+     * Approuver une réservation
+     * 
+     * @param int $id ID de la réservation
+     * @return void
+     */
+    public function approuverReservation($id = null) {
+        if (!$id) {
+            $this->redirect('/admin/gererReservations?error=' . urlencode('ID de réservation non spécifié'));
+            return;
+        }
+        
+        // Récupérer la réservation
+        $reservation = $this->reservationModel->getById($id);
+        
+        if (!$reservation) {
+            $this->redirect('/admin/gererReservations?error=' . urlencode('Réservation non trouvée'));
+            return;
+        }
+        
+        // Vérifier si la réservation est en attente
+        if ($reservation['statut'] !== 'en_attente') {
+            $this->redirect('/admin/gererReservations?error=' . urlencode('Cette réservation a déjà été traitée'));
+            return;
+        }
+        
+        // Vérifier la disponibilité de la ressource avant d'approuver
+        if (!$this->reservationModel->isRessourceAvailable(
+            $reservation['ressource_id'], 
+            $reservation['date_debut'], 
+            $reservation['date_fin'], 
+            $reservation['id_reservation']
+        )) {
+            $this->redirect('/admin/gererReservations?error=' . urlencode('La ressource n\'est plus disponible pour cette période'));
+            return;
+        }
+        
+        // Approuver la réservation
+        if ($this->reservationModel->approve($id)) {
+            $this->redirect('/admin/gererReservations?success=' . urlencode('Réservation approuvée avec succès'));
+        } else {
+            $this->redirect('/admin/gererReservations?error=' . urlencode('Erreur lors de l\'approbation de la réservation'));
+        }
+    }
+    
+    /**
+     * Rejeter une réservation
+     * 
+     * @param int $id ID de la réservation
+     * @return void
+     */
+    public function rejeterReservation($id = null) {
+        if (!$id) {
+            $this->redirect('/admin/gererReservations?error=' . urlencode('ID de réservation non spécifié'));
+            return;
+        }
+        
+        // Récupérer la réservation
+        $reservation = $this->reservationModel->getById($id);
+        
+        if (!$reservation) {
+            $this->redirect('/admin/gererReservations?error=' . urlencode('Réservation non trouvée'));
+            return;
+        }
+        
+        // Vérifier si la réservation est en attente
+        if ($reservation['statut'] !== 'en_attente') {
+            $this->redirect('/admin/gererReservations?error=' . urlencode('Cette réservation a déjà été traitée'));
+            return;
+        }
+        
+        // Rejeter la réservation
+        if ($this->reservationModel->reject($id)) {
+            $this->redirect('/admin/gererReservations?success=' . urlencode('Réservation rejetée avec succès'));
+        } else {
+            $this->redirect('/admin/gererReservations?error=' . urlencode('Erreur lors du rejet de la réservation'));
         }
     }
 }

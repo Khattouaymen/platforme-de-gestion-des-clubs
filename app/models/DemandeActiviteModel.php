@@ -30,37 +30,59 @@ class DemandeActiviteModel extends Model {
                 WHERE d.id_demande_act = :id";
         return $this->single($sql, ['id' => $id]);
     }
-    
-    /**
+      /**
      * Récupère les demandes d'activités d'un club spécifique
      * 
      * @param int $clubId ID du club
      * @return array Liste des demandes d'activités du club
      */
     public function getByClubId($clubId) {
-        $sql = "SELECT * FROM demandeactivite WHERE club_id = :club_id";
+        $sql = "SELECT id_demande_act as id, nom_activite as titre, description, 
+                       date_debut, date_fin, date_activite, lieu, club_id, statut, 
+                       date_creation  
+                FROM demandeactivite 
+                WHERE club_id = :club_id
+                ORDER BY date_creation DESC";
         return $this->multiple($sql, ['club_id' => $clubId]);
-    }
-    
-    /**
+    }/**
      * Crée une nouvelle demande d'activité
      * 
      * @param array $data Données de la demande d'activité
      * @return int|false ID de la nouvelle demande ou false
      */
     public function create($data) {
-        $sql = "INSERT INTO demandeactivite 
-                (nom_activite, description, date_activite, nombre_max, lieu, club_id) 
-                VALUES (:nom, :description, :date, :nombre_max, :lieu, :club_id)";
-        
-        $params = [
-            'nom' => $data['nom'],
-            'description' => $data['description'],
-            'date' => $data['date'] ?? null,
-            'nombre_max' => $data['nombre_max'] ?? null,
-            'lieu' => $data['lieu'] ?? null,
-            'club_id' => $data['club_id']
-        ];
+        // Déterminer le SQL en fonction des champs disponibles
+        if (isset($data['date_debut']) && isset($data['date_fin'])) {
+            // Nouveau format avec date_debut, date_fin, statut
+            $sql = "INSERT INTO demandeactivite 
+                   (nom_activite, description, date_debut, date_fin, lieu, club_id, statut, date_creation) 
+                   VALUES (:nom, :description, :date_debut, :date_fin, :lieu, :club_id, :statut, :date_creation)";
+            
+            $params = [
+                'nom' => $data['titre'] ?? ($data['nom'] ?? null),
+                'description' => $data['description'] ?? null,
+                'date_debut' => $data['date_debut'] ?? null,
+                'date_fin' => $data['date_fin'] ?? null,
+                'lieu' => $data['lieu'] ?? null,
+                'club_id' => $data['club_id'] ?? null,
+                'statut' => $data['statut'] ?? 'en_attente',
+                'date_creation' => $data['date_creation'] ?? date('Y-m-d H:i:s')
+            ];
+        } else {
+            // Ancien format avec date_activite, nombre_max
+            $sql = "INSERT INTO demandeactivite 
+                   (nom_activite, description, date_activite, nombre_max, lieu, club_id) 
+                   VALUES (:nom, :description, :date, :nombre_max, :lieu, :club_id)";
+            
+            $params = [
+                'nom' => $data['titre'] ?? ($data['nom'] ?? null),
+                'description' => $data['description'] ?? null,
+                'date' => $data['date'] ?? ($data['date_activite'] ?? null),
+                'nombre_max' => $data['nombre_max'] ?? null,
+                'lieu' => $data['lieu'] ?? null,
+                'club_id' => $data['club_id'] ?? null
+            ];
+        }
         
         if ($this->execute($sql, $params)) {
             return $this->lastInsertId();

@@ -182,5 +182,45 @@ class ActiviteModel extends Model {
         $sql = "DELETE FROM activite WHERE activite_id = :id";
         return $this->execute($sql, ['id' => $id]) > 0;
     }
+    
+    /**
+     * Récupère les activités approuvées pour un club sans notification
+     * 
+     * @param int $clubId ID du club
+     * @return array Liste des activités approuvées sans notification
+     */
+    public function getApprovedActivitiesWithoutNotification($clubId) {
+        $sql = "SELECT * FROM activite 
+                WHERE club_id = :club_id 
+                AND responsable_notifie = 0 
+                ORDER BY date_activite DESC";
+        return $this->multiple($sql, ['club_id' => $clubId]);
+    }
+      /**
+     * Marque une activité comme notifiée au responsable
+     * 
+     * @param int $id ID de l'activité
+     * @return bool Succès ou échec
+     */
+    public function markAsNotified($id) {
+        $sql = "UPDATE activite SET responsable_notifie = 1 WHERE activite_id = :id";
+        return $this->execute($sql, ['id' => $id]);
+    }
+    
+    /**
+     * Récupère les activités qui n'ont pas encore de réservation
+     * 
+     * @param int $clubId ID du club
+     * @return array Liste des activités sans réservation
+     */    public function getActivitiesWithoutReservation($clubId) {
+        $sql = "SELECT a.* FROM activite a
+                WHERE a.club_id = :club_id
+                AND NOT EXISTS (
+                    SELECT 1 FROM reservation r 
+                    WHERE r.activite_id = a.activite_id
+                )
+                ORDER BY a.date_activite DESC";
+        return $this->multiple($sql, ['club_id' => $clubId]);
+    }
 }
 ?>

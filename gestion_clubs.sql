@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: May 12, 2025 at 10:31 AM
--- Server version: 8.3.0
--- PHP Version: 8.2.18
+-- Hôte : 127.0.0.1:3306
+-- Généré le : mar. 20 mai 2025 à 22:08
+-- Version du serveur : 9.1.0
+-- Version de PHP : 8.3.14
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `gestion_clubs`
+-- Base de données : `gestion_clubs`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `activite`
+-- Structure de la table `activite`
 --
 
 DROP TABLE IF EXISTS `activite`;
@@ -35,14 +35,15 @@ CREATE TABLE IF NOT EXISTS `activite` (
   `date_activite` date NOT NULL,
   `lieu` varchar(100) DEFAULT NULL,
   `club_id` int DEFAULT NULL,
+  `responsable_notifie` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`activite_id`),
-  KEY `club_id` (`club_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_activite_club` (`club_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `administrateur`
+-- Structure de la table `administrateur`
 --
 
 DROP TABLE IF EXISTS `administrateur`;
@@ -53,12 +54,19 @@ CREATE TABLE IF NOT EXISTS `administrateur` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `administrateur`
+--
+
+INSERT INTO `administrateur` (`id`, `prenom`, `nom`, `email`, `password`) VALUES
+(0, 'Admin', 'Système', 'admin@example.com', '$2y$10$Ij9KDgwu2ethlwbYNlitSOwej8HXAWefJwrM5zujAM7huUbIuCKhq');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `blog`
+-- Structure de la table `blog`
 --
 
 DROP TABLE IF EXISTS `blog`;
@@ -69,13 +77,13 @@ CREATE TABLE IF NOT EXISTS `blog` (
   `date_creation` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `club_id` int DEFAULT NULL,
   PRIMARY KEY (`blog_id`),
-  KEY `club_id` (`club_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_blog_club` (`club_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `club`
+-- Structure de la table `club`
 --
 
 DROP TABLE IF EXISTS `club`;
@@ -86,12 +94,19 @@ CREATE TABLE IF NOT EXISTS `club` (
   `nombre_membres` int NOT NULL,
   `Logo_URL` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `club`
+--
+
+INSERT INTO `club` (`id`, `nom`, `description`, `nombre_membres`, `Logo_URL`) VALUES
+(1, 'CyberDune', 'CyberDune est un club étudiant orienté vers le numérique et les technologies. Il a pour objectif de développer les compétences des étudiants en programmation, cybersécurité, intelligence artificielle et technologies modernes à travers des ateliers, des compétitions et des activités éducatives.', 0, 'https://i.ibb.co/r2myf1m8/logo-cyberdune.jpg');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `demandeactivite`
+-- Structure de la table `demandeactivite`
 --
 
 DROP TABLE IF EXISTS `demandeactivite`;
@@ -104,13 +119,13 @@ CREATE TABLE IF NOT EXISTS `demandeactivite` (
   `lieu` varchar(50) DEFAULT NULL,
   `club_id` int DEFAULT NULL,
   PRIMARY KEY (`id_demande_act`),
-  KEY `club_id` (`club_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_demandeactivite_club` (`club_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `demandeadhesion`
+-- Structure de la table `demandeadhesion`
 --
 
 DROP TABLE IF EXISTS `demandeadhesion`;
@@ -122,31 +137,31 @@ CREATE TABLE IF NOT EXISTS `demandeadhesion` (
   `statut` enum('en_attente','acceptee','refusee') DEFAULT 'en_attente',
   PRIMARY KEY (`demande_adh_id`),
   UNIQUE KEY `etudiant_id` (`etudiant_id`,`club_id`),
-  KEY `club_id` (`club_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_demandeadh_club` (`club_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `demandeapprobationclub`
+-- Structure de la table `demandeapprobationclub`
 --
 
 DROP TABLE IF EXISTS `demandeapprobationclub`;
 CREATE TABLE IF NOT EXISTS `demandeapprobationclub` (
   `id_demande` int NOT NULL AUTO_INCREMENT,
   `nom_club` varchar(100) NOT NULL,
-  `description` text, 
+  `description` text,
   `Logo_URL` varchar(255) DEFAULT NULL,
   `statut` enum('en_attente','approuve','rejete') DEFAULT 'en_attente',
   `id_etudiant` int DEFAULT NULL,
   PRIMARY KEY (`id_demande`),
-  KEY `id_etudiant` (`id_etudiant`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_demandeapprob_etudiant` (`id_etudiant`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `etudiant`
+-- Structure de la table `etudiant`
 --
 
 DROP TABLE IF EXISTS `etudiant`;
@@ -157,12 +172,72 @@ CREATE TABLE IF NOT EXISTS `etudiant` (
   `email` varchar(100) DEFAULT NULL,
   `password` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id_etudiant`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `etudiant`
+--
+
+INSERT INTO `etudiant` (`id_etudiant`, `nom`, `prenom`, `email`, `password`) VALUES
+(1, 'khattou', 'Aymen', 'khattouaymen@gmail.com', '$2y$10$A50nb3HXRBcHTZ1R3oBsQOLdwTL.RiOsZJSacU1fRyqWMohKqzN1y'),
+(2, 'issaad', 'badr', 'badr@example.com', '$2y$10$XYXvrXJ3CstyBEkiC4fYPuBJf6gBvm29jxKe.yDW3wNAklKtDpYxC'),
+(3, 'abid', 'selma', 'selma@gmail.com', '$2y$10$7g.gm.If2l2nQLlvKEqgg.dw9lbtSrFp7z9zjpRPNvxs0Tc9UcXbW'),
+(4, 'respo', 'test', 'respo@test.com', '$2y$10$6CY99KAR7LBCgcRnGbHHlefmV5poeCtdtpjStPSUb3djNQ.FkLwf6');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `membreclub`
+-- Structure de la table `inscription_token`
+--
+
+DROP TABLE IF EXISTS `inscription_token`;
+CREATE TABLE IF NOT EXISTS `inscription_token` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `token` varchar(191) COLLATE utf8mb4_general_ci NOT NULL,
+  `type` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `date_creation` datetime NOT NULL,
+  `date_utilisation` datetime DEFAULT NULL,
+  `etudiant_id` int DEFAULT NULL,
+  `est_utilise` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`)
+) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `inscription_token`
+--
+
+INSERT INTO `inscription_token` (`id`, `token`, `type`, `date_creation`, `date_utilisation`, `etudiant_id`, `est_utilise`) VALUES
+(1, '208a688c7c028578991487005a4035338925c6f3bf23a835325bafc2d20aae09', 'responsable', '2025-05-16 19:09:11', NULL, NULL, 1),
+(2, '77ed7f6d8f9224c0fe5b6669ebc8a92d2679bd2502ac2f9b09c2b49e3287891b', 'responsable', '2025-05-16 19:09:32', NULL, NULL, 1),
+(3, '7acd92c0451b72880bae68f4fc0ad0412f7c49cc3ca8b8f99daebf5e549ad914', 'responsable', '2025-05-16 19:09:33', NULL, NULL, 1),
+(4, '3cc7a76f41e07847ac408c31d1a9f581c507f1abfeb71d2c6bb5ad4bd52da06f', 'responsable', '2025-05-16 19:09:36', NULL, NULL, 1),
+(5, '059ac6b2545925b78ead0090236febf99d8a0fb44fcd1842497252d51b354a4b', 'responsable', '2025-05-16 19:09:37', NULL, NULL, 1),
+(6, '8368f54023636d93343f3a6c813d82c08f795be622bf99928c0655479bd32d78', 'responsable', '2025-05-16 19:09:38', NULL, NULL, 1),
+(7, '714e82dc7ff4ccd70f507d8ee607be88359afdecb62150a94dcd17fb5a3ccef7', 'responsable', '2025-05-16 19:10:22', NULL, NULL, 1),
+(8, '83f835368e4fd45df7c8e7c46602b438ed30c2131c2f60cab96331547538d2a8', 'responsable', '2025-05-16 19:10:28', NULL, NULL, 1),
+(9, '0f657c09cadec5130327f43cad529a8742e593636e928d2f6d7149efc405b8a7', 'responsable', '2025-05-16 19:13:19', NULL, NULL, 1),
+(10, '4385ae9891ad88acc9c5dada8130e6e9d252606ddd088831a1d8768e15f57e95', 'responsable', '2025-05-16 19:15:30', NULL, NULL, 1),
+(11, '602b0cc3379fe9caa0f9e462f9f1ca2b9195c2b60bf0f1775b0fa61a41ae98a4', 'responsable', '2025-05-16 19:15:33', NULL, NULL, 1),
+(12, '3fa2e457cd9226c49857ee21ede39709758a5760ed9df377cce354be9552ec5c', 'responsable', '2025-05-16 19:23:10', NULL, NULL, 1),
+(13, '5ae79c42a106f862547bfef9a69804edc850f46b67b6abe4d433ffd40772c1d6', 'responsable', '2025-05-16 19:24:27', NULL, NULL, 1),
+(14, 'ba7858123725fce87824438bab07fa9a32007c60cd74681e3ccf08b668404e66', 'responsable', '2025-05-16 19:54:57', NULL, NULL, 1),
+(15, '763957caaf31d92c57de585e9bd360c392acd11dc0a80decc5fba7b2611ba08d', 'responsable', '2025-05-16 19:55:07', NULL, NULL, 1),
+(16, 'c0e82e1786cd799d60fc03e6615a174e4e14e5a60e8311374755c5d6d0dfb13f', 'responsable', '2025-05-16 19:58:05', NULL, NULL, 1),
+(17, '056fdb1b1ab830e72a3a3bc6b6b5c34e6e8f304552f286383e08273a1ffd42e5', 'responsable', '2025-05-16 19:58:06', NULL, NULL, 1),
+(18, '7723a777c3497b8ad72f0b28397f44cd7f8261a5b04d4fe05554ac2805ec79de', 'responsable', '2025-05-16 19:58:07', NULL, NULL, 1),
+(19, '3495779bb4d6bf98c1e01a04c9154a6a5741ee91379d217b88a7a2de0d4a1c95', 'responsable', '2025-05-16 20:00:03', NULL, NULL, 1),
+(20, '554a5341b0829bc21abaef4064be82afb9994a417989e35701137ff575ffbd0b', 'responsable', '2025-05-16 20:09:51', '2025-05-16 20:10:46', NULL, 1),
+(21, '26b278e76219b5bf465d4d75f8e749cbd755ef9fe863ee21c860271b45bac6d2', 'responsable', '2025-05-16 20:13:26', NULL, NULL, 1),
+(22, '85d026e328494244a74d8bcef0f5accc51144ff867a778d590eccbb61f843e7c', 'responsable', '2025-05-17 23:56:26', '2025-05-17 23:57:01', NULL, 1),
+(23, '378d903bfd311ccc96805cf09f368e36929f915e55ee15906686a7a78d034fbd', 'responsable', '2025-05-18 00:10:49', NULL, NULL, 1),
+(24, '08e74de7e889f50282bdc1878682ef69c05dce53665f518c0535a222e2840e94', 'responsable', '2025-05-18 00:10:55', '2025-05-18 00:12:14', 4, 1),
+(25, '38ec3cf2d5d105c65af17d371dc338f516ad981bbc83167c286edbf65fb9f663', 'responsable', '2025-05-18 21:41:47', NULL, NULL, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `membreclub`
 --
 
 DROP TABLE IF EXISTS `membreclub`;
@@ -173,13 +248,13 @@ CREATE TABLE IF NOT EXISTS `membreclub` (
   `role` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id_membre`),
   UNIQUE KEY `id_etudiant` (`id_etudiant`),
-  KEY `club_id` (`club_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_membre_club` (`club_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `participationactivite`
+-- Structure de la table `participationactivite`
 --
 
 DROP TABLE IF EXISTS `participationactivite`;
@@ -190,13 +265,36 @@ CREATE TABLE IF NOT EXISTS `participationactivite` (
   `prenom` varchar(255) NOT NULL,
   `nom` varchar(255) NOT NULL,
   PRIMARY KEY (`membre_id`,`activite_id`),
-  KEY `activite_id` (`activite_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_participation_activite` (`activite_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `responsableclub`
+-- Structure de la table `reservation`
+--
+
+DROP TABLE IF EXISTS `reservation`;
+CREATE TABLE IF NOT EXISTS `reservation` (
+  `id_reservation` int NOT NULL AUTO_INCREMENT,
+  `ressource_id` int NOT NULL,
+  `club_id` int NOT NULL,
+  `activite_id` int NOT NULL,
+  `date_debut` datetime NOT NULL,
+  `date_fin` datetime NOT NULL,
+  `statut` enum('en_attente','approuvee','rejetee') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'en_attente',
+  `description` text COLLATE utf8mb4_general_ci,
+  `date_reservation` datetime NOT NULL,
+  PRIMARY KEY (`id_reservation`),
+  KEY `ressource_id` (`ressource_id`),
+  KEY `club_id` (`club_id`),
+  KEY `activite_id` (`activite_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `responsableclub`
 --
 
 DROP TABLE IF EXISTS `responsableclub`;
@@ -206,13 +304,20 @@ CREATE TABLE IF NOT EXISTS `responsableclub` (
   `club_id` int DEFAULT NULL,
   PRIMARY KEY (`id_responsable`),
   UNIQUE KEY `id_etudiant` (`id_etudiant`),
-  KEY `club_id` (`club_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_responsable_club` (`club_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `responsableclub`
+--
+
+INSERT INTO `responsableclub` (`id_responsable`, `id_etudiant`, `club_id`) VALUES
+(0, 4, 1);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ressource`
+-- Structure de la table `ressource`
 --
 
 DROP TABLE IF EXISTS `ressource`;
@@ -224,8 +329,78 @@ CREATE TABLE IF NOT EXISTS `ressource` (
   `club_id` int DEFAULT NULL,
   `disponibilite` enum('disponible','indisponible') DEFAULT 'disponible',
   PRIMARY KEY (`id_ressource`),
-  KEY `club_id` (`club_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_ressource_club` (`club_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Contraintes pour les tables déchargées
+--
+
+--
+-- Contraintes pour la table `activite`
+--
+ALTER TABLE `activite`
+  ADD CONSTRAINT `fk_activite_club` FOREIGN KEY (`club_id`) REFERENCES `club` (`id`);
+
+--
+-- Contraintes pour la table `blog`
+--
+ALTER TABLE `blog`
+  ADD CONSTRAINT `fk_blog_club` FOREIGN KEY (`club_id`) REFERENCES `club` (`id`);
+
+--
+-- Contraintes pour la table `demandeactivite`
+--
+ALTER TABLE `demandeactivite`
+  ADD CONSTRAINT `fk_demandeactivite_club` FOREIGN KEY (`club_id`) REFERENCES `club` (`id`);
+
+--
+-- Contraintes pour la table `demandeadhesion`
+--
+ALTER TABLE `demandeadhesion`
+  ADD CONSTRAINT `fk_demandeadh_club` FOREIGN KEY (`club_id`) REFERENCES `club` (`id`),
+  ADD CONSTRAINT `fk_demandeadh_etudiant` FOREIGN KEY (`etudiant_id`) REFERENCES `etudiant` (`id_etudiant`);
+
+--
+-- Contraintes pour la table `demandeapprobationclub`
+--
+ALTER TABLE `demandeapprobationclub`
+  ADD CONSTRAINT `fk_demandeapprob_etudiant` FOREIGN KEY (`id_etudiant`) REFERENCES `etudiant` (`id_etudiant`);
+
+--
+-- Contraintes pour la table `membreclub`
+--
+ALTER TABLE `membreclub`
+  ADD CONSTRAINT `fk_membre_club` FOREIGN KEY (`club_id`) REFERENCES `club` (`id`),
+  ADD CONSTRAINT `fk_membre_etudiant` FOREIGN KEY (`id_etudiant`) REFERENCES `etudiant` (`id_etudiant`);
+
+--
+-- Contraintes pour la table `participationactivite`
+--
+ALTER TABLE `participationactivite`
+  ADD CONSTRAINT `fk_participation_activite` FOREIGN KEY (`activite_id`) REFERENCES `activite` (`activite_id`),
+  ADD CONSTRAINT `fk_participation_membre` FOREIGN KEY (`membre_id`) REFERENCES `membreclub` (`id_membre`);
+
+--
+-- Contraintes pour la table `reservation`
+--
+ALTER TABLE `reservation`
+  ADD CONSTRAINT `reservation_ibfk_1` FOREIGN KEY (`ressource_id`) REFERENCES `ressource` (`id_ressource`) ON DELETE CASCADE,
+  ADD CONSTRAINT `reservation_ibfk_2` FOREIGN KEY (`club_id`) REFERENCES `club` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `reservation_ibfk_3` FOREIGN KEY (`activite_id`) REFERENCES `activite` (`activite_id`) ON DELETE CASCADE;
+
+--
+-- Contraintes pour la table `responsableclub`
+--
+ALTER TABLE `responsableclub`
+  ADD CONSTRAINT `fk_responsable_club` FOREIGN KEY (`club_id`) REFERENCES `club` (`id`),
+  ADD CONSTRAINT `fk_responsable_etudiant` FOREIGN KEY (`id_etudiant`) REFERENCES `etudiant` (`id_etudiant`);
+
+--
+-- Contraintes pour la table `ressource`
+--
+ALTER TABLE `ressource`
+  ADD CONSTRAINT `fk_ressource_club` FOREIGN KEY (`club_id`) REFERENCES `club` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

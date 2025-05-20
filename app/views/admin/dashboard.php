@@ -146,6 +146,33 @@
         </div>
     </div>
 
+    <!-- Section Gestion des Réservations -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="border-bottom pb-2 mb-4">Gestion des Ressources et Réservations</h2>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <i class="fas fa-calendar-check fa-2x text-danger mb-3"></i>
+                    <h5 class="card-title">Réservations</h5>
+                    <p class="card-text">Gérer les demandes de réservations de ressources</p>
+                    <a href="/admin/gererReservations" class="btn btn-danger w-100">Accéder</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <i class="fas fa-boxes fa-2x text-danger mb-3"></i>
+                    <h5 class="card-title">Ressources</h5>
+                    <p class="card-text">Gérer les ressources disponibles pour les clubs</p>
+                    <a href="/admin/ressources" class="btn btn-danger w-100">Accéder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Liens rapides -->
     <div class="row">
         <div class="col-12">

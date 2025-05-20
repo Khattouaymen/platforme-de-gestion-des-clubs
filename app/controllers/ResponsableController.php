@@ -6,6 +6,7 @@ require_once APP_PATH . '/models/EtudiantModel.php';
 require_once APP_PATH . '/models/RessourceModel.php';
 require_once APP_PATH . '/models/DemandeActiviteModel.php';
 require_once APP_PATH . '/models/DemandeAdhesionModel.php';
+require_once APP_PATH . '/models/ReservationModel.php';
 
 /**
  * Classe ResponsableController - Contrôleur pour les responsables de club
@@ -17,6 +18,7 @@ class ResponsableController extends Controller {
     private $ressourceModel;
     private $demandeActiviteModel;
     private $demandeAdhesionModel;
+    private $reservationModel;
     
     /**
      * Constructeur
@@ -31,6 +33,7 @@ class ResponsableController extends Controller {
         $this->ressourceModel = new RessourceModel();
         $this->demandeActiviteModel = new DemandeActiviteModel();
         $this->demandeAdhesionModel = new DemandeAdhesionModel();
+        $this->reservationModel = new ReservationModel();
     }
     
     /**
@@ -48,19 +51,28 @@ class ResponsableController extends Controller {
      * Tableau de bord du responsable
      * 
      * @return void
-     */
-    public function index() {
+     */    public function index() {
         $clubId = $this->getClubId();
         $club = $this->clubModel->getById($clubId);
         $membres = $this->clubModel->getMembresByClubId($clubId);
         $activites = $this->activiteModel->getByClubId($clubId);
         $demandesAdhesion = $this->demandeAdhesionModel->getByClubId($clubId);
+          // Vérifier s'il y a des activités nouvellement approuvées
+        $activitesApprouvees = $this->activiteModel->getApprovedActivitiesWithoutNotification($clubId);
+        $activitesSansReservation = $this->activiteModel->getActivitiesWithoutReservation($clubId);
+        
+        // Marquer les activités approuvées comme notifiées
+        foreach ($activitesApprouvees as $activite) {
+            $this->activiteModel->markAsNotified($activite['activite_id']);
+        }
         
         $data = [
             'club' => $club,
             'membres' => $membres,
             'activites' => $activites,
-            'demandesAdhesion' => $demandesAdhesion
+            'demandesAdhesion' => $demandesAdhesion,
+            'activitesApprouvees' => $activitesApprouvees,
+            'activitesSansReservation' => $activitesSansReservation
         ];
         
         $this->view('responsable/dashboard', $data);
@@ -304,6 +316,121 @@ class ResponsableController extends Controller {
         }
         
         $this->redirect('/responsable/reservationRessources');
+    }
+    
+    /**
+     * Liste des réservations du club
+     * 
+     * @return void
+     */
+    public function reservations() {
+        $clubId = $this->getClubId();
+        $reservations = $this->reservationModel->getByClubId($clubId);
+        $activitesSansReservation = $this->activiteModel->getActivitiesWithoutReservation($clubId);
+        
+        $data = [
+            'reservations' => $reservations,
+            'activitesSansReservation' => $activitesSansReservation
+        ];
+        
+        $this->view('responsable/reservations', $data);
+    }
+    
+    /**
+     * Créer une nouvelle réservation pour une activité
+     * 
+     * @return void
+     */
+    public function creerReservation() {
+        $clubId = $this->getClubId();
+        
+        // Récupérer les activités sans réservation
+        $activitesSansReservation = $this->activiteModel->getActivitiesWithoutReservation($clubId);
+        
+        // Récupérer les ressources disponibles
+        $ressources = $this->ressourceModel->getAll();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $activiteId = $_POST['activite_id'] ?? null;
+            $ressourceId = $_POST['ressource_id'] ?? null;
+            $dateDebut = $_POST['date_debut'] ?? null;
+            $dateFin = $_POST['date_fin'] ?? null;
+            $description = $_POST['description'] ?? '';
+            
+            // Valider les données
+            if ($activiteId && $ressourceId && $dateDebut && $dateFin) {
+                // Vérifier si la ressource est disponible
+                if ($this->reservationModel->isRessourceAvailable($ressourceId, $dateDebut, $dateFin)) {
+                    // Créer la réservation
+                    $reservationData = [
+                        'ressource_id' => $ressourceId,
+                        'club_id' => $clubId,
+                        'activite_id' => $activiteId,
+                        'date_debut' => $dateDebut,
+                        'date_fin' => $dateFin,
+                        'description' => $description,
+                        'statut' => 'en_attente',
+                        'date_reservation' => date('Y-m-d H:i:s')
+                    ];
+                    
+                    $reservationId = $this->reservationModel->create($reservationData);
+                    
+                    if ($reservationId) {
+                        $this->redirect('/responsable/reservations?success=La réservation a été créée avec succès.');
+                    } else {
+                        $this->redirect('/responsable/creerReservation?error=Une erreur est survenue lors de la création de la réservation.');
+                    }
+                } else {
+                    $this->redirect('/responsable/creerReservation?error=La ressource n\'est pas disponible pour la période demandée.');
+                }
+            } else {
+                $this->redirect('/responsable/creerReservation?error=Veuillez remplir tous les champs obligatoires.');
+            }
+        }
+        
+        $data = [
+            'activites' => $activitesSansReservation,
+            'ressources' => $ressources
+        ];
+        
+        $this->view('responsable/creer_reservation', $data);
+    }
+    
+    /**
+     * Annuler une réservation
+     * 
+     * @param int $id ID de la réservation
+     * @return void
+     */
+    public function annulerReservation($id = null) {
+        if (!$id) {
+            $this->redirect('/responsable/reservations?error=Réservation non spécifiée.');
+            return;
+        }
+        
+        $clubId = $this->getClubId();
+        
+        // Vérifier si la réservation appartient au club
+        $reservation = $this->reservationModel->getById($id);
+        
+        if (!$reservation || $reservation['club_id'] != $clubId) {
+            $this->redirect('/responsable/reservations?error=Vous n\'êtes pas autorisé à annuler cette réservation.');
+            return;
+        }
+        
+        // Vérifier si la réservation peut être annulée (seulement en attente)
+        if ($reservation['statut'] != 'en_attente') {
+            $this->redirect('/responsable/reservations?error=Cette réservation ne peut plus être annulée.');
+            return;
+        }
+        
+        // Annuler la réservation
+        if ($this->reservationModel->delete($id)) {
+            $this->redirect('/responsable/reservations?success=La réservation a été annulée avec succès.');
+        } else {
+            $this->redirect('/responsable/reservations?error=Une erreur est survenue lors de l\'annulation de la réservation.');
+        }
     }
     
     /**
