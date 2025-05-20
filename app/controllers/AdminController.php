@@ -808,16 +808,20 @@ class AdminController extends Controller {
             'approuve' => $this->demandeClubModel->getByStatut('approuve'),
             'rejete' => $this->demandeClubModel->getByStatut('rejete')
         ];
-        
-        // Récupérer les demandes d'adhésion
+          // Récupérer les demandes d'adhésion
         $demandesAdhesion = [
             'en_attente' => $this->demandeAdhesionModel->getByStatut('en_attente'),
             'acceptee' => $this->demandeAdhesionModel->getByStatut('acceptee'),
             'refusee' => $this->demandeAdhesionModel->getByStatut('refusee')
         ];
         
-        // Récupérer les demandes d'activité
-        $demandesActivite = $this->demandeActiviteModel->getAll();
+        // Récupérer les demandes d'activité (toutes et par statut)
+        $demandesActivite = [
+            'toutes' => $this->demandeActiviteModel->getAll(),
+            'en_attente' => $this->demandeActiviteModel->getByStatut('en_attente'),
+            'approuvee' => $this->demandeActiviteModel->getByStatut('approuvee'),
+            'refusee' => $this->demandeActiviteModel->getByStatut('refusee')
+        ];
         
         // Gérer les messages d'alerte
         $alertSuccess = null;
@@ -914,8 +918,7 @@ class AdminController extends Controller {
             $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+de+l%27acceptation+de+la+demande');
         }
     }
-    
-    /**
+      /**
      * Refuser une demande d'adhésion
      * 
      * @param int $id ID de la demande
@@ -944,24 +947,22 @@ class AdminController extends Controller {
      * @param int $id ID de la demande
      * @return void
      */
-    public function approveDemandeActivite($id = null) {
+    public function approveActivite($id = null) {
         // Vérifier si l'ID est valide
         if ($id === null) {
             $this->redirect('/admin/demandes');
             return;
         }
         
-        // Charger le modèle d'activité si ce n'est pas déjà fait
-        if (!isset($this->activiteModel)) {
-            require_once APP_PATH . '/models/ActiviteModel.php';
-            $this->activiteModel = new ActiviteModel();
-        }
+        // Mettre à jour le statut de la demande à "approuvee"
+        $data = [
+            'statut' => 'approuvee'
+        ];
         
-        // Approuver la demande et créer l'activité
-        $activiteId = $this->demandeActiviteModel->approveAndCreateActivite($id, $this->activiteModel);
+        $success = $this->demandeActiviteModel->updateStatut($id, $data);
         
-        if ($activiteId) {
-            $this->redirect('/admin/demandes?success=1');
+        if ($success) {
+            $this->redirect('/admin/demandes?success=La+demande+d%27activité+a+été+approuvée');
         } else {
             $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+de+l%27approbation+de+la+demande+d%27activité');
         }
@@ -973,18 +974,81 @@ class AdminController extends Controller {
      * @param int $id ID de la demande
      * @return void
      */
-    public function rejectDemandeActivite($id = null) {
+    public function rejectActivite($id = null) {
         // Vérifier si l'ID est valide
         if ($id === null) {
             $this->redirect('/admin/demandes');
             return;
         }
         
-        // Supprimer la demande (rejet)
-        $success = $this->demandeActiviteModel->delete($id);
+        // Récupérer le commentaire de rejet s'il existe
+        $commentaire = $_POST['commentaire'] ?? '';
+        
+        // Mettre à jour le statut de la demande à "refusee" et ajouter le commentaire
+        $data = [
+            'statut' => 'refusee',
+            'commentaire' => $commentaire
+        ];
+        
+        $success = $this->demandeActiviteModel->updateStatut($id, $data);
         
         if ($success) {
-            $this->redirect('/admin/demandes?success=1');
+            $this->redirect('/admin/demandes?success=La+demande+d%27activité+a+été+rejetée');
+        } else {
+            $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+du+rejet+de+la+demande+d%27activité');
+        }
+    }/**
+     * Approuver une demande d'activité
+     * 
+     * @param int $id ID de la demande
+     * @return void
+     */
+    public function approveActivite($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            $this->redirect('/admin/demandes');
+            return;
+        }
+        
+        // Mettre à jour le statut de la demande à "approuvee"
+        $data = [
+            'statut' => 'approuvee'
+        ];
+        
+        $success = $this->demandeActiviteModel->updateStatut($id, $data);
+        
+        if ($success) {
+            $this->redirect('/admin/demandes?success=La+demande+d%27activité+a+été+approuvée');
+        } else {
+            $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+de+l%27approbation+de+la+demande+d%27activité');
+        }
+    }
+      /**
+     * Rejeter une demande d'activité
+     * 
+     * @param int $id ID de la demande
+     * @return void
+     */
+    public function rejectActivite($id = null) {
+        // Vérifier si l'ID est valide
+        if ($id === null) {
+            $this->redirect('/admin/demandes');
+            return;
+        }
+        
+        // Récupérer le commentaire de rejet s'il existe
+        $commentaire = $_POST['commentaire'] ?? '';
+        
+        // Mettre à jour le statut de la demande à "refusee" et ajouter le commentaire
+        $data = [
+            'statut' => 'refusee',
+            'commentaire' => $commentaire
+        ];
+        
+        $success = $this->demandeActiviteModel->updateStatut($id, $data);
+        
+        if ($success) {
+            $this->redirect('/admin/demandes?success=La+demande+d%27activité+a+été+rejetée');
         } else {
             $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+du+rejet+de+la+demande+d%27activité');
         }

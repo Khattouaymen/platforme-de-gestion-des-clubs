@@ -325,55 +325,232 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Demandes d'activités -->
+        </div>        <!-- Demandes d'activités -->
         <div class="tab-pane fade" id="activite" role="tabpanel" aria-labelledby="activite-tab">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
+            <!-- Sous-onglets pour les statuts des demandes d'activités -->
+            <ul class="nav nav-pills mb-3" id="activiteStatusTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="activite-all-tab" data-bs-toggle="pill" data-bs-target="#activite-all" type="button" role="tab" aria-controls="activite-all" aria-selected="true">Toutes</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="activite-pending-tab" data-bs-toggle="pill" data-bs-target="#activite-pending" type="button" role="tab" aria-controls="activite-pending" aria-selected="false">En attente</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="activite-approved-tab" data-bs-toggle="pill" data-bs-target="#activite-approved" type="button" role="tab" aria-controls="activite-approved" aria-selected="false">Approuvées</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="activite-rejected-tab" data-bs-toggle="pill" data-bs-target="#activite-rejected" type="button" role="tab" aria-controls="activite-rejected" aria-selected="false">Rejetées</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="activiteStatusTabContent">
+                <!-- Toutes les demandes d'activités -->
+                <div class="tab-pane fade show active" id="activite-all" role="tabpanel" aria-labelledby="activite-all-tab">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-responsive">                        <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Nom de l'activité</th>
                                     <th>Club</th>
-                                    <th>Date prévue</th>
+                                    <th>Date début</th>
+                                    <th>Date fin</th>
                                     <th>Lieu</th>
+                                    <th>Statut</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if (isset($demandesActivite) && !empty($demandesActivite)): ?>
-                                    <?php foreach ($demandesActivite as $demande): ?>
+                                <?php if (isset($demandesActivite['toutes']) && !empty($demandesActivite['toutes'])): ?>
+                                    <?php foreach ($demandesActivite['toutes'] as $demande): ?>
                                         <tr>
                                             <td><?php echo $demande['id_demande_act']; ?></td>
                                             <td><?php echo $demande['nom_activite']; ?></td>
                                             <td><?php echo $demande['club_nom']; ?></td>
-                                            <td><?php echo isset($demande['date_activite']) ? date('d/m/Y', strtotime($demande['date_activite'])) : 'Non spécifiée'; ?></td>
+                                            <td><?php echo isset($demande['date_debut']) ? date('d/m/Y H:i', strtotime($demande['date_debut'])) : (isset($demande['date_activite']) ? date('d/m/Y', strtotime($demande['date_activite'])) : 'Non spécifiée'); ?></td>
+                                            <td><?php echo isset($demande['date_fin']) ? date('d/m/Y H:i', strtotime($demande['date_fin'])) : 'Non spécifiée'; ?></td>
                                             <td><?php echo $demande['lieu'] ?? 'Non spécifié'; ?></td>
+                                            <td>
+                                                <?php if (isset($demande['statut']) && $demande['statut'] == 'approuvee'): ?>
+                                                    <span class="badge bg-success">Approuvée</span>
+                                                <?php elseif (isset($demande['statut']) && $demande['statut'] == 'refusee'): ?>
+                                                    <span class="badge bg-danger">Refusée</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning">En attente</span>
+                                                <?php endif; ?>
+                                            </td>
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#viewActiviteDemandeModal" data-id="<?php echo $demande['id_demande_act']; ?>">
                                                         <i class="fas fa-eye"></i>
-                                                    </button>
+                                                    </button>                                                    <?php if (empty($demande['statut']) || $demande['statut'] == 'en_attente'): ?>
                                                     <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/approveActivite/<?php echo $demande['id_demande_act']; ?>" class="btn btn-sm btn-success">
                                                         <i class="fas fa-check"></i>
                                                     </a>
-                                                    <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/rejectActivite/<?php echo $demande['id_demande_act']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir rejeter cette demande?')">
+                                                    <button type="button" class="btn btn-sm btn-danger reject-activite-btn" data-bs-toggle="modal" data-bs-target="#rejectActiviteModal" data-id="<?php echo $demande['id_demande_act']; ?>">
                                                         <i class="fas fa-times"></i>
-                                                    </a>
+                                                    </button>
+                                                    <?php endif; ?>
                                                 </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="6" class="text-center">Aucune demande d'activité</td>
+                                        <td colspan="8" class="text-center">Aucune demande d'activité</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
-                        </table>
+                        </table>                    </div>
+                </div>
+            </div>
+        </div>
+
+                <!-- Demandes d'activités en attente -->
+                <div class="tab-pane fade" id="activite-pending" role="tabpanel" aria-labelledby="activite-pending-tab">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nom de l'activité</th>
+                                            <th>Club</th>
+                                            <th>Date début</th>
+                                            <th>Date fin</th>
+                                            <th>Lieu</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (isset($demandesActivite['en_attente']) && !empty($demandesActivite['en_attente'])): ?>
+                                            <?php foreach ($demandesActivite['en_attente'] as $demande): ?>
+                                                <tr>
+                                                    <td><?php echo $demande['id_demande_act']; ?></td>
+                                                    <td><?php echo $demande['nom_activite']; ?></td>
+                                                    <td><?php echo $demande['club_nom']; ?></td>
+                                                    <td><?php echo isset($demande['date_debut']) ? date('d/m/Y H:i', strtotime($demande['date_debut'])) : (isset($demande['date_activite']) ? date('d/m/Y', strtotime($demande['date_activite'])) : 'Non spécifiée'); ?></td>
+                                                    <td><?php echo isset($demande['date_fin']) ? date('d/m/Y H:i', strtotime($demande['date_fin'])) : 'Non spécifiée'; ?></td>
+                                                    <td><?php echo $demande['lieu'] ?? 'Non spécifié'; ?></td>
+                                                    <td>
+                                                        <div class="btn-group" role="group">
+                                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#viewActiviteDemandeModal" data-id="<?php echo $demande['id_demande_act']; ?>">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>                                                            <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/approveActivite/<?php echo $demande['id_demande_act']; ?>" class="btn btn-sm btn-success">
+                                                                <i class="fas fa-check"></i>
+                                                            </a>
+                                                            <button type="button" class="btn btn-sm btn-danger reject-activite-btn" data-bs-toggle="modal" data-bs-target="#rejectActiviteModal" data-id="<?php echo $demande['id_demande_act']; ?>">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="7" class="text-center">Aucune demande en attente</td>
+                                            </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demandes d'activités approuvées -->
+                <div class="tab-pane fade" id="activite-approved" role="tabpanel" aria-labelledby="activite-approved-tab">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nom de l'activité</th>
+                                            <th>Club</th>
+                                            <th>Date début</th>
+                                            <th>Date fin</th>
+                                            <th>Lieu</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (isset($demandesActivite['approuvee']) && !empty($demandesActivite['approuvee'])): ?>
+                                            <?php foreach ($demandesActivite['approuvee'] as $demande): ?>
+                                                <tr>
+                                                    <td><?php echo $demande['id_demande_act']; ?></td>
+                                                    <td><?php echo $demande['nom_activite']; ?></td>
+                                                    <td><?php echo $demande['club_nom']; ?></td>
+                                                    <td><?php echo isset($demande['date_debut']) ? date('d/m/Y H:i', strtotime($demande['date_debut'])) : (isset($demande['date_activite']) ? date('d/m/Y', strtotime($demande['date_activite'])) : 'Non spécifiée'); ?></td>
+                                                    <td><?php echo isset($demande['date_fin']) ? date('d/m/Y H:i', strtotime($demande['date_fin'])) : 'Non spécifiée'; ?></td>
+                                                    <td><?php echo $demande['lieu'] ?? 'Non spécifié'; ?></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#viewActiviteDemandeModal" data-id="<?php echo $demande['id_demande_act']; ?>">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="7" class="text-center">Aucune demande approuvée</td>
+                                            </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demandes d'activités rejetées -->
+                <div class="tab-pane fade" id="activite-rejected" role="tabpanel" aria-labelledby="activite-rejected-tab">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nom de l'activité</th>
+                                            <th>Club</th>
+                                            <th>Date début</th>
+                                            <th>Date fin</th>
+                                            <th>Lieu</th>
+                                            <th>Commentaire</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (isset($demandesActivite['refusee']) && !empty($demandesActivite['refusee'])): ?>
+                                            <?php foreach ($demandesActivite['refusee'] as $demande): ?>
+                                                <tr>
+                                                    <td><?php echo $demande['id_demande_act']; ?></td>
+                                                    <td><?php echo $demande['nom_activite']; ?></td>
+                                                    <td><?php echo $demande['club_nom']; ?></td>
+                                                    <td><?php echo isset($demande['date_debut']) ? date('d/m/Y H:i', strtotime($demande['date_debut'])) : (isset($demande['date_activite']) ? date('d/m/Y', strtotime($demande['date_activite'])) : 'Non spécifiée'); ?></td>
+                                                    <td><?php echo isset($demande['date_fin']) ? date('d/m/Y H:i', strtotime($demande['date_fin'])) : 'Non spécifiée'; ?></td>
+                                                    <td><?php echo $demande['lieu'] ?? 'Non spécifié'; ?></td>
+                                                    <td><?php echo isset($demande['commentaire']) && !empty($demande['commentaire']) ? substr($demande['commentaire'], 0, 50) . (strlen($demande['commentaire']) > 50 ? '...' : '') : 'Aucun'; ?></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#viewActiviteDemandeModal" data-id="<?php echo $demande['id_demande_act']; ?>">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="8" class="text-center">Aucune demande rejetée</td>
+                                            </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -423,31 +600,29 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="viewActiviteDemandeModalLabel">Détails de la demande d'activité</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
+            </div>            <div class="modal-body">                <div class="row mb-3">
                     <div class="col-md-6">
-                        <p><strong>Nom de l'activité:</strong> <span id="activite-nom"></span></p>
+                        <p><strong>Nom de l'activité:</strong> <span id="activite-titre"></span></p>
                         <p><strong>Club:</strong> <span id="activite-club"></span></p>
+                        <p><strong>Statut:</strong> <span id="activite-statut"></span></p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Date prévue:</strong> <span id="activite-date"></span></p>
+                        <p><strong>Date:</strong> <span id="activite-date"></span></p>
                         <p><strong>Lieu:</strong> <span id="activite-lieu"></span></p>
                     </div>
                 </div>
                 <div class="mb-3">
                     <h6>Description</h6>
-                    <p id="activite-description"></p>
+                    <div class="p-3 bg-light rounded" id="activite-description"></div>
                 </div>
-                <div class="mb-3">
-                    <h6>Nombre maximal de participants</h6>
-                    <p id="activite-max-participants"></p>
-                </div>
+                <div class="mb-3" id="activite-commentaire-container" style="display: none;">
+                    <h6>Motif du rejet</h6>
+                    <div class="p-3 bg-light rounded" id="activite-commentaire"></div>                </div>
             </div>
             <div class="modal-footer" id="activite-actions">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
                 <a href="#" id="approveActiviteBtn" class="btn btn-success">Approuver</a>
-                <a href="#" id="rejectActiviteBtn" class="btn btn-danger">Rejeter</a>
+                <button type="button" id="rejectActiviteBtn" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectActiviteModal" data-id="">Rejeter</button>
             </div>
         </div>
     </div>
@@ -512,8 +687,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error:', error));
         });
     }
-    
-    // Modal pour voir les détails d'une demande d'activité
+      // Modal pour voir les détails d'une demande d'activité
     const viewActiviteDemandeModal = document.getElementById('viewActiviteDemandeModal');
     if (viewActiviteDemandeModal) {
         viewActiviteDemandeModal.addEventListener('show.bs.modal', function(event) {
@@ -532,21 +706,106 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     const demande = data.demande;
-                    document.getElementById('activite-nom').textContent = demande.nom_activite;
-                    document.getElementById('activite-club').textContent = demande.club_nom;
-                    document.getElementById('activite-description').textContent = demande.description;
-                    document.getElementById('activite-lieu').textContent = demande.lieu || 'Non spécifié';
-                    document.getElementById('activite-max-participants').textContent = demande.nombre_max || 'Non spécifié';
-                    document.getElementById('activite-date').textContent = demande.date_activite ? 
-                        new Date(demande.date_activite).toLocaleDateString('fr-FR') : 'Non spécifiée';
                     
-                    // Configurer les boutons d'action
+                    // Informations de base
+                    document.getElementById('activite-nom').textContent = demande.nom_activite || 'Non spécifié';
+                    document.getElementById('activite-club').textContent = demande.club_nom || 'Non spécifié';
+                    document.getElementById('activite-description').textContent = demande.description || 'Aucune description fournie';
+                    document.getElementById('activite-lieu').textContent = demande.lieu || 'Non spécifié';
+                    
+                    // Date de création
+                    const dateCreation = demande.date_creation ? 
+                        new Date(demande.date_creation).toLocaleDateString('fr-FR') : 'Non spécifiée';
+                    document.getElementById('activite-date-creation').textContent = dateCreation;
+                    
+                    // Dates de l'activité
+                    // Pour la compatibilité avec l'ancien et le nouveau format
+                    const dateDebut = demande.date_debut ? 
+                        new Date(demande.date_debut).toLocaleString('fr-FR') : 
+                        (demande.date_activite ? new Date(demande.date_activite).toLocaleDateString('fr-FR') : 'Non spécifiée');
+                    document.getElementById('activite-date-debut').textContent = dateDebut;
+                    
+                    const dateFin = demande.date_fin ? 
+                        new Date(demande.date_fin).toLocaleString('fr-FR') : 'Non spécifiée';
+                    document.getElementById('activite-date-fin').textContent = dateFin;
+                    
+                    // Nombre max de participants
+                    document.getElementById('activite-max-participants').textContent = demande.nombre_max || 'Non spécifié';
+                    
+                    // Statut avec badge
+                    let statutBadge = '';
+                    if (demande.statut === 'approuvee' || demande.statut === 'approuve') {
+                        statutBadge = '<span class="badge bg-success">Approuvée</span>';
+                    } else if (demande.statut === 'refusee' || demande.statut === 'rejete') {
+                        statutBadge = '<span class="badge bg-danger">Refusée</span>';
+                    } else {
+                        statutBadge = '<span class="badge bg-warning">En attente</span>';
+                    }
+                    document.getElementById('activite-statut').innerHTML = statutBadge;
+                    
+                    // Commentaire (s'il existe)
+                    const commentaireContainer = document.getElementById('activite-commentaire-container');
+                    if (demande.commentaire) {
+                        document.getElementById('activite-commentaire').textContent = demande.commentaire;
+                        commentaireContainer.style.display = 'block';
+                    } else {
+                        commentaireContainer.style.display = 'none';
+                    }
+                      // Configurer les boutons d'action
                     document.getElementById('approveActiviteBtn').href = `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/approveActivite/${demandeId}`;
-                    document.getElementById('rejectActiviteBtn').href = `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/rejectActivite/${demandeId}`;
-                }
+                    document.getElementById('rejectActiviteBtn').href = `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/rejectActivite/${demandeId}`;                }
             })
             .catch(error => console.error('Error:', error));
         });
     }
 });
+</script>
+
+<!-- Modal pour rejeter une demande d'activité avec commentaire -->
+<div class="modal fade" id="rejectActiviteModal" tabindex="-1" aria-labelledby="rejectActiviteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectActiviteModalLabel">Rejeter la demande d'activité</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="rejectActiviteForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="reject-commentaire" class="form-label">Motif du rejet</label>
+                        <textarea class="form-control" id="reject-commentaire" name="commentaire" rows="3" placeholder="Expliquez la raison du rejet"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">Rejeter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Inclusion du script externe pour gérer les modals -->
+<script>
+    // Définir la variable d'asset URL pour le script externe
+    const baseAssetUrl = '<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>';
+</script>
+<script src="<?php echo isset($asset) ? $asset('views/admin/demandes_scripts.js') : '../views/admin/demandes_scripts.js'; ?>"></script>
+
+<script>
+    // Script d'initialisation du formulaire de rejet après le chargement du script externe
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configurer l'action du formulaire avec le bon chemin de base
+        const rejectButtons = document.querySelectorAll('.reject-activite-btn');
+        const rejectForm = document.getElementById('rejectActiviteForm');
+        
+        if (rejectButtons && rejectForm) {
+            rejectButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    rejectForm.action = baseAssetUrl + '/admin/demandes/rejectActivite/' + id;
+                });
+            });
+        }
+    });
 </script>

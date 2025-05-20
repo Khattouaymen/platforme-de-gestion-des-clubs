@@ -4,8 +4,7 @@ require_once APP_PATH . '/core/Model.php';
 /**
  * Classe DemandeActiviteModel - Modèle pour la table demandeactivite
  */
-class DemandeActiviteModel extends Model {
-    /**
+class DemandeActiviteModel extends Model {    /**
      * Récupère toutes les demandes d'activités
      * 
      * @return array Liste des demandes d'activités
@@ -13,11 +12,11 @@ class DemandeActiviteModel extends Model {
     public function getAll() {
         $sql = "SELECT d.*, c.nom as club_nom
                 FROM demandeactivite d
-                LEFT JOIN club c ON d.club_id = c.id";
+                LEFT JOIN club c ON d.club_id = c.id
+                ORDER BY d.date_creation DESC";
         return $this->multiple($sql);
     }
-    
-    /**
+      /**
      * Récupère une demande d'activité par son ID
      * 
      * @param int $id ID de la demande d'activité
@@ -28,7 +27,30 @@ class DemandeActiviteModel extends Model {
                 FROM demandeactivite d
                 LEFT JOIN club c ON d.club_id = c.id
                 WHERE d.id_demande_act = :id";
-        return $this->single($sql, ['id' => $id]);
+        $demande = $this->single($sql, ['id' => $id]);
+        
+        // Si la demande existe, vérifiez et formatez les dates pour assurer la compatibilité avec les anciens et nouveaux formats
+        if ($demande) {
+            // Format des dates pour une présentation cohérente
+            if (!empty($demande['date_debut'])) {
+                $demande['date_debut_formatted'] = date('d/m/Y H:i', strtotime($demande['date_debut']));
+            }
+            
+            if (!empty($demande['date_fin'])) {
+                $demande['date_fin_formatted'] = date('d/m/Y H:i', strtotime($demande['date_fin']));
+            }
+            
+            if (!empty($demande['date_activite'])) {
+                $demande['date_activite_formatted'] = date('d/m/Y', strtotime($demande['date_activite']));
+            }
+            
+            // Assurer que statut est toujours défini
+            if (empty($demande['statut'])) {
+                $demande['statut'] = 'en_attente';
+            }
+        }
+        
+        return $demande;
     }
       /**
      * Récupère les demandes d'activités d'un club spécifique
@@ -44,7 +66,24 @@ class DemandeActiviteModel extends Model {
                 WHERE club_id = :club_id
                 ORDER BY date_creation DESC";
         return $this->multiple($sql, ['club_id' => $clubId]);
-    }/**
+    }
+    
+    /**
+     * Récupère les demandes d'activités par statut
+     * 
+     * @param string $statut Statut de la demande ('en_attente', 'approuvee', 'refusee')
+     * @return array Liste des demandes d'activités avec le statut spécifié
+     */
+    public function getByStatut($statut) {
+        $sql = "SELECT d.*, c.nom as club_nom
+                FROM demandeactivite d
+                LEFT JOIN club c ON d.club_id = c.id
+                WHERE d.statut = :statut
+                ORDER BY d.date_creation DESC";
+        return $this->multiple($sql, ['statut' => $statut]);
+    }
+    
+    /**
      * Crée une nouvelle demande d'activité
      * 
      * @param array $data Données de la demande d'activité
@@ -115,6 +154,32 @@ class DemandeActiviteModel extends Model {
             'lieu' => $data['lieu'] ?? null,
             'id' => $id
         ];
+        
+        return $this->execute($sql, $params);
+    }
+    
+    /**
+     * Met à jour le statut d'une demande d'activité
+     * 
+     * @param int $id ID de la demande
+     * @param array $data Données à mettre à jour (statut, commentaire)
+     * @return bool Succès ou échec
+     */
+    public function updateStatut($id, $data) {
+        // Construire la requête SQL en fonction des données fournies
+        $sql = "UPDATE demandeactivite SET statut = :statut";
+        $params = [
+            'statut' => $data['statut'],
+            'id' => $id
+        ];
+        
+        // Ajouter le commentaire s'il existe
+        if (isset($data['commentaire']) && !empty($data['commentaire'])) {
+            $sql .= ", commentaire = :commentaire";
+            $params['commentaire'] = $data['commentaire'];
+        }
+        
+        $sql .= " WHERE id_demande_act = :id";
         
         return $this->execute($sql, $params);
     }
