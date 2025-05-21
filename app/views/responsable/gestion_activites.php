@@ -34,6 +34,9 @@
                                 <a href="/responsable/creerDemandeActivite" class="btn btn-primary btn-sm">
                                     <i class="fas fa-plus"></i> Nouvelle Demande
                                 </a>
+                                <a href="/responsable/reservations" class="btn btn-info btn-sm ml-2">
+                                    <i class="fas fa-list-alt"></i> Voir Mes Réservations
+                                </a>
                             </div>
                         </div>
                         <div class="card-body table-responsive p-0">
@@ -123,7 +126,7 @@
                                         <?php foreach ($activites as $activite): ?>                                            <tr>
                                                 <td><?= $activite['activite_id'] ?? $activite['id'] ?? '?' ?></td>
                                                 <td><?= $activite['titre'] ?? 'Sans titre' ?></td>
-                                                <td><?= isset($activite['date_debut']) ? date('d/m/Y H:i', strtotime($activite['date_debut'])) : 'Non définie' ?></td>
+                                                <td><?= isset($activite['date_debut']) ? date('d/m/Y H:i', strtotime($activite['date_debut'])) : (isset($activite['date_activite']) ? date('d/m/Y H:i', strtotime($activite['date_activite'])) : 'Non définie') ?></td>
                                                 <td><?= isset($activite['date_fin']) ? date('d/m/Y H:i', strtotime($activite['date_fin'])) : 'Non définie' ?></td>
                                                 <td><?= $activite['lieu'] ?? 'Non défini' ?></td>
                                                 <td>
@@ -141,11 +144,14 @@
                                                             data-id="<?= $activite['activite_id'] ?? $activite['id'] ?? '' ?>"
                                                             data-titre="<?= htmlspecialchars($activite['titre'] ?? '') ?>"
                                                             data-description="<?= htmlspecialchars($activite['description'] ?? '') ?>"
-                                                            data-dateDebut="<?= $activite['date_debut'] ?? '' ?>"
+                                                            data-dateDebut="<?= $activite['date_debut'] ?? $activite['date_activite'] ?? '' ?>"
                                                             data-dateFin="<?= $activite['date_fin'] ?? '' ?>"
                                                             data-lieu="<?= htmlspecialchars($activite['lieu'] ?? '') ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
+                                                    <a href="/responsable/creerReservation?activite_id=<?= $activite['activite_id'] ?? $activite['id'] ?? '' ?>" class="btn btn-xs btn-warning">
+                                                        <i class="fas fa-calendar-alt"></i> Réserver Ressources
+                                                    </a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
