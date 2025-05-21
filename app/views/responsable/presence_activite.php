@@ -29,13 +29,21 @@
                         <div class="col-md-6">
                             <table class="table table-borderless">
                                 <tr>
-                                    <th>Date de début:</th>
-                                    <td><?= date('d/m/Y H:i', strtotime($activite['date_debut'])) ?></td>
+                                    <th>Date:</th>
+                                    <td><?= isset($activite['date_activite']) ? date('d/m/Y', strtotime($activite['date_activite'])) : 'N/A' ?></td>
                                 </tr>
+                                <?php if (isset($activite['heure_debut'])): ?>
                                 <tr>
-                                    <th>Date de fin:</th>
-                                    <td><?= date('d/m/Y H:i', strtotime($activite['date_fin'])) ?></td>
+                                    <th>Heure de début:</th>
+                                    <td><?= date('H:i', strtotime($activite['heure_debut'])) ?></td>
                                 </tr>
+                                <?php endif; ?>
+                                <?php if (isset($activite['heure_fin'])): ?>
+                                <tr>
+                                    <th>Heure de fin:</th>
+                                    <td><?= date('H:i', strtotime($activite['heure_fin'])) ?></td>
+                                </tr>
+                                <?php endif; ?>
                                 <tr>
                                     <th>Lieu:</th>
                                     <td><?= $activite['lieu'] ?></td>
