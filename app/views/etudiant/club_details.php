@@ -9,7 +9,7 @@
     <div class="row mb-5">
         <div class="col-md-4">
             <?php if (!empty($club['Logo_URL'])): ?>
-                <img src="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/public/assets/images/clubs/<?php echo htmlspecialchars($club['Logo_URL']); ?>" 
+                <img src="<?php echo htmlspecialchars($club['Logo_URL']); ?>" 
                      class="img-fluid rounded shadow-sm" 
                      alt="Logo de <?php echo htmlspecialchars($club['nom']); ?>" 
                      style="max-height: 250px; width: 100%; object-fit: cover;">

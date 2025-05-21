@@ -43,13 +43,7 @@
                             <td><?php echo $club['nom']; ?></td>
                             <td><?php echo substr($club['description'], 0, 50) . (strlen($club['description']) > 50 ? '...' : ''); ?></td>                            <td>
                                 <?php if(isset($club['Logo_URL']) && !empty($club['Logo_URL'])): ?>
-                                    <?php
-                                    // Vérifier si l'URL est déjà complète (commence par http:// ou https://)
-                                    if (strpos($club['Logo_URL'], 'http://') === 0 || strpos($club['Logo_URL'], 'https://') === 0): ?>
-                                        <img src="<?php echo $club['Logo_URL']; ?>" alt="logo" width="60">
-                                    <?php else: ?>
-                                        <img src="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/<?php echo ltrim($club['Logo_URL'], '/'); ?>" alt="logo" width="60">
-                                    <?php endif; ?>
+                                    <img src="<?php echo htmlspecialchars($club['Logo_URL']); ?>" alt="logo" width="60">
                                 <?php else: ?>
                                     <img src="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/assets/images/logo_creative.jpg" alt="logo" width="60">
                                 <?php endif; ?>

@@ -19,7 +19,7 @@
             <div class="row">
                 <div class="col-md-4 text-center mb-3">
                     <?php if (!empty($club['Logo_URL'])): ?>
-                        <img src="<?php echo isset($asset) ? $asset($club['Logo_URL']) : $club['Logo_URL']; ?>" alt="Logo du club" class="img-fluid rounded" style="max-height: 200px;">
+                        <img src="<?php echo htmlspecialchars($club['Logo_URL']); ?>" alt="Logo du club" class="img-fluid rounded" style="max-height: 200px;">
                     <?php else: ?>
                         <div class="bg-light rounded p-4 d-flex align-items-center justify-content-center" style="height: 200px;">
                             <span class="text-muted">Pas de logo</span>

@@ -50,7 +50,7 @@
                                         <td><?php echo $club['id']; ?></td>
                                         <td>
                                             <?php if (!empty($club['Logo_URL'])): ?>
-                                                <img src="<?php echo isset($asset) ? $asset($club['Logo_URL']) : $club['Logo_URL']; ?>" alt="Logo du club" width="50" height="50" class="rounded-circle">
+                                                <img src="<?php echo htmlspecialchars($club['Logo_URL']); ?>" alt="Logo du club" width="50" height="50" class="rounded-circle">
                                             <?php else: ?>
                                                 <div class="text-center">-</div>
                                             <?php endif; ?>

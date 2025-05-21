@@ -67,7 +67,7 @@
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
                         <?php if (!empty($club['Logo_URL'])): ?>
-                            <img src="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/public/assets/images/clubs/<?php echo htmlspecialchars($club['Logo_URL']); ?>" class="card-img-top" alt="Logo de <?php echo htmlspecialchars($club['nom']); ?>" style="height: 180px; object-fit: cover;">
+                            <img src="<?php echo htmlspecialchars($club['Logo_URL']); ?>" class="card-img-top" alt="Logo de <?php echo htmlspecialchars($club['nom']); ?>" style="height: 180px; object-fit: cover;">
                         <?php endif; ?>
                         <div class="card-body">
                             <h5 class="card-title"><?php echo htmlspecialchars($club['nom']); ?></h5>

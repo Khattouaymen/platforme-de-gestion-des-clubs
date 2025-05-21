@@ -91,7 +91,7 @@
                             <div class="ribbon ribbon-top-right"><span class="bg-warning text-dark">En attente</span></div>
                         <?php endif; ?>
                         <?php if (!empty($club['Logo_URL'])): ?>
-                            <img src="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/public/assets/images/clubs/<?php echo htmlspecialchars($club['Logo_URL']); ?>" class="card-img-top" alt="Logo de <?php echo htmlspecialchars($club['nom']); ?>" style="height: 180px; object-fit: cover;">
+                            <img src="<?php echo htmlspecialchars($club['Logo_URL']); ?>" class="card-img-top" alt="Logo de <?php echo htmlspecialchars($club['nom']); ?>" style="height: 180px; object-fit: cover;">
                         <?php endif; ?>
                         <div class="card-body">
                             <h5 class="card-title">
