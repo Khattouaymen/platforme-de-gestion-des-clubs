@@ -136,10 +136,18 @@ class EtudiantController extends Controller {
         // Récupérer les activités du club
         $activites = $this->activiteModel->getByClubId($id);
         
+        // Récupérer les membres du club
+        $membres = $this->clubModel->getMembresByClubId($id);
+        
+        // Récupérer le responsable du club
+        $responsable = $this->clubModel->getResponsableByClubId($id);
+        
         $data = [
             'title' => 'Détails du club - ' . $club['nom'],
             'club' => $club,
-            'activites' => $activites
+            'activites' => $activites,
+            'membres' => $membres,
+            'responsable' => $responsable
         ];
         
         $this->view('etudiant/club_details', $data);
