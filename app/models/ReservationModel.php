@@ -85,7 +85,10 @@ class ReservationModel extends Model {
             'date_reservation' => $data['date_reservation'] ?? date('Y-m-d H:i:s')
         ];
         
-        return $this->insert($sql, $params);
+        if ($this->execute($sql, $params)) {
+            return $this->lastInsertId();
+        }
+        return false;
     }
     
     /**
