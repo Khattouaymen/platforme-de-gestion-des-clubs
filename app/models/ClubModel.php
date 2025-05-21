@@ -376,5 +376,19 @@ class ClubModel extends Model {
         
         return $result ? $result['club_id'] : false;
     }
+
+    /**
+     * Récupère les articles de blog d'un club
+     *
+     * @param int $clubId ID du club
+     * @return array Liste des articles de blog
+     */
+    public function getBlogArticles($clubId) {
+        // À adapter selon la structure de votre table blog
+        // Exemple basique :
+        // $sql = "SELECT * FROM blog WHERE club_id = :club_id ORDER BY date_creation DESC";
+        // return $this->multiple($sql, ['club_id' => $clubId]);
+        return [];
+    }
 }
 ?>
