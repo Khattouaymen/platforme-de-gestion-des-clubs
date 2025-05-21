@@ -54,10 +54,10 @@
                             <?php else: ?>
                                 <?php foreach ($activites as $activite): ?>
                                     <tr>
-                                        <td><?= $activite['id'] ?></td>
+                                        <td><?= $activite['activite_id'] ?></td>
                                         <td><?= $activite['titre'] ?></td>
-                                        <td><?= date('d/m/Y H:i', strtotime($activite['date_debut'])) ?></td>
-                                        <td><?= date('d/m/Y H:i', strtotime($activite['date_fin'])) ?></td>
+                                        <td><?= isset($activite['date_debut']) ? date('d/m/Y H:i', strtotime($activite['date_debut'])) : (isset($activite['date_activite']) ? date('d/m/Y', strtotime($activite['date_activite'])) : 'Non définie') ?></td>
+                                        <td><?= isset($activite['date_fin']) ? date('d/m/Y H:i', strtotime($activite['date_fin'])) : (isset($activite['date_activite']) ? date('d/m/Y', strtotime($activite['date_activite'])) : 'Non définie') ?></td>
                                         <td><?= $activite['lieu'] ?></td>
                                         <td>
                                             <?php if (isset($activite['nb_participants'])): ?>
@@ -67,7 +67,7 @@
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <a href="/responsable/presenceActivite/<?= $activite['id'] ?>" class="btn btn-sm btn-primary">
+                                            <a href="/responsable/presenceActivite/<?= $activite['activite_id'] ?>" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-clipboard-check"></i> Gérer Présence
                                             </a>
                                         </td>

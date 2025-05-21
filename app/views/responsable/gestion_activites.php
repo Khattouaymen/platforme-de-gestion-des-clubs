@@ -37,6 +37,9 @@
                                 <a href="/responsable/reservations" class="btn btn-info btn-sm ml-2">
                                     <i class="fas fa-list-alt"></i> Voir Mes Réservations
                                 </a>
+                                <a href="/responsable/gestionPresence" class="btn btn-warning btn-sm ml-2">
+                                    <i class="fas fa-clipboard-check"></i> Gérer le Présence
+                                </a>
                             </div>
                         </div>
                         <div class="card-body table-responsive p-0">
