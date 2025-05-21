@@ -4,28 +4,31 @@ require_once APP_PATH . '/core/Model.php';
 /**
  * Classe ActiviteModel - Modèle pour la table activite
  */
-class ActiviteModel extends Model {
-    /**
+class ActiviteModel extends Model {    /**
      * Récupère toutes les activités
      * 
      * @return array Liste des activités
      */
     public function getAll() {
-        $sql = "SELECT a.*, c.nom as club_nom 
+        $sql = "SELECT a.*, c.nom as club_nom,
+                (SELECT COUNT(*) FROM participationactivite pa WHERE pa.activite_id = a.activite_id) AS nb_participants 
                 FROM activite a 
                 LEFT JOIN club c ON a.club_id = c.id 
                 ORDER BY a.date_activite DESC";
         return $this->multiple($sql);
     }
-    
-    /**
+      /**
      * Récupère les activités d'un club
      * 
      * @param int $clubId ID du club
      * @return array Liste des activités du club
      */
     public function getByClubId($clubId) {
-        $sql = "SELECT * FROM activite WHERE club_id = :club_id ORDER BY date_activite DESC";
+        $sql = "SELECT a.*, 
+                (SELECT COUNT(*) FROM participationactivite pa WHERE pa.activite_id = a.activite_id) AS nb_participants 
+                FROM activite a 
+                WHERE a.club_id = :club_id 
+                ORDER BY a.date_activite DESC";
         return $this->multiple($sql, ['club_id' => $clubId]);
     }
     
@@ -211,15 +214,15 @@ class ActiviteModel extends Model {
         $sql = "DELETE FROM activite WHERE activite_id = :id";
         return $this->execute($sql, ['id' => $id]) > 0;
     }
-    
-    /**
+      /**
      * Récupère les activités approuvées pour un club sans notification
      * 
      * @param int $clubId ID du club
      * @return array Liste des activités approuvées sans notification
      */
     public function getApprovedActivitiesWithoutNotification($clubId) {
-        $sql = "SELECT a.*, da.id_demande_act as demande_id 
+        $sql = "SELECT a.*, da.id_demande_act as demande_id,
+                (SELECT COUNT(*) FROM participationactivite pa WHERE pa.activite_id = a.activite_id) AS nb_participants 
                 FROM activite a
                 LEFT JOIN demandeactivite da ON a.titre = da.nom_activite AND a.club_id = da.club_id AND da.statut = 'approuvee'
                 WHERE a.club_id = :club_id 
@@ -239,15 +242,15 @@ class ActiviteModel extends Model {
         $sql = "UPDATE activite SET responsable_notifie = 1 WHERE activite_id = :id";
         return $this->execute($sql, ['id' => $id]);
     }
-    
-    /**
+      /**
      * Récupère les activités qui n'ont pas encore de réservation
      * 
      * @param int $clubId ID du club
      * @return array Liste des activités sans réservation
      */
     public function getActivitiesWithoutReservation($clubId) {
-        $sql = "SELECT a.*, da.id_demande_act as demande_id 
+        $sql = "SELECT a.*, da.id_demande_act as demande_id,
+                (SELECT COUNT(*) FROM participationactivite pa WHERE pa.activite_id = a.activite_id) AS nb_participants 
                 FROM activite a
                 LEFT JOIN demandeactivite da ON a.titre = da.nom_activite AND a.club_id = da.club_id AND da.statut = 'approuvee'
                 WHERE a.club_id = :club_id
