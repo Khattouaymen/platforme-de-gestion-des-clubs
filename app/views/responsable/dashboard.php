@@ -231,7 +231,7 @@
                                 <tr>
                                     <th>Étudiant</th>
                                     <th>Date</th>
-                                    <th>Actions</th>
+                                    <th>Statut</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -241,17 +241,31 @@
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach (array_slice($demandesAdhesion, 0, 5) as $demande): ?>
+                                        <?php
+                                            $statutText = '';
+                                            $badgeClass = '';
+                                            switch ($demande['statut']) {
+                                                case 'en_attente':
+                                                    $statutText = 'En attente';
+                                                    $badgeClass = 'badge bg-warning text-dark';
+                                                    break;
+                                                case 'acceptee':
+                                                    $statutText = 'Acceptée';
+                                                    $badgeClass = 'badge bg-success';
+                                                    break;
+                                                case 'refusee':
+                                                    $statutText = 'Refusée';
+                                                    $badgeClass = 'badge bg-danger';
+                                                    break;
+                                                default:
+                                                    $statutText = htmlspecialchars($demande['statut'] ?? 'Inconnu');
+                                                    $badgeClass = 'badge bg-secondary';
+                                            }
+                                        ?>
                                         <tr>
-                                            <td><?= $demande['nom'] . ' ' . $demande['prenom'] ?></td>
-                                            <td><?= date('d/m/Y', strtotime($demande['date_creation'])) ?></td>
-                                            <td>
-                                                <button class="btn btn-xs btn-success accept-btn" data-id="<?= $demande['id'] ?>">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                                <button class="btn btn-xs btn-danger reject-btn" data-id="<?= $demande['id'] ?>">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </td>
+                                            <td><?= ($demande['etudiant_nom'] ?? 'N/A') . ' ' . ($demande['etudiant_prenom'] ?? 'N/A') ?></td>
+                                            <td><?= isset($demande['date_demande']) ? date('d/m/Y', strtotime($demande['date_demande'])) : 'N/A' ?></td>
+                                            <td><span class="<?= $badgeClass ?>"><?= $statutText ?></span></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>

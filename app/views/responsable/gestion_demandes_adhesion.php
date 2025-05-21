@@ -67,12 +67,7 @@
     } else {
         echo 'N/A';
     }
-?></td>                                            <td>
-                                                <button class="btn btn-xs btn-info show-motivation" data-bs-toggle="modal" data-bs-target="#motivationModal" data-motivation='<?php 
-                                                    // Afficher la motivation sous forme simple sans traitement complexe
-                                                    $motivationValue = $demande['motivation'] ?? "";
-                                                    echo htmlspecialchars($motivationValue, ENT_QUOTES, "UTF-8");
-                                                ?>'>
+?></td>                                            <td>                                                <button class="btn btn-xs btn-info show-motivation" data-bs-toggle="modal" data-bs-target="#motivationModal" data-demande-id="<?php echo $demande['demande_adh_id']; ?>">
                                                     <i class="fas fa-eye"></i> Voir
                                                 </button>
                                             </td>
@@ -183,6 +178,7 @@
 </div>
 
 <!-- Modal d'affichage de la motivation -->
+<!-- Modal d'affichage de la motivation -->
 <div class="modal fade" id="motivationModal" tabindex="-1" role="dialog" aria-labelledby="motivationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -201,6 +197,13 @@
 </div>
 
 <script>
+// Stockage des motivations pour un accès plus fiable
+var motivations = {
+    <?php foreach ($demandes as $demande): ?>
+    "<?php echo $demande['demande_adh_id']; ?>": <?php echo json_encode($demande['motivation'] ?? null); ?>, 
+    <?php endforeach; ?>
+};
+
 $(document).ready(function() {
     // Filtrer les demandes lors de la recherche
     $("#search-demande").on("keyup", function() {
@@ -208,23 +211,36 @@ $(document).ready(function() {
         $("table tbody tr").filter(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
-    });    // Afficher la motivation - Version ultra simplifiée
+    });
+    
+    // Afficher la motivation
     $(".show-motivation").on("click", function() {
-        var motivation = $(this).attr("data-motivation");
-        console.log("Motivation reçue:", motivation); // Débogage en console
-        
-        // En cas de motivation vide, afficher un message
-        if (!motivation || motivation.trim() === '') {
+        var demandeId = $(this).attr("data-demande-id");
+
+        if (!motivations.hasOwnProperty(demandeId)) {
+            $("#motivation-text").html('<em>Erreur: Motivation non trouvée pour cet ID.</em>');
+            return;
+        }
+
+        var motivation = motivations[demandeId];
+
+        if (motivation === null || typeof motivation === 'undefined' || (typeof motivation === 'string' && motivation.trim() === '')) {
             $("#motivation-text").html('<em>Aucune motivation fournie.</em>');
             return;
         }
         
-        // Formatter le texte avec des sauts de ligne HTML
-        var formattedText = motivation
-            .replace(/\n/g, '<br>') // Convertir les sauts de ligne en balises <br>
-            .replace(/\\n/g, '<br>'); // Au cas où il y a des \n échappés
+        try {
+            var formattedText = motivation;
+            if (typeof motivation === 'string') {
+                formattedText = motivation.replace(/\\\\n/g, '<br>').replace(/\\\\r\\\\n/g, '<br>');
+                formattedText = formattedText.replace(/\\n/g, '<br>').replace(/\\r\\n/g, '<br>');
+            }
             
-        $("#motivation-text").html(formattedText);
+            $("#motivation-text").html(formattedText);
+
+        } catch(e) {
+            $("#motivation-text").text(motivation || ''); 
+        }
     });
     
     // Accepter une demande d'adhésion

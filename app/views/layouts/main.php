@@ -9,6 +9,8 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?php echo isset($asset) ? $asset('assets/css/style.css') : '/public/assets/css/style.css'; ?>">
     <!-- Admin CSS -->    <link rel="stylesheet" href="<?php echo isset($asset) ? $asset('assets/css/admin.css') : '/public/assets/css/admin.css'; ?>">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <?php if (!isset($hideNavbar) || $hideNavbar !== true): ?>
@@ -119,7 +121,7 @@
     </main>
 
     <!-- Footer -->
-      <!-- Bootstrap JS Bundle with Popper -->
+    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JavaScript -->
     <script src="<?php echo isset($asset) ? $asset('assets/js/script.js') : '/public/assets/js/script.js'; ?>"></script>    <!-- Script standard pour Bootstrap -->
