@@ -383,9 +383,8 @@
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#viewActiviteDemandeModal" data-id="<?php echo $demande['id_demande_act']; ?>">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>                                                    <?php if (empty($demande['statut']) || $demande['statut'] == 'en_attente'): ?>
-                                                    <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/approveActivite/<?php echo $demande['id_demande_act']; ?>" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-eye"></i>                                                    </button>                                                    <?php if (empty($demande['statut']) || $demande['statut'] == 'en_attente'): ?>
+                                                    <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/approveActivite/<?php echo $demande['id_demande_act']; ?>" class="btn btn-sm btn-success">
                                                         <i class="fas fa-check"></i>
                                                     </a>
                                                     <button type="button" class="btn btn-sm btn-danger reject-activite-btn" data-bs-toggle="modal" data-bs-target="#rejectActiviteModal" data-id="<?php echo $demande['id_demande_act']; ?>">
@@ -438,7 +437,7 @@
                                                         <div class="btn-group" role="group">
                                                             <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#viewActiviteDemandeModal" data-id="<?php echo $demande['id_demande_act']; ?>">
                                                                 <i class="fas fa-eye"></i>
-                                                            </button>                                                            <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/approveActivite/<?php echo $demande['id_demande_act']; ?>" class="btn btn-sm btn-success">
+                                                            </button>                                                            <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/approveActivite/<?php echo $demande['id_demande_act']; ?>" class="btn btn-sm btn-success">
                                                                 <i class="fas fa-check"></i>
                                                             </a>
                                                             <button type="button" class="btn btn-sm btn-danger reject-activite-btn" data-bs-toggle="modal" data-bs-target="#rejectActiviteModal" data-id="<?php echo $demande['id_demande_act']; ?>">
@@ -695,7 +694,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const demandeId = button.getAttribute('data-id');
             
             // Récupérer les données de la demande via AJAX
-            fetch(`<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/getDemandeActivite/${demandeId}`, {
+            fetch(`<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/getDemandeActivite/${demandeId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -752,8 +751,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         commentaireContainer.style.display = 'none';
                     }
                       // Configurer les boutons d'action
-                    document.getElementById('approveActiviteBtn').href = `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/approveActivite/${demandeId}`;
-                    document.getElementById('rejectActiviteBtn').href = `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/demandes/rejectActivite/${demandeId}`;                }
+                    document.getElementById('approveActiviteBtn').href = `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/approveActivite/${demandeId}`;
+                    document.getElementById('rejectActiviteBtn').href = `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/rejectActivite/${demandeId}`;                }
             })
             .catch(error => console.error('Error:', error));
         });
@@ -803,7 +802,7 @@ document.addEventListener('DOMContentLoaded', function() {
             rejectButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const id = this.getAttribute('data-id');
-                    rejectForm.action = baseAssetUrl + '/admin/demandes/rejectActivite/' + id;
+                    rejectForm.action = baseAssetUrl + '/admin/rejectActivite/' + id;
                 });
             });
         }

@@ -83,8 +83,8 @@ class Router {
                     // Si aucune sous-action, afficher la page de gestion des clubs
                     call_user_func([$controllerInstance, 'clubs']);
                     return;
-                }
-                
+                } // End of if ($action === 'clubs') block
+
                 // Vérifier si la méthode existe dans le contrôleur pour les autres actions
                 if (method_exists($controllerInstance, $action)) {
                     // Paramètres restants
@@ -97,7 +97,8 @@ class Router {
                     
                     // Appeler l'action avec les paramètres
                     call_user_func_array([$controllerInstance, $action], $params);
-                    return;                }
+                    return;
+                }
             } else {
                 // Action par défaut (tableau de bord)
                 call_user_func([$controllerInstance, 'index']);

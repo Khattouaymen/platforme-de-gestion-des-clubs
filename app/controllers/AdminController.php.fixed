@@ -8,7 +8,6 @@ require_once APP_PATH . '/models/DemandeClubModel.php';
 require_once APP_PATH . '/models/DemandeActiviteModel.php';
 require_once APP_PATH . '/models/DemandeAdhesionModel.php';
 require_once APP_PATH . '/models/ReservationModel.php';
-require_once APP_PATH . '/models/ActiviteModel.php'; // Added this line
 
 /**
  * Classe AdminController - Contrôleur pour les administrateurs
@@ -22,7 +21,6 @@ class AdminController extends Controller {
     private $demandeActiviteModel;
     private $demandeAdhesionModel;
     private $reservationModel;
-    private $activiteModel; // Added this line
     
     /**
      * Constructeur
@@ -39,7 +37,6 @@ class AdminController extends Controller {
         $this->demandeActiviteModel = new DemandeActiviteModel();
         $this->demandeAdhesionModel = new DemandeAdhesionModel();
         $this->reservationModel = new ReservationModel();
-        $this->activiteModel = new ActiviteModel(); // Added this line
     }
     
     /**
@@ -958,17 +955,15 @@ class AdminController extends Controller {
             return;
         }
         
-        // Debug - enregistrer dans un fichier de log
-        file_put_contents('debug_approve.log', "Méthode approveActivite appelée avec ID: $id\n", FILE_APPEND);
+        // Mettre à jour le statut de la demande à "approuvee"
+        $data = [
+            'statut' => 'approuvee'
+        ];
         
-        // Approuver la demande et créer l'activité correspondante
-        $success = $this->demandeActiviteModel->approveAndCreateActivite($id, $this->activiteModel);
-        
-        // Debug - enregistrer le résultat
-        file_put_contents('debug_approve.log', "Résultat de approveAndCreateActivite: " . ($success ? 'Succès' : 'Échec') . "\n", FILE_APPEND);
+        $success = $this->demandeActiviteModel->updateStatut($id, $data);
         
         if ($success) {
-            $this->redirect('/admin/demandes?success=La+demande+d%27activité+a+été+approuvée+et+l\'activité+créée');
+            $this->redirect('/admin/demandes?success=La+demande+d%27activité+a+été+approuvée');
         } else {
             $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+de+l%27approbation+de+la+demande+d%27activité');
         }
@@ -987,10 +982,6 @@ class AdminController extends Controller {
             return;
         }
         
-        // Debug - enregistrer dans un fichier de log
-        file_put_contents('debug_reject.log', "Méthode rejectActivite appelée avec ID: $id\n", FILE_APPEND);
-        file_put_contents('debug_reject.log', "Données POST: " . print_r($_POST, true) . "\n", FILE_APPEND);
-        
         // Récupérer le commentaire de rejet s'il existe
         $commentaire = $_POST['commentaire'] ?? '';
         
@@ -1001,9 +992,6 @@ class AdminController extends Controller {
         ];
         
         $success = $this->demandeActiviteModel->updateStatut($id, $data);
-        
-        // Debug - enregistrer le résultat
-        file_put_contents('debug_reject.log', "Résultat de updateStatut: " . ($success ? 'Succès' : 'Échec') . "\n", FILE_APPEND);
         
         if ($success) {
             $this->redirect('/admin/demandes?success=La+demande+d%27activité+a+été+rejetée');

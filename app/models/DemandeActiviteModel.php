@@ -164,8 +164,10 @@ class DemandeActiviteModel extends Model {    /**
      * @param int $id ID de la demande
      * @param array $data Données à mettre à jour (statut, commentaire)
      * @return bool Succès ou échec
-     */
-    public function updateStatut($id, $data) {
+     */    public function updateStatut($id, $data) {
+        // Debug - enregistrer dans un fichier de log
+        file_put_contents('debug_model.log', "updateStatut appelé avec ID: $id et données: " . print_r($data, true) . "\n", FILE_APPEND);
+        
         // Construire la requête SQL en fonction des données fournies
         $sql = "UPDATE demandeactivite SET statut = :statut";
         $params = [
@@ -181,7 +183,15 @@ class DemandeActiviteModel extends Model {    /**
         
         $sql .= " WHERE id_demande_act = :id";
         
-        return $this->execute($sql, $params);
+        // Debug - enregistrer la requête SQL
+        file_put_contents('debug_model.log', "Requête SQL: $sql\nParamètres: " . print_r($params, true) . "\n", FILE_APPEND);
+        
+        $result = $this->execute($sql, $params);
+        
+        // Debug - enregistrer le résultat
+        file_put_contents('debug_model.log', "Résultat de execute: $result\n", FILE_APPEND);
+        
+        return $result;
     }
     
     /**
@@ -192,40 +202,59 @@ class DemandeActiviteModel extends Model {    /**
      * @return int|false ID de la nouvelle activité créée ou false
      */
     public function approveAndCreateActivite($id, $activiteModel) {
+        file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - ENTER - ID: $id\n", FILE_APPEND);
         // Récupérer les informations de la demande
         $demande = $this->getById($id);
         
         if (!$demande) {
+            file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - Demande non trouvée pour ID: $id. EXITING.\n", FILE_APPEND);
             return false;
         }
         
         // Commencer une transaction
-        $this->beginTransaction();
+        $this->db->beginTransaction(); // Changed from $this->beginTransaction()
+        file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - Transaction BEGIN pour ID: $id\n", FILE_APPEND);
         
         try {
-            // Créer la nouvelle activité
+            // Préparer les données pour la nouvelle activité
             $activiteData = [
                 'titre' => $demande['nom_activite'],
                 'description' => $demande['description'],
-                'date_activite' => $demande['date_activite'],
                 'lieu' => $demande['lieu'],
-                'club_id' => $demande['club_id']
+                'club_id' => $demande['club_id'],
+                'date_debut' => $demande['date_debut'] ?? ($demande['date_activite'] ?? null),
+                'date_fin' => $demande['date_fin'] ?? null 
             ];
+            file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - Data for ActiviteModel::create: " . print_r($activiteData, true) . "\n", FILE_APPEND);
             
-            $activiteId = $activiteModel->create($activiteData);
+            file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - CALLING activiteModel->create...\n", FILE_APPEND);
+            $activiteId = $activiteModel->create($activiteData); // This calls ActiviteModel::create which has its own detailed logs
+            file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - RETURNED from activiteModel->create. activiteId: " . print_r($activiteId, true) . "\n", FILE_APPEND);
             
-            if (!$activiteId) {
-                $this->rollBack();
+            // Check if activiteId is falsy (false, null, 0, "0")
+            if (!$activiteId || $activiteId === 0 || $activiteId === '0') {
+                $this->db->rollBack(); // Changed from $this->rollBack()
+                file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - activiteModel->create FAILED or returned invalid ID ($activiteId). Rollback. EXITING.\n", FILE_APPEND);
                 return false;
             }
             
-            // Supprimer la demande
-            $this->delete($id);
+            file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - CALLING this->updateStatut...\n", FILE_APPEND);
+            $updateSuccess = $this->updateStatut($id, ['statut' => 'approuvee']); // This will produce its own logs (already does)
+            file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - RETURNED from this->updateStatut. success: " . print_r($updateSuccess, true) . "\n", FILE_APPEND);
+
+            if (!$updateSuccess) {
+                $this->db->rollBack(); // Changed from $this->rollBack()
+                file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - updateStatut FAILED. Rollback. EXITING.\n", FILE_APPEND);
+                return false;
+            }
             
-            $this->commit();
+            $this->db->commit(); // Changed from $this->commit()
+            file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - Commit SUCCESS. activiteId: $activiteId. EXITING.\n", FILE_APPEND);
             return $activiteId;
+
         } catch (Exception $e) {
-            $this->rollBack();
+            $this->db->rollBack(); // Changed from $this->rollBack()
+            file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - EXCEPTION: " . $e->getMessage() . ". Rollback. EXITING.\n", FILE_APPEND);
             return false;
         }
     }

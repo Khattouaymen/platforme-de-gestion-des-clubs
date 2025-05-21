@@ -200,16 +200,10 @@
                                 <?php else: ?>
                                     <?php foreach (array_slice($activites, 0, 5) as $activite): ?>
                                         <tr>
-                                            <td><?= $activite['titre'] ?></td>
-                                            <td><?= date('d/m/Y', strtotime($activite['date_debut'])) ?></td>
+                                            <td><?= htmlspecialchars($activite['titre']) ?></td>
+                                            <td><?= date('d/m/Y', strtotime($activite['date_activite'])) // Changed from date_debut to date_activite ?></td>
                                             <td>
-                                                <?php if ($activite['statut'] == 'approuvee'): ?>
-                                                    <span class="badge badge-success">Approuvée</span>
-                                                <?php elseif ($activite['statut'] == 'refusee'): ?>
-                                                    <span class="badge badge-danger">Refusée</span>
-                                                <?php else: ?>
-                                                    <span class="badge badge-warning">En attente</span>
-                                                <?php endif; ?>
+                                                <span class="badge badge-info">Planifiée</span> 
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

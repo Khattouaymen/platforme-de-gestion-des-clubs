@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
                 // Charger les détails de l'activité via AJAX
-                fetch(baseAssetUrl + '/admin/demandes/getDemandeActivite/' + id)
+                fetch(baseAssetUrl + '/admin/getDemandeActivite/' + id)
                     .then(response => response.json())
                     .then(data => {
                         if (data.success && data.demande) {
@@ -60,10 +60,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             const rejectBtn = document.getElementById('rejectActiviteBtn');
                             
                             if (demande.statut === 'en_attente' || !demande.statut) {
-                                // Activité en attente - afficher les boutons d'action
-                                approveBtn.style.display = 'inline-block';
+                                // Activité en attente - afficher les boutons d'action                                approveBtn.style.display = 'inline-block';
                                 rejectBtn.style.display = 'inline-block';
-                                approveBtn.href = baseAssetUrl + '/admin/demandes/approveActivite/' + id;
+                                approveBtn.href = baseAssetUrl + '/admin/approveActivite/' + id;
                                 rejectBtn.setAttribute('data-bs-toggle', 'modal');
                                 rejectBtn.setAttribute('data-bs-target', '#rejectActiviteModal');
                                 rejectBtn.setAttribute('data-id', id);

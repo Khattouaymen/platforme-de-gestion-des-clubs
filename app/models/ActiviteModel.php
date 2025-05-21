@@ -108,7 +108,7 @@ class ActiviteModel extends Model {
      * 
      * @param int $membreId ID du membre
      * @param int $activiteId ID de l'activité
-     * @return bool Succès de l'opération
+     * @return bool Succès de la suppression
      */
     public function removeParticipant($membreId, $activiteId) {
         $sql = "DELETE FROM participationactivite 
@@ -128,21 +128,35 @@ class ActiviteModel extends Model {
      * @return int|false ID de la nouvelle activité ou false
      */
     public function create($data) {
-        $sql = "INSERT INTO activite (titre, description, date_activite, lieu, club_id) 
-                VALUES (:titre, :description, :date_activite, :lieu, :club_id)";
+        // The activite table uses 'date_activite'.
+        // $data comes from DemandeActiviteModel and might have 'date_debut'.
+        // We'll use $data['date_debut'] if available, otherwise $data['date_activite'].
+        $dateActiviteValue = $data['date_debut'] ?? ($data['date_activite'] ?? null);
+
+        // responsable_notifie should be set to 0 by default.
+        $sql = "INSERT INTO activite (titre, description, date_activite, lieu, club_id, responsable_notifie) 
+                VALUES (:titre, :description, :date_activite, :lieu, :club_id, 0)";
         
         $params = [
             'titre' => $data['titre'],
             'description' => $data['description'],
-            'date_activite' => $data['date_activite'],
+            'date_activite' => $dateActiviteValue, 
             'lieu' => $data['lieu'],
             'club_id' => $data['club_id']
         ];
+
+        file_put_contents('debug_model.log', "ActiviteModel::create SQL: $sql\nParams: " . print_r($params, true) . "\n", FILE_APPEND);
         
-        if ($this->execute($sql, $params)) {
-            return $this->lastInsertId();
+        $executeResult = $this->execute($sql, $params);
+        file_put_contents('debug_model.log', "ActiviteModel::create executeResult: " . print_r($executeResult, true) . "\n", FILE_APPEND);
+
+        if ($executeResult) {
+            $lastId = $this->lastInsertId();
+            file_put_contents('debug_model.log', "ActiviteModel::create lastInsertId: " . print_r($lastId, true) . "\n", FILE_APPEND);
+            return $lastId;
         }
         
+        file_put_contents('debug_model.log', "ActiviteModel::create failed before lastInsertId.\n", FILE_APPEND);
         return false;
     }
     
@@ -190,13 +204,17 @@ class ActiviteModel extends Model {
      * @return array Liste des activités approuvées sans notification
      */
     public function getApprovedActivitiesWithoutNotification($clubId) {
-        $sql = "SELECT * FROM activite 
-                WHERE club_id = :club_id 
-                AND responsable_notifie = 0 
-                ORDER BY date_activite DESC";
+        $sql = "SELECT a.*, da.id_demande_act as demande_id 
+                FROM activite a
+                LEFT JOIN demandeactivite da ON a.titre = da.nom_activite AND a.club_id = da.club_id AND da.statut = 'approuvee'
+                WHERE a.club_id = :club_id 
+                AND a.responsable_notifie = 0 
+                AND da.statut = 'approuvee' -- S'assurer que l'activité correspond à une demande approuvée
+                ORDER BY a.date_activite DESC"; // Changed back to date_activite
         return $this->multiple($sql, ['club_id' => $clubId]);
     }
-      /**
+    
+    /**
      * Marque une activité comme notifiée au responsable
      * 
      * @param int $id ID de l'activité
@@ -212,14 +230,18 @@ class ActiviteModel extends Model {
      * 
      * @param int $clubId ID du club
      * @return array Liste des activités sans réservation
-     */    public function getActivitiesWithoutReservation($clubId) {
-        $sql = "SELECT a.* FROM activite a
+     */
+    public function getActivitiesWithoutReservation($clubId) {
+        $sql = "SELECT a.*, da.id_demande_act as demande_id 
+                FROM activite a
+                LEFT JOIN demandeactivite da ON a.titre = da.nom_activite AND a.club_id = da.club_id AND da.statut = 'approuvee'
                 WHERE a.club_id = :club_id
+                AND da.statut = 'approuvee' -- S'assurer que l'activité est approuvée
                 AND NOT EXISTS (
                     SELECT 1 FROM reservation r 
                     WHERE r.activite_id = a.activite_id
                 )
-                ORDER BY a.date_activite DESC";
+                ORDER BY a.date_activite DESC"; // Changed back to date_activite
         return $this->multiple($sql, ['club_id' => $clubId]);
     }
 }
