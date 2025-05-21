@@ -493,15 +493,18 @@ class ResponsableController extends Controller {
         
         $this->redirect('/responsable/gestionDemandesAdhesion');
     }
-    
-    /**
+      /**
      * Gestion du blog du club
      * 
      * @return void
      */
     public function gestionBlog() {
         $clubId = $this->getClubId();
-        $articles = $this->clubModel->getBlogArticles($clubId);
+        
+        // Utiliser BlogModel pour récupérer les articles
+        require_once APP_PATH . '/models/BlogModel.php';
+        $blogModel = new BlogModel();
+        $articles = $blogModel->getAllBlogArticlesForClub($clubId);
         
         $data = [
             'articles' => $articles
@@ -509,8 +512,7 @@ class ResponsableController extends Controller {
         
         $this->view('responsable/gestion_blog', $data);
     }
-    
-    /**
+      /**
      * Créer un nouvel article de blog
      * 
      * @return void
@@ -521,20 +523,19 @@ class ResponsableController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $titre = $_POST['titre'] ?? '';
             $contenu = $_POST['contenu'] ?? '';
-            
-            // Traitement de l'image si un fichier a été téléchargé
-            $imagePath = null;
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $imagePath = $this->processImageUpload($_FILES['image']);
-            }
+            $imageUrl = $_POST['image_url'] ?? null;
+            $visibility = $_POST['visibility'] ?? 'public';
             
             // Créer l'article
-            $this->clubModel->createBlogArticle([
+            require_once APP_PATH . '/models/BlogModel.php';
+            $blogModel = new BlogModel();
+            $blogModel->createBlogArticle([
                 'club_id' => $clubId,
                 'titre' => $titre,
                 'contenu' => $contenu,
-                'image' => $imagePath,
-                'date_creation' => date('Y-m-d H:i:s')
+                'image_url' => $imageUrl,
+                'visibility' => $visibility,
+                'user_id' => $_SESSION['user_id']
             ]);
             
             $this->redirect('/responsable/gestionBlog?success=1');
@@ -542,8 +543,7 @@ class ResponsableController extends Controller {
         
         $this->view('responsable/creer_article_blog');
     }
-    
-    /**
+      /**
      * Modifier un article de blog
      * 
      * @param int $id ID de l'article
@@ -556,7 +556,10 @@ class ResponsableController extends Controller {
             $this->redirect('/responsable/gestionBlog');
         }
         
-        $article = $this->clubModel->getBlogArticleById($id);
+        // Utiliser BlogModel pour la récupération de l'article
+        require_once APP_PATH . '/models/BlogModel.php';
+        $blogModel = new BlogModel();
+        $article = $blogModel->getBlogArticleById($id);
         
         // Vérifier que l'article appartient bien au club du responsable
         if (!$article || $article['club_id'] != $clubId) {
@@ -566,19 +569,15 @@ class ResponsableController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $titre = $_POST['titre'] ?? '';
             $contenu = $_POST['contenu'] ?? '';
-            
-            // Traitement de l'image si un fichier a été téléchargé
-            $imagePath = $article['image'];
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $imagePath = $this->processImageUpload($_FILES['image']);
-            }
+            $imageUrl = $_POST['image_url'] ?? null;
+            $visibility = $_POST['visibility'] ?? 'public';
             
             // Mettre à jour l'article
-            $this->clubModel->updateBlogArticle($id, [
+            $blogModel->updateBlogArticle($id, [
                 'titre' => $titre,
                 'contenu' => $contenu,
-                'image' => $imagePath,
-                'date_modification' => date('Y-m-d H:i:s')
+                'image_url' => $imageUrl,
+                'visibility' => $visibility
             ]);
             
             $this->redirect('/responsable/gestionBlog?success=2');
@@ -595,17 +594,19 @@ class ResponsableController extends Controller {
      * Supprimer un article de blog
      * 
      * @return void
-     */
-    public function supprimerArticleBlog() {
+     */    public function supprimerArticleBlog() {
         $clubId = $this->getClubId();
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $articleId = $_POST['article_id'] ?? 0;
             
             // Vérifier que l'article appartient bien au club du responsable
-            $article = $this->clubModel->getBlogArticleById($articleId);
+            require_once APP_PATH . '/models/BlogModel.php';
+            $blogModel = new BlogModel();
+            $article = $blogModel->getBlogArticleById($articleId);
+            
             if ($article && $article['club_id'] == $clubId) {
-                $this->clubModel->deleteBlogArticle($articleId);
+                $blogModel->deleteBlogArticle($articleId);
                 echo json_encode(['success' => true]);
             } else {
                 echo json_encode([
@@ -618,29 +619,7 @@ class ResponsableController extends Controller {
         
         $this->redirect('/responsable/gestionBlog');
     }
-    
-    /**
-     * Traite le téléchargement d'une image
-     * 
-     * @param array $file Données du fichier téléchargé
-     * @return string Chemin du fichier enregistré
-     */
-    private function processImageUpload($file) {
-        $targetDir = PUBLIC_PATH . '/uploads/blog/';
-        $fileName = time() . '_' . basename($file['name']);
-        $targetPath = $targetDir . $fileName;
-        
-        // Créer le répertoire si nécessaire
-        if (!file_exists($targetDir)) {
-            mkdir($targetDir, 0777, true);
-        }
-        
-        // Déplacer le fichier téléchargé
-        move_uploaded_file($file['tmp_name'], $targetPath);
-        
-        // Retourner le chemin relatif
-        return '/uploads/blog/' . $fileName;
-    }    /**
+      /**
      * Gestion des feuilles de présence
      * 
      * @return void

@@ -37,14 +37,17 @@
                                     <textarea class="form-control" id="contenu" name="contenu" rows="12" required></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label for="image">Image de Couverture</label>
-                                    <div class="input-group">
-                                        <div class="custom-file">
-                                            <input type="file" class="custom-file-input" id="image" name="image" accept="image/*">
-                                            <label class="custom-file-label" for="image">Choisir une image</label>
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">Optionnel. Formats recommandés : JPEG, PNG. Taille max : 2MB</small>
+                                    <label for="visibility">Visibilité de l'Article</label>
+                                    <select class="form-control" id="visibility" name="visibility">
+                                        <option value="public">Public (visible par tous)</option>
+                                        <option value="club">Membres du club uniquement</option>
+                                    </select>
+                                    <small class="text-muted">Choisissez qui peut voir cet article</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="image_url">Lien de l'Image</label>
+                                    <input type="url" class="form-control" id="image_url" name="image_url" placeholder="https://exemple.com/image.jpg">
+                                    <small class="text-muted">Optionnel. Entrez l'URL d'une image (ex: https://exemple.com/image.jpg)</small>
                                 </div>
                             </div>
                             <div class="card-footer">
@@ -67,10 +70,9 @@
                                 <li>Ajoutez une image pertinente</li>
                                 <li>Rédigez un contenu clair et informatif</li>
                                 <li>Relisez votre article avant de le publier</li>
-                            </ul>
-                            <div class="alert alert-info mt-3">
+                            </ul>                            <div class="alert alert-info mt-3">
                                 <i class="icon fas fa-info-circle"></i>
-                                Les articles de blog seront visibles par tous les membres du club.
+                                Les articles peuvent être visibles par tous (public) ou uniquement par les membres de votre club.
                             </div>
                         </div>
                     </div>
@@ -118,21 +120,14 @@ $(document).ready(function() {
         removePlugins: 'elementspath',
         resize_enabled: false
     });
-    
-    // Afficher le nom du fichier image sélectionné
-    $('#image').on('change', function() {
-        var fileName = $(this).val().split('\\').pop();
-        $(this).siblings('.custom-file-label').html(fileName);
+      // Afficher un aperçu de l'image à partir de l'URL
+    $('#image_url').on('change keyup paste', function() {
+        var imageUrl = $(this).val().trim();
         
-        // Aperçu de l'image
-        if (this.files && this.files[0]) {
-            var reader = new FileReader();
-            
-            reader.onload = function(e) {
-                $('#image-preview').html('<img src="' + e.target.result + '" class="img-fluid" />');
-            }
-            
-            reader.readAsDataURL(this.files[0]);
+        if (imageUrl) {
+            $('#image-preview').html('<img src="' + imageUrl + '" class="img-fluid" onerror="this.onerror=null; this.src=\'/assets/img/image-not-found.jpg\'; this.alt=\'Image non disponible\';" />');
+        } else {
+            $('#image-preview').html('<p class="text-muted">Aucune image sélectionnée</p>');
         }
     });
     
@@ -145,17 +140,26 @@ $(document).ready(function() {
             return false;
         }
         
-        // Vérifier la taille de l'image
-        var imageInput = document.getElementById('image');
-        if (imageInput.files.length > 0) {
-            if (imageInput.files[0].size > 2 * 1024 * 1024) { // 2MB
-                e.preventDefault();
-                alert('La taille de l\'image ne doit pas dépasser 2MB.');
-                return false;
-            }
+        // Valider l'URL de l'image si elle n'est pas vide
+        var imageUrl = $('#image_url').val().trim();
+        if (imageUrl && !isValidURL(imageUrl)) {
+            e.preventDefault();
+            alert('Veuillez entrer une URL d\'image valide.');
+            return false;
         }
         
         return true;
     });
+    
+    // Fonction pour valider une URL
+    function isValidURL(url) {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocole
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domaine
+            '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OU adresse IP
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port et chemin
+            '(\\?[;&a-z\\d%_.~+=-]*)?'+ // paramètres
+            '(\\#[-a-z\\d_]*)?$','i'); // fragment
+        return pattern.test(url);
+    }
 });
 </script>

@@ -4,6 +4,7 @@ require_once APP_PATH . '/models/EtudiantModel.php';
 require_once APP_PATH . '/models/ClubModel.php';
 require_once APP_PATH . '/models/ActiviteModel.php';
 require_once APP_PATH . '/models/ParticipationActiviteModel.php';
+require_once APP_PATH . '/models/BlogModel.php';
 
 /**
  * Classe EtudiantController - Contrôleur pour les étudiants
@@ -13,6 +14,7 @@ class EtudiantController extends Controller {
     private $clubModel;
     private $activiteModel;
     private $participationActiviteModel;
+    private $blogModel; // Ajout du BlogModel
     
     /**
      * Constructeur
@@ -25,6 +27,7 @@ class EtudiantController extends Controller {
         $this->clubModel = new ClubModel();
         $this->activiteModel = new ActiviteModel();
         $this->participationActiviteModel = new ParticipationActiviteModel();
+        $this->blogModel = new BlogModel(); // Initialisation du BlogModel
         
         // Si l'URL courante n'est pas la page de profil, et que le profil est incomplet,
         // rediriger vers la page de profil avec un message
@@ -700,6 +703,75 @@ class EtudiantController extends Controller {
         ];
         
         $this->view('etudiant/mes_clubs', $data);
+    }
+
+    /**
+     * Affiche les articles de blog pour les étudiants
+     * 
+     * @return void
+     */
+    public function blogs() {
+        $etudiantId = $_SESSION['user_id'];
+
+        // Récupérer les IDs des clubs dont l'étudiant est membre
+        $mesClubs = $this->clubModel->getClubsByEtudiantId($etudiantId);
+        $mesClubsIds = array_map(function($club) {
+            return $club['id'];
+        }, $mesClubs);
+
+        // Récupérer les articles de blog visibles par l'étudiant
+        // (publics ou des clubs dont il est membre)
+        $articles = $this->blogModel->getVisibleBlogArticlesForEtudiant($mesClubsIds);
+
+        $data = [
+            'title' => 'Blog - Articles',
+            'articles' => $articles
+        ];
+
+        $this->view('etudiant/blogs', $data);
+    }
+
+    /**
+     * Affiche un article de blog spécifique.
+     * 
+     * @param int $articleId ID de l'article de blog.
+     * @return void
+     */
+    public function blogArticle($articleId) {
+        $etudiantId = $_SESSION['user_id'];
+
+        $article = $this->blogModel->getBlogArticleById($articleId);
+
+        if (!$article) {
+            // Gérer le cas où l'article n'existe pas
+            // Par exemple, rediriger vers la page des blogs avec un message d'erreur
+            $_SESSION['error_message'] = "L'article demandé n'existe pas.";
+            $this->redirect('/etudiant/blogs');
+            return;
+        }
+
+        // Vérifier la visibilité de l'article
+        if ($article['visibility'] === 'club') {
+            $mesClubs = $this->clubModel->getClubsByEtudiantId($etudiantId);
+            $mesClubsIds = array_map(function($club) {
+                return $club['id'];
+            }, $mesClubs);
+
+            if (!in_array($article['club_id'], $mesClubsIds)) {
+                // L'étudiant n'est pas membre du club et l'article est privé au club
+                $_SESSION['error_message'] = "Vous n'avez pas accès à cet article.";
+                $this->redirect('/etudiant/blogs');
+                return;
+            }
+        }
+
+        $data = [
+            'title' => htmlspecialchars($article['titre']),
+            'article' => $article
+        ];
+
+        // Le nom de la vue pour un article individuel, par exemple 'etudiant/blog_article_details.php'
+        $this->view('etudiant/blog_article_details', $data);
     }
 }
 ?>

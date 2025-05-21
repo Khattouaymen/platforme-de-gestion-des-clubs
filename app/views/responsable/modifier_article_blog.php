@@ -37,14 +37,17 @@
                                     <textarea class="form-control" id="contenu" name="contenu" rows="12" required><?= $article['contenu'] ?></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label for="image">Image de Couverture</label>
-                                    <div class="input-group">
-                                        <div class="custom-file">
-                                            <input type="file" class="custom-file-input" id="image" name="image" accept="image/*">
-                                            <label class="custom-file-label" for="image">Choisir une nouvelle image</label>
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">Optionnel. Laissez vide pour conserver l'image actuelle.</small>
+                                    <label for="visibility">Visibilité de l'Article</label>
+                                    <select class="form-control" id="visibility" name="visibility">
+                                        <option value="public" <?= ($article['visibility'] === 'public') ? 'selected' : '' ?>>Public (visible par tous)</option>
+                                        <option value="club" <?= ($article['visibility'] === 'club') ? 'selected' : '' ?>>Membres du club uniquement</option>
+                                    </select>
+                                    <small class="text-muted">Choisissez qui peut voir cet article</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="image_url">Lien de l'Image</label>
+                                    <input type="url" class="form-control" id="image_url" name="image_url" value="<?= $article['image_url'] ?? '' ?>" placeholder="https://exemple.com/image.jpg">
+                                    <small class="text-muted">Optionnel. Laissez vide pour supprimer l'image.</small>
                                 </div>
                             </div>
                             <div class="card-footer">
@@ -78,8 +81,8 @@
                         </div>
                         <div class="card-body text-center">
                             <div id="image-preview">
-                                <?php if (!empty($article['image'])): ?>
-                                    <img src="<?= $article['image'] ?>" class="img-fluid" alt="Image de couverture">
+                                <?php if (!empty($article['image_url'])): ?>
+                                    <img src="<?= $article['image_url'] ?>" class="img-fluid" alt="Image de couverture">
                                 <?php else: ?>
                                     <p class="text-muted">Aucune image</p>
                                 <?php endif; ?>
@@ -119,21 +122,14 @@ $(document).ready(function() {
         removePlugins: 'elementspath',
         resize_enabled: false
     });
-    
-    // Afficher le nom du fichier image sélectionné
-    $('#image').on('change', function() {
-        var fileName = $(this).val().split('\\').pop();
-        $(this).siblings('.custom-file-label').html(fileName);
+      // Afficher un aperçu de l'image à partir de l'URL
+    $('#image_url').on('change keyup paste', function() {
+        var imageUrl = $(this).val().trim();
         
-        // Aperçu de la nouvelle image
-        if (this.files && this.files[0]) {
-            var reader = new FileReader();
-            
-            reader.onload = function(e) {
-                $('#image-preview').html('<img src="' + e.target.result + '" class="img-fluid" />');
-            }
-            
-            reader.readAsDataURL(this.files[0]);
+        if (imageUrl) {
+            $('#image-preview').html('<img src="' + imageUrl + '" class="img-fluid" onerror="this.onerror=null; this.src=\'/assets/img/image-not-found.jpg\'; this.alt=\'Image non disponible\';" />');
+        } else {
+            $('#image-preview').html('<p class="text-muted">Aucune image</p>');
         }
     });
     
@@ -146,17 +142,26 @@ $(document).ready(function() {
             return false;
         }
         
-        // Vérifier la taille de l'image
-        var imageInput = document.getElementById('image');
-        if (imageInput.files.length > 0) {
-            if (imageInput.files[0].size > 2 * 1024 * 1024) { // 2MB
-                e.preventDefault();
-                alert('La taille de l\'image ne doit pas dépasser 2MB.');
-                return false;
-            }
+        // Valider l'URL de l'image si elle n'est pas vide
+        var imageUrl = $('#image_url').val().trim();
+        if (imageUrl && !isValidURL(imageUrl)) {
+            e.preventDefault();
+            alert('Veuillez entrer une URL d\'image valide.');
+            return false;
         }
         
         return true;
     });
+    
+    // Fonction pour valider une URL
+    function isValidURL(url) {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocole
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domaine
+            '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OU adresse IP
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port et chemin
+            '(\\?[;&a-z\\d%_.~+=-]*)?'+ // paramètres
+            '(\\#[-a-z\\d_]*)?$','i'); // fragment
+        return pattern.test(url);
+    }
 });
 </script>

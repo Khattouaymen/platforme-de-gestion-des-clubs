@@ -397,12 +397,15 @@ class ClubModel extends Model {
      * @param int $clubId ID du club
      * @return array Liste des articles de blog
      */
-    public function getBlogArticles($clubId) {
-        // À adapter selon la structure de votre table blog
-        // Exemple basique :
-        // $sql = "SELECT * FROM blog WHERE club_id = :club_id ORDER BY date_creation DESC";
-        // return $this->multiple($sql, ['club_id' => $clubId]);
-        return [];
+    public function getBlogArticles($clubId = null) { // Modifié pour accepter $clubId optionnel
+        if ($clubId) {
+            $sql = "SELECT b.*, c.nom as nom_club FROM blog b JOIN club c ON b.club_id = c.id WHERE b.club_id = :club_id ORDER BY b.date_creation DESC";
+            return $this->multiple($sql, ['club_id' => $clubId]);
+        } else {
+            // Récupère tous les articles de blog si aucun club_id n'est fourni
+            $sql = "SELECT b.*, c.nom as nom_club FROM blog b JOIN club c ON b.club_id = c.id ORDER BY b.date_creation DESC";
+            return $this->multiple($sql);
+        }
     }
 
     /**
