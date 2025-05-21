@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : mar. 20 mai 2025 à 22:08
+-- Généré le : mer. 21 mai 2025 à 05:53
 -- Version du serveur : 9.1.0
 -- Version de PHP : 8.3.14
 
@@ -38,7 +38,14 @@ CREATE TABLE IF NOT EXISTS `activite` (
   `responsable_notifie` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`activite_id`),
   KEY `fk_activite_club` (`club_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `activite`
+--
+
+INSERT INTO `activite` (`activite_id`, `titre`, `description`, `date_activite`, `lieu`, `club_id`, `responsable_notifie`) VALUES
+(1, 'test', 'test', '2025-05-22', 'salle 1', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -101,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `club` (
 --
 
 INSERT INTO `club` (`id`, `nom`, `description`, `nombre_membres`, `Logo_URL`) VALUES
-(1, 'CyberDune', 'CyberDune est un club étudiant orienté vers le numérique et les technologies. Il a pour objectif de développer les compétences des étudiants en programmation, cybersécurité, intelligence artificielle et technologies modernes à travers des ateliers, des compétitions et des activités éducatives.', 0, 'https://i.ibb.co/r2myf1m8/logo-cyberdune.jpg');
+(1, 'CyberDune', 'CyberDune est un club étudiant orienté vers le numérique et les technologies. Il a pour objectif de développer les compétences des étudiants en programmation, cybersécurité, intelligence artificielle et technologies modernes à travers des ateliers, des compétitions et des activités éducatives.', 0, '');
 
 -- --------------------------------------------------------
 
@@ -112,15 +119,27 @@ INSERT INTO `club` (`id`, `nom`, `description`, `nombre_membres`, `Logo_URL`) VA
 DROP TABLE IF EXISTS `demandeactivite`;
 CREATE TABLE IF NOT EXISTS `demandeactivite` (
   `id_demande_act` int NOT NULL AUTO_INCREMENT,
-  `nom_activite` varchar(100) NOT NULL,
+  `nom_activite` varchar(100) DEFAULT NULL,
   `description` text,
   `date_activite` date DEFAULT NULL,
   `nombre_max` int DEFAULT NULL,
   `lieu` varchar(50) DEFAULT NULL,
   `club_id` int DEFAULT NULL,
+  `date_debut` datetime DEFAULT NULL,
+  `date_fin` datetime DEFAULT NULL,
+  `statut` enum('en_attente','approuvee','rejetee') NOT NULL DEFAULT 'en_attente',
+  `date_creation` datetime DEFAULT NULL,
   PRIMARY KEY (`id_demande_act`),
   KEY `fk_demandeactivite_club` (`club_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `demandeactivite`
+--
+
+INSERT INTO `demandeactivite` (`id_demande_act`, `nom_activite`, `description`, `date_activite`, `nombre_max`, `lieu`, `club_id`, `date_debut`, `date_fin`, `statut`, `date_creation`) VALUES
+(1, 'Capture The Flag (CTF)', 'Nous souhaitons organiser un événement de type Capture The Flag (CTF) destiné aux passionnés de cybersécurité. L\'objectif est de permettre aux participants de tester et d\'améliorer leurs compétences en matière de sécurité informatique à travers une série de défis pratiques. Les épreuves couvriront divers domaines tels que la cryptographie, l\'exploitation de vulnérabilités, l\'analyse de réseaux et le forensic.', NULL, NULL, 'salle 1', 1, '2025-05-21 23:15:00', '2025-05-21 03:15:00', 'en_attente', '2025-05-20 22:15:47'),
+(3, 'test', 'test', NULL, NULL, 'salle 1', 1, '2025-05-22 01:30:00', '2025-05-23 01:30:00', 'approuvee', '2025-05-21 00:30:56');
 
 -- --------------------------------------------------------
 
@@ -135,10 +154,19 @@ CREATE TABLE IF NOT EXISTS `demandeadhesion` (
   `club_id` int NOT NULL,
   `date_demande` date DEFAULT NULL,
   `statut` enum('en_attente','acceptee','refusee') DEFAULT 'en_attente',
+  `motivation` text,
+  `date_traitement` date DEFAULT NULL,
   PRIMARY KEY (`demande_adh_id`),
   UNIQUE KEY `etudiant_id` (`etudiant_id`,`club_id`),
   KEY `fk_demandeadh_club` (`club_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `demandeadhesion`
+--
+
+INSERT INTO `demandeadhesion` (`demande_adh_id`, `etudiant_id`, `club_id`, `date_demande`, `statut`, `motivation`, `date_traitement`) VALUES
+(2, 1, 1, '2025-05-21', 'en_attente', 'je veux vous rejoinre car je suis motivee et passione par cybersecurity', NULL);
 
 -- --------------------------------------------------------
 
@@ -171,6 +199,9 @@ CREATE TABLE IF NOT EXISTS `etudiant` (
   `prenom` varchar(50) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `password` varchar(100) DEFAULT NULL,
+  `filiere` varchar(255) DEFAULT NULL,
+  `niveau` varchar(255) DEFAULT NULL,
+  `numero_etudiant` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_etudiant`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -178,11 +209,11 @@ CREATE TABLE IF NOT EXISTS `etudiant` (
 -- Déchargement des données de la table `etudiant`
 --
 
-INSERT INTO `etudiant` (`id_etudiant`, `nom`, `prenom`, `email`, `password`) VALUES
-(1, 'khattou', 'Aymen', 'khattouaymen@gmail.com', '$2y$10$A50nb3HXRBcHTZ1R3oBsQOLdwTL.RiOsZJSacU1fRyqWMohKqzN1y'),
-(2, 'issaad', 'badr', 'badr@example.com', '$2y$10$XYXvrXJ3CstyBEkiC4fYPuBJf6gBvm29jxKe.yDW3wNAklKtDpYxC'),
-(3, 'abid', 'selma', 'selma@gmail.com', '$2y$10$7g.gm.If2l2nQLlvKEqgg.dw9lbtSrFp7z9zjpRPNvxs0Tc9UcXbW'),
-(4, 'respo', 'test', 'respo@test.com', '$2y$10$6CY99KAR7LBCgcRnGbHHlefmV5poeCtdtpjStPSUb3djNQ.FkLwf6');
+INSERT INTO `etudiant` (`id_etudiant`, `nom`, `prenom`, `email`, `password`, `filiere`, `niveau`, `numero_etudiant`) VALUES
+(1, 'khattou', 'Aymen', 'khattouaymen@gmail.com', '$2y$10$A50nb3HXRBcHTZ1R3oBsQOLdwTL.RiOsZJSacU1fRyqWMohKqzN1y', 'genie informatique', '2eme annee', NULL),
+(2, 'issaad', 'badr', 'badr@example.com', '$2y$10$XYXvrXJ3CstyBEkiC4fYPuBJf6gBvm29jxKe.yDW3wNAklKtDpYxC', NULL, NULL, NULL),
+(3, 'abid', 'selma', 'selma@gmail.com', '$2y$10$7g.gm.If2l2nQLlvKEqgg.dw9lbtSrFp7z9zjpRPNvxs0Tc9UcXbW', NULL, NULL, NULL),
+(4, 'respo', 'test', 'respo@test.com', '$2y$10$6CY99KAR7LBCgcRnGbHHlefmV5poeCtdtpjStPSUb3djNQ.FkLwf6', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -201,7 +232,7 @@ CREATE TABLE IF NOT EXISTS `inscription_token` (
   `est_utilise` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
-) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `inscription_token`
@@ -232,7 +263,17 @@ INSERT INTO `inscription_token` (`id`, `token`, `type`, `date_creation`, `date_u
 (22, '85d026e328494244a74d8bcef0f5accc51144ff867a778d590eccbb61f843e7c', 'responsable', '2025-05-17 23:56:26', '2025-05-17 23:57:01', NULL, 1),
 (23, '378d903bfd311ccc96805cf09f368e36929f915e55ee15906686a7a78d034fbd', 'responsable', '2025-05-18 00:10:49', NULL, NULL, 1),
 (24, '08e74de7e889f50282bdc1878682ef69c05dce53665f518c0535a222e2840e94', 'responsable', '2025-05-18 00:10:55', '2025-05-18 00:12:14', 4, 1),
-(25, '38ec3cf2d5d105c65af17d371dc338f516ad981bbc83167c286edbf65fb9f663', 'responsable', '2025-05-18 21:41:47', NULL, NULL, 0);
+(25, '38ec3cf2d5d105c65af17d371dc338f516ad981bbc83167c286edbf65fb9f663', 'responsable', '2025-05-18 21:41:47', NULL, NULL, 0),
+(26, '57f6dd468f72df94628e9516752e8453c74cf03c571e5404b9f92e5d3ca307c1', 'responsable', '2025-05-21 03:05:25', NULL, NULL, 0),
+(27, '68cf0de5b1d15c89690d4da394d80924135cb2bda796eedbd4282edc129fca8c', 'responsable', '2025-05-21 03:07:20', NULL, NULL, 0),
+(28, '0e370fe615683404e0af17b11426fc9e2def62d3456762c2b5fd5a01eb85f93a', 'responsable', '2025-05-21 03:07:23', NULL, NULL, 0),
+(29, '57455f53e19253868609eea11fe5e342b4aa09398bb97873d9e7cc275fbf69ae', 'responsable', '2025-05-21 03:07:48', NULL, NULL, 0),
+(30, '520eb5d81f303b6c3575fa9b11253aba5cc7d823d7df2a4d8ce0bb451ad2b5d9', 'responsable', '2025-05-21 03:08:20', NULL, NULL, 0),
+(31, '205e86a828890bf87fc2b2c6ac7522f1afb5feff082fe7355427984ed0fc0150', 'responsable', '2025-05-21 03:10:07', NULL, NULL, 0),
+(32, 'f670e1bb3a6f2caa700aeb666f46be7e5a4561158f55ae36f6afa03d57cd4ae1', 'responsable', '2025-05-21 03:10:42', NULL, NULL, 0),
+(33, '2b3d5c9b29e18a650bef82d72e89bcd208353f265c93ef5826f095b7da231e11', 'responsable', '2025-05-21 03:11:07', NULL, NULL, 0),
+(34, 'fa91ad781ccde73171e5b916c3a6e9cd8d45759d11f6c1ed0ac6155d1f07e5e9', 'responsable', '2025-05-21 03:11:57', NULL, NULL, 0),
+(35, 'd12e82bb907b7394d85270df673ba74739f41977d95225ac8585f24058187857', 'responsable', '2025-05-21 05:22:34', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -289,7 +330,14 @@ CREATE TABLE IF NOT EXISTS `reservation` (
   KEY `ressource_id` (`ressource_id`),
   KEY `club_id` (`club_id`),
   KEY `activite_id` (`activite_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `reservation`
+--
+
+INSERT INTO `reservation` (`id_reservation`, `ressource_id`, `club_id`, `activite_id`, `date_debut`, `date_fin`, `statut`, `description`, `date_reservation`) VALUES
+(1, 1, 1, 1, '2025-05-22 03:33:00', '2025-05-23 03:33:00', 'approuvee', 'testtetstetstetsetstetstetstestetstest', '2025-05-21 02:35:48');
 
 -- --------------------------------------------------------
 
@@ -330,7 +378,14 @@ CREATE TABLE IF NOT EXISTS `ressource` (
   `disponibilite` enum('disponible','indisponible') DEFAULT 'disponible',
   PRIMARY KEY (`id_ressource`),
   KEY `fk_ressource_club` (`club_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `ressource`
+--
+
+INSERT INTO `ressource` (`id_ressource`, `nom_ressource`, `type_ressource`, `quantite`, `club_id`, `disponibilite`) VALUES
+(1, 'mic', 'materiel', 1, NULL, 'disponible');
 
 --
 -- Contraintes pour les tables déchargées
