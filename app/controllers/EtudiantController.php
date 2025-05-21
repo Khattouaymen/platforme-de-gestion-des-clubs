@@ -95,19 +95,41 @@ class EtudiantController extends Controller {
         
         $this->view('etudiant/dashboard', $data);
     }
-    
-    /**
+      /**
      * Liste des clubs disponibles
      * 
      * @return void
-     */
-    public function clubs() {
+     */    public function clubs() {
+        $etudiantId = $_SESSION['user_id'];
+        
         // Récupérer tous les clubs
         $clubs = $this->clubModel->getAll();
         
+        // Récupérer les clubs dont l'étudiant est membre
+        $mesClubs = $this->clubModel->getClubsByEtudiantId($etudiantId);
+        
+        // Créer un tableau des IDs des clubs dont l'étudiant est membre pour faciliter les vérifications
+        $mesClubsIds = [];
+        foreach ($mesClubs as $club) {
+            $mesClubsIds[] = $club['id'];
+        }
+        
+        // Récupérer les demandes d'adhésion en attente de l'étudiant
+        require_once APP_PATH . '/models/DemandeAdhesionModel.php';
+        $demandeAdhesionModel = new DemandeAdhesionModel();
+        $demandes = $demandeAdhesionModel->getByEtudiantId($etudiantId);
+        
+        // Créer un tableau associant l'ID du club au statut de la demande
+        $demandesParClub = [];
+        foreach ($demandes as $demande) {
+            $demandesParClub[$demande['club_id']] = $demande['statut'];
+        }
+        
         $data = [
             'title' => 'Clubs disponibles',
-            'clubs' => $clubs
+            'clubs' => $clubs,
+            'mesClubsIds' => $mesClubsIds,
+            'demandesParClub' => $demandesParClub
         ];
         
         $this->view('etudiant/clubs', $data);
