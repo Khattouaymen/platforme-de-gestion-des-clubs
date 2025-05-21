@@ -1,0 +1,43 @@
+DA_Model::approveAndCreateActivite - ENTER - ID: 1
+DA_Model::approveAndCreateActivite - Transaction BEGIN pour ID: 1
+DA_Model::approveAndCreateActivite - Data for ActiviteModel::create: Array
+(
+    [titre] => Capture The Flag (CTF)
+    [description] => Nous souhaitons organiser un événement de type Capture The Flag (CTF) destiné aux passionnés de cybersécurité. L'objectif est de permettre aux participants de tester et d'améliorer leurs compétences en matière de sécurité informatique à travers une série de défis pratiques. Les épreuves couvriront divers domaines tels que la cryptographie, l'exploitation de vulnérabilités, l'analyse de réseaux et le forensic.
+    [lieu] => salle 1
+    [club_id] => 1
+    [date_debut] => 2025-05-21 23:15:00
+    [date_fin] => 2025-05-21 03:15:00
+)
+
+DA_Model::approveAndCreateActivite - CALLING activiteModel->create...
+ActiviteModel::create SQL: INSERT INTO activite (titre, description, date_activite, lieu, club_id, responsable_notifie) 
+                VALUES (:titre, :description, :date_activite, :lieu, :club_id, 0)
+Params: Array
+(
+    [titre] => Capture The Flag (CTF)
+    [description] => Nous souhaitons organiser un événement de type Capture The Flag (CTF) destiné aux passionnés de cybersécurité. L'objectif est de permettre aux participants de tester et d'améliorer leurs compétences en matière de sécurité informatique à travers une série de défis pratiques. Les épreuves couvriront divers domaines tels que la cryptographie, l'exploitation de vulnérabilités, l'analyse de réseaux et le forensic.
+    [date_activite] => 2025-05-21 23:15:00
+    [lieu] => salle 1
+    [club_id] => 1
+)
+
+ActiviteModel::create executeResult: 1
+ActiviteModel::create lastInsertId: 2
+DA_Model::approveAndCreateActivite - RETURNED from activiteModel->create. activiteId: 2
+DA_Model::approveAndCreateActivite - CALLING this->updateStatut...
+updateStatut appelé avec ID: 1 et données: Array
+(
+    [statut] => approuvee
+)
+
+Requête SQL: UPDATE demandeactivite SET statut = :statut WHERE id_demande_act = :id
+Paramètres: Array
+(
+    [statut] => approuvee
+    [id] => 1
+)
+
+Résultat de execute: 1
+DA_Model::approveAndCreateActivite - RETURNED from this->updateStatut. success: 1
+DA_Model::approveAndCreateActivite - Commit SUCCESS. activiteId: 2. EXITING.

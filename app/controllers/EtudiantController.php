@@ -141,6 +141,8 @@ class EtudiantController extends Controller {
      * @param int $id ID du club
      * @return void
      */    public function club($id) {
+        $etudiantId = $_SESSION['user_id'];
+        
         // Récupérer les informations du club
         $club = $this->clubModel->getById($id);
         
@@ -150,7 +152,7 @@ class EtudiantController extends Controller {
         }
         
         // Vérifier si le profil est complet avant d'afficher les détails du club
-        if (!$this->isProfileComplete($_SESSION['user_id'])) {
+        if (!$this->isProfileComplete($etudiantId)) {
             $this->redirectToCompleteProfile();
             return;
         }
@@ -164,12 +166,37 @@ class EtudiantController extends Controller {
         // Récupérer le responsable du club
         $responsable = $this->clubModel->getResponsableByClubId($id);
         
+        // Vérifier si l'étudiant est déjà membre du club
+        $estMembre = false;
+        foreach ($membres as $membre) {
+            if ($membre['id_etudiant'] == $etudiantId) {
+                $estMembre = true;
+                break;
+            }
+        }
+        
+        // Vérifier s'il existe une demande d'adhésion en cours
+        require_once APP_PATH . '/models/DemandeAdhesionModel.php';
+        $demandeAdhesionModel = new DemandeAdhesionModel();
+        $demande = null;
+        
+        // Récupérer les demandes pour ce club de cet étudiant
+        $demandes = $demandeAdhesionModel->getByEtudiantId($etudiantId);
+        foreach ($demandes as $d) {
+            if ($d['club_id'] == $id) {
+                $demande = $d;
+                break;
+            }
+        }
+        
         $data = [
             'title' => 'Détails du club - ' . $club['nom'],
             'club' => $club,
             'activites' => $activites,
             'membres' => $membres,
-            'responsable' => $responsable
+            'responsable' => $responsable,
+            'estMembre' => $estMembre,
+            'demande' => $demande
         ];
         
         $this->view('etudiant/club_details', $data);

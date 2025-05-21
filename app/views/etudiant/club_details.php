@@ -33,12 +33,25 @@
                     <?php endif; ?>
                 </div>
             </div>
-            
+              <?php if (!$estMembre && (!$demande || ($demande['statut'] !== 'en_attente' && $demande['statut'] !== 'refusee'))): ?>
             <div class="d-grid mb-4">
                 <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/demandeAdhesion/<?php echo $club['id']; ?>" class="btn btn-primary btn-lg">
                     <i class="fas fa-plus-circle me-2"></i>Demander l'adhésion
                 </a>
             </div>
+            <?php elseif ($estMembre): ?>
+            <div class="alert alert-success mb-4">
+                <i class="fas fa-check-circle me-2"></i>Vous êtes déjà membre de ce club.
+            </div>
+            <?php elseif ($demande && $demande['statut'] === 'en_attente'): ?>
+            <div class="alert alert-warning mb-4">
+                <i class="fas fa-clock me-2"></i>Votre demande d'adhésion est en attente de traitement.
+            </div>
+            <?php elseif ($demande && $demande['statut'] === 'refusee'): ?>
+            <div class="alert alert-danger mb-4">
+                <i class="fas fa-times-circle me-2"></i>Votre demande d'adhésion a été refusée.
+            </div>
+            <?php endif; ?>
         </div>
           <div class="col-md-8">
             <div class="card mb-4">
