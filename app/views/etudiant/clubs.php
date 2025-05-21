@@ -35,7 +35,7 @@
                                 <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/club/<?php echo $club['id']; ?>" class="btn btn-outline-primary">
                                     <i class="fas fa-eye"></i> Détails
                                 </a>
-                                <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/demande-adhesion/<?php echo $club['id']; ?>" class="btn btn-primary">
+                                <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/demandeAdhesion/<?php echo $club['id']; ?>" class="btn btn-primary">
                                     <i class="fas fa-plus"></i> Rejoindre
                                 </a>
                             </div>

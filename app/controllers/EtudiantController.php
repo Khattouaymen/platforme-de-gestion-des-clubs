@@ -311,5 +311,29 @@ class EtudiantController extends Controller {
             $this->view('etudiant/profil', $data);
         }
     }
+    
+    /**
+     * Permet à un étudiant de demander l'adhésion à un club
+     * @param int $clubId
+     * @return void
+     */
+    public function demandeAdhesion($clubId)
+    {
+        $etudiantId = $_SESSION['user_id'];
+        $club = $this->clubModel->getById($clubId);
+        if (!$club) {
+            $this->redirect('/etudiant/clubs?error=Club+introuvable');
+            return;
+        }
+        require_once APP_PATH . '/models/DemandeAdhesionModel.php';
+        $demandeAdhesionModel = new DemandeAdhesionModel();
+        $demandeAdhesionModel->create([
+            'etudiant_id' => $etudiantId,
+            'club_id' => $clubId,
+            'statut' => 'en_attente',
+            'date_demande' => date('Y-m-d H:i:s')
+        ]);
+        $this->redirect('/etudiant/clubs?success=Votre+demande+a+été+envoyée');
+    }
 }
 ?>
