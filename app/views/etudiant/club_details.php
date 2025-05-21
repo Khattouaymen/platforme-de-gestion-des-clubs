@@ -129,13 +129,24 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($activites as $activite): ?>
-                                    <tr>
+                                    <?php foreach ($activites as $activite): ?>                                    <tr>
                                         <td>
-                                            <strong><?php echo htmlspecialchars($activite['titre']); ?></strong>
-                                            <div class="small text-muted">
-                                                <?php echo nl2br(htmlspecialchars(substr($activite['description'], 0, 100))); ?>
-                                                <?php if (strlen($activite['description']) > 100): ?>...<?php endif; ?>
+                                            <div class="d-flex">
+                                                <?php if (!empty($activite['Poster_URL'])): ?>
+                                                <div class="me-3">
+                                                    <img src="<?php echo htmlspecialchars($activite['Poster_URL']); ?>" 
+                                                         alt="Poster de <?php echo htmlspecialchars($activite['titre']); ?>"
+                                                         class="img-thumbnail" 
+                                                         style="width: 80px; height: 80px; object-fit: cover;">
+                                                </div>
+                                                <?php endif; ?>
+                                                <div>
+                                                    <strong><?php echo htmlspecialchars($activite['titre']); ?></strong>
+                                                    <div class="small text-muted">
+                                                        <?php echo nl2br(htmlspecialchars(substr($activite['description'], 0, 100))); ?>
+                                                        <?php if (strlen($activite['description']) > 100): ?>...<?php endif; ?>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
                                         <td>

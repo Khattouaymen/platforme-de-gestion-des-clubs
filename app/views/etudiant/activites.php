@@ -16,17 +16,20 @@
         </div>
     <?php else: ?>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <?php foreach ($activites as $activite): ?>
-            <div class="col">
+            <?php foreach ($activites as $activite): ?>            <div class="col">
                 <div class="card h-100 shadow-sm">
-                    <?php if (!empty($activite['Poster_URL'])): ?>
-                    <div class="position-relative">
-                        <img src="<?php echo htmlspecialchars($activite['Poster_URL']); ?>" 
-                             class="card-img-top" 
-                             alt="Poster de <?php echo htmlspecialchars($activite['titre']); ?>"
-                             style="height: 180px; object-fit: cover;">
+                    <div class="position-relative" style="height: 180px; overflow: hidden;">
+                        <?php if (!empty($activite['Poster_URL'])): ?>
+                            <img src="<?php echo htmlspecialchars($activite['Poster_URL']); ?>" 
+                                 class="card-img-top" 
+                                 alt="Poster de <?php echo htmlspecialchars($activite['titre']); ?>"
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="bg-light d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-calendar-alt fa-3x text-secondary"></i>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                    <?php endif; ?>
                     <div class="card-body">
                         <h5 class="card-title"><?php echo htmlspecialchars($activite['titre']); ?></h5>
                         <h6 class="card-subtitle mb-2 text-muted">

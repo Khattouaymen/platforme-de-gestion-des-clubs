@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : mer. 21 mai 2025 à 16:12
+-- Généré le : mer. 21 mai 2025 à 18:06
 -- Version du serveur : 9.1.0
 -- Version de PHP : 8.3.14
 
@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS `demandeactivite` (
   `date_fin` datetime DEFAULT NULL,
   `statut` enum('en_attente','approuvee','rejetee') NOT NULL DEFAULT 'en_attente',
   `date_creation` datetime DEFAULT NULL,
+  `Poster_URL` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_demande_act`),
   KEY `fk_demandeactivite_club` (`club_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -138,9 +139,9 @@ CREATE TABLE IF NOT EXISTS `demandeactivite` (
 -- Déchargement des données de la table `demandeactivite`
 --
 
-INSERT INTO `demandeactivite` (`id_demande_act`, `nom_activite`, `description`, `date_activite`, `nombre_max`, `lieu`, `club_id`, `date_debut`, `date_fin`, `statut`, `date_creation`) VALUES
-(1, 'Capture The Flag (CTF)', 'Nous souhaitons organiser un événement de type Capture The Flag (CTF) destiné aux passionnés de cybersécurité. L\'objectif est de permettre aux participants de tester et d\'améliorer leurs compétences en matière de sécurité informatique à travers une série de défis pratiques. Les épreuves couvriront divers domaines tels que la cryptographie, l\'exploitation de vulnérabilités, l\'analyse de réseaux et le forensic.', NULL, NULL, 'salle 1', 1, '2025-05-21 23:15:00', '2025-05-21 03:15:00', 'approuvee', '2025-05-20 22:15:47'),
-(3, 'test', 'test', NULL, NULL, 'salle 1', 1, '2025-05-22 01:30:00', '2025-05-23 01:30:00', 'approuvee', '2025-05-21 00:30:56');
+INSERT INTO `demandeactivite` (`id_demande_act`, `nom_activite`, `description`, `date_activite`, `nombre_max`, `lieu`, `club_id`, `date_debut`, `date_fin`, `statut`, `date_creation`, `Poster_URL`) VALUES
+(1, 'Capture The Flag (CTF)', 'Nous souhaitons organiser un événement de type Capture The Flag (CTF) destiné aux passionnés de cybersécurité. L\'objectif est de permettre aux participants de tester et d\'améliorer leurs compétences en matière de sécurité informatique à travers une série de défis pratiques. Les épreuves couvriront divers domaines tels que la cryptographie, l\'exploitation de vulnérabilités, l\'analyse de réseaux et le forensic.', NULL, NULL, 'salle 1', 1, '2025-05-21 23:15:00', '2025-05-21 03:15:00', 'approuvee', '2025-05-20 22:15:47', 'https://ik.imagekit.io/aymen/activite_cyber_dune.jpg'),
+(3, 'test', 'test', NULL, NULL, 'salle 1', 1, '2025-05-22 01:30:00', '2025-05-23 01:30:00', 'approuvee', '2025-05-21 00:30:56', 'https://ik.imagekit.io/aymen/activite_cyber_dune.jpg');
 
 -- --------------------------------------------------------
 

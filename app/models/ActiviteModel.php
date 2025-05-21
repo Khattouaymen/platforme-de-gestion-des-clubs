@@ -120,8 +120,7 @@ class ActiviteModel extends Model {
             'activite_id' => $activiteId
         ]);
     }
-    
-    /**
+      /**
      * Crée une nouvelle activité
      * 
      * @param array $data Données de l'activité
@@ -134,15 +133,17 @@ class ActiviteModel extends Model {
         $dateActiviteValue = $data['date_debut'] ?? ($data['date_activite'] ?? null);
 
         // responsable_notifie should be set to 0 by default.
-        $sql = "INSERT INTO activite (titre, description, date_activite, lieu, club_id, responsable_notifie) 
-                VALUES (:titre, :description, :date_activite, :lieu, :club_id, 0)";
+        $sql = "INSERT INTO activite (titre, description, date_activite, lieu, club_id, responsable_notifie, Poster_URL, nombre_max) 
+                VALUES (:titre, :description, :date_activite, :lieu, :club_id, 0, :poster_url, :nombre_max)";
         
         $params = [
             'titre' => $data['titre'],
             'description' => $data['description'],
             'date_activite' => $dateActiviteValue, 
             'lieu' => $data['lieu'],
-            'club_id' => $data['club_id']
+            'club_id' => $data['club_id'],
+            'poster_url' => $data['poster_url'] ?? null,
+            'nombre_max' => $data['nombre_max'] ?? null
         ];
 
         file_put_contents('debug_model.log', "ActiviteModel::create SQL: $sql\nParams: " . print_r($params, true) . "\n", FILE_APPEND);
