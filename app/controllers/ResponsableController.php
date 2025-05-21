@@ -233,8 +233,7 @@ class ResponsableController extends Controller {
         
         $this->view('responsable/gestion_activites', $data);
     }
-    
-    /**
+      /**
      * Créer une nouvelle demande d'activité
      * 
      * @return void
@@ -248,6 +247,8 @@ class ResponsableController extends Controller {
             $dateDebut = $_POST['date_debut'] ?? '';
             $dateFin = $_POST['date_fin'] ?? '';
             $lieu = $_POST['lieu'] ?? '';
+            $nombreMax = $_POST['nombre_max'] ?? null;
+            $posterUrl = $_POST['poster_url'] ?? '';
             
             // Créer la demande d'activité
             $demandeId = $this->demandeActiviteModel->create([
@@ -257,6 +258,8 @@ class ResponsableController extends Controller {
                 'date_debut' => $dateDebut,
                 'date_fin' => $dateFin,
                 'lieu' => $lieu,
+                'nombre_max' => $nombreMax,
+                'poster_url' => $posterUrl,
                 'statut' => 'en_attente',
                 'date_creation' => date('Y-m-d H:i:s')
             ]);

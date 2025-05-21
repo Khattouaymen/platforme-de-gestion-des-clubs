@@ -49,10 +49,18 @@
                                             <input type="datetime-local" class="form-control" id="date_fin" name="date_fin" required>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
+                                </div>                                <div class="form-group">
                                     <label for="lieu">Lieu</label>
                                     <input type="text" class="form-control" id="lieu" name="lieu" placeholder="Entrez le lieu de l'activité" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nombre_max">Nombre maximum de participants</label>
+                                    <input type="number" class="form-control" id="nombre_max" name="nombre_max" placeholder="Entrez le nombre maximum de participants" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="poster_url">URL du poster/affiche de l'activité</label>
+                                    <input type="url" class="form-control" id="poster_url" name="poster_url" placeholder="https://exemple.com/image.jpg">
+                                    <small class="form-text text-muted">Entrez l'URL complète d'une image qui servira d'affiche pour l'activité.</small>
                                 </div>
                                 <div class="alert alert-info">
                                     <i class="icon fas fa-info-circle"></i>

@@ -348,8 +348,7 @@
                 <div class="tab-pane fade show active" id="activite-all" role="tabpanel" aria-labelledby="activite-all-tab">
                     <div class="card shadow-sm">
                         <div class="card-body">
-                            <div class="table-responsive">                        <table class="table table-striped table-hover">
-                            <thead>
+                            <div class="table-responsive">                        <table class="table table-striped table-hover">                            <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Nom de l'activité</th>
@@ -357,6 +356,7 @@
                                     <th>Date début</th>
                                     <th>Date fin</th>
                                     <th>Lieu</th>
+                                    <th>Max. participants</th>
                                     <th>Statut</th>
                                     <th>Actions</th>
                                 </tr>
@@ -371,6 +371,7 @@
                                             <td><?php echo isset($demande['date_debut']) ? date('d/m/Y H:i', strtotime($demande['date_debut'])) : (isset($demande['date_activite']) ? date('d/m/Y', strtotime($demande['date_activite'])) : 'Non spécifiée'); ?></td>
                                             <td><?php echo isset($demande['date_fin']) ? date('d/m/Y H:i', strtotime($demande['date_fin'])) : 'Non spécifiée'; ?></td>
                                             <td><?php echo $demande['lieu'] ?? 'Non spécifié'; ?></td>
+                                            <td><?php echo $demande['nombre_max'] ?? 'Non limité'; ?></td>
                                             <td>
                                                 <?php if (isset($demande['statut']) && $demande['statut'] == 'approuvee'): ?>
                                                     <span class="badge bg-success">Approuvée</span>
@@ -599,14 +600,21 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="viewActiviteDemandeModalLabel">Détails de la demande d'activité</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>            <div class="modal-body">                <div class="row mb-3">
+            </div>            <div class="modal-body">
+                <div id="activite-poster-container" class="text-center mb-4" style="display: none;">
+                    <img src="" id="activite-poster" alt="Poster de l'activité" class="img-fluid" style="max-height: 200px;">
+                </div>
+                <div class="row mb-3">
                     <div class="col-md-6">
-                        <p><strong>Nom de l'activité:</strong> <span id="activite-titre"></span></p>
+                        <p><strong>Nom de l'activité:</strong> <span id="activite-nom"></span></p>
                         <p><strong>Club:</strong> <span id="activite-club"></span></p>
                         <p><strong>Statut:</strong> <span id="activite-statut"></span></p>
+                        <p><strong>Max. participants:</strong> <span id="activite-max-participants"></span></p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Date:</strong> <span id="activite-date"></span></p>
+                        <p><strong>Date début:</strong> <span id="activite-date-debut"></span></p>
+                        <p><strong>Date fin:</strong> <span id="activite-date-fin"></span></p>
+                        <p><strong>Date création:</strong> <span id="activite-date-creation"></span></p>
                         <p><strong>Lieu:</strong> <span id="activite-lieu"></span></p>
                     </div>
                 </div>
@@ -616,7 +624,8 @@
                 </div>
                 <div class="mb-3" id="activite-commentaire-container" style="display: none;">
                     <h6>Motif du rejet</h6>
-                    <div class="p-3 bg-light rounded" id="activite-commentaire"></div>                </div>
+                    <div class="p-3 bg-light rounded" id="activite-commentaire"></div>
+                </div>
             </div>
             <div class="modal-footer" id="activite-actions">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
@@ -703,8 +712,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    const demande = data.demande;
+                if (data.success) {                    const demande = data.demande;
                     
                     // Informations de base
                     document.getElementById('activite-nom').textContent = demande.nom_activite || 'Non spécifié';
@@ -729,7 +737,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('activite-date-fin').textContent = dateFin;
                     
                     // Nombre max de participants
-                    document.getElementById('activite-max-participants').textContent = demande.nombre_max || 'Non spécifié';
+                    document.getElementById('activite-max-participants').textContent = demande.nombre_max || 'Non limité';
+                    
+                    // Afficher le poster s'il existe
+                    const posterContainer = document.getElementById('activite-poster-container');
+                    if (demande.Poster_URL) {
+                        document.getElementById('activite-poster').src = demande.Poster_URL;
+                        posterContainer.style.display = 'block';
+                    } else {
+                        posterContainer.style.display = 'none';
+                    }
                     
                     // Statut avec badge
                     let statutBadge = '';

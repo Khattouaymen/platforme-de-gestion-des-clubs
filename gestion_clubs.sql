@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : mer. 21 mai 2025 à 05:53
+-- Généré le : mer. 21 mai 2025 à 16:12
 -- Version du serveur : 9.1.0
 -- Version de PHP : 8.3.14
 
@@ -38,14 +38,15 @@ CREATE TABLE IF NOT EXISTS `activite` (
   `responsable_notifie` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`activite_id`),
   KEY `fk_activite_club` (`club_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Déchargement des données de la table `activite`
 --
 
 INSERT INTO `activite` (`activite_id`, `titre`, `description`, `date_activite`, `lieu`, `club_id`, `responsable_notifie`) VALUES
-(1, 'test', 'test', '2025-05-22', 'salle 1', 1, 1);
+(1, 'test', 'test', '2025-05-22', 'salle 1', 1, 1),
+(2, 'Capture The Flag (CTF)', 'Nous souhaitons organiser un événement de type Capture The Flag (CTF) destiné aux passionnés de cybersécurité. L\'objectif est de permettre aux participants de tester et d\'améliorer leurs compétences en matière de sécurité informatique à travers une série de défis pratiques. Les épreuves couvriront divers domaines tels que la cryptographie, l\'exploitation de vulnérabilités, l\'analyse de réseaux et le forensic.', '2025-05-21', 'salle 1', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -108,7 +109,7 @@ CREATE TABLE IF NOT EXISTS `club` (
 --
 
 INSERT INTO `club` (`id`, `nom`, `description`, `nombre_membres`, `Logo_URL`) VALUES
-(1, 'CyberDune', 'CyberDune est un club étudiant orienté vers le numérique et les technologies. Il a pour objectif de développer les compétences des étudiants en programmation, cybersécurité, intelligence artificielle et technologies modernes à travers des ateliers, des compétitions et des activités éducatives.', 0, '');
+(1, 'CyberDune', 'CyberDune est un club &eacute;tudiant orient&eacute; vers le num&eacute;rique et les technologies. Il a pour objectif de d&eacute;velopper les comp&eacute;tences des &eacute;tudiants en programmation, cybers&eacute;curit&eacute;, intelligence artificielle et technologies modernes &agrave; travers des ateliers, des comp&eacute;titions et des activit&eacute;s &eacute;ducatives.', 1, 'https://ik.imagekit.io/aymen/logo_cyberdune.jpg');
 
 -- --------------------------------------------------------
 
@@ -138,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `demandeactivite` (
 --
 
 INSERT INTO `demandeactivite` (`id_demande_act`, `nom_activite`, `description`, `date_activite`, `nombre_max`, `lieu`, `club_id`, `date_debut`, `date_fin`, `statut`, `date_creation`) VALUES
-(1, 'Capture The Flag (CTF)', 'Nous souhaitons organiser un événement de type Capture The Flag (CTF) destiné aux passionnés de cybersécurité. L\'objectif est de permettre aux participants de tester et d\'améliorer leurs compétences en matière de sécurité informatique à travers une série de défis pratiques. Les épreuves couvriront divers domaines tels que la cryptographie, l\'exploitation de vulnérabilités, l\'analyse de réseaux et le forensic.', NULL, NULL, 'salle 1', 1, '2025-05-21 23:15:00', '2025-05-21 03:15:00', 'en_attente', '2025-05-20 22:15:47'),
+(1, 'Capture The Flag (CTF)', 'Nous souhaitons organiser un événement de type Capture The Flag (CTF) destiné aux passionnés de cybersécurité. L\'objectif est de permettre aux participants de tester et d\'améliorer leurs compétences en matière de sécurité informatique à travers une série de défis pratiques. Les épreuves couvriront divers domaines tels que la cryptographie, l\'exploitation de vulnérabilités, l\'analyse de réseaux et le forensic.', NULL, NULL, 'salle 1', 1, '2025-05-21 23:15:00', '2025-05-21 03:15:00', 'approuvee', '2025-05-20 22:15:47'),
 (3, 'test', 'test', NULL, NULL, 'salle 1', 1, '2025-05-22 01:30:00', '2025-05-23 01:30:00', 'approuvee', '2025-05-21 00:30:56');
 
 -- --------------------------------------------------------
@@ -159,14 +160,14 @@ CREATE TABLE IF NOT EXISTS `demandeadhesion` (
   PRIMARY KEY (`demande_adh_id`),
   UNIQUE KEY `etudiant_id` (`etudiant_id`,`club_id`),
   KEY `fk_demandeadh_club` (`club_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Déchargement des données de la table `demandeadhesion`
 --
 
 INSERT INTO `demandeadhesion` (`demande_adh_id`, `etudiant_id`, `club_id`, `date_demande`, `statut`, `motivation`, `date_traitement`) VALUES
-(2, 1, 1, '2025-05-21', 'en_attente', 'je veux vous rejoinre car je suis motivee et passione par cybersecurity', NULL);
+(6, 1, 1, '2025-05-21', 'acceptee', 'je suis motiver interessez par cybersecurity et les ctf', '2025-05-21');
 
 -- --------------------------------------------------------
 
@@ -210,7 +211,7 @@ CREATE TABLE IF NOT EXISTS `etudiant` (
 --
 
 INSERT INTO `etudiant` (`id_etudiant`, `nom`, `prenom`, `email`, `password`, `filiere`, `niveau`, `numero_etudiant`) VALUES
-(1, 'khattou', 'Aymen', 'khattouaymen@gmail.com', '$2y$10$A50nb3HXRBcHTZ1R3oBsQOLdwTL.RiOsZJSacU1fRyqWMohKqzN1y', 'genie informatique', '2eme annee', NULL),
+(1, 'khattou', 'Aymen', 'khattouaymen@gmail.com', '$2y$10$A50nb3HXRBcHTZ1R3oBsQOLdwTL.RiOsZJSacU1fRyqWMohKqzN1y', 'genie info', '2eme annee', '220704'),
 (2, 'issaad', 'badr', 'badr@example.com', '$2y$10$XYXvrXJ3CstyBEkiC4fYPuBJf6gBvm29jxKe.yDW3wNAklKtDpYxC', NULL, NULL, NULL),
 (3, 'abid', 'selma', 'selma@gmail.com', '$2y$10$7g.gm.If2l2nQLlvKEqgg.dw9lbtSrFp7z9zjpRPNvxs0Tc9UcXbW', NULL, NULL, NULL),
 (4, 'respo', 'test', 'respo@test.com', '$2y$10$6CY99KAR7LBCgcRnGbHHlefmV5poeCtdtpjStPSUb3djNQ.FkLwf6', NULL, NULL, NULL);
@@ -232,7 +233,7 @@ CREATE TABLE IF NOT EXISTS `inscription_token` (
   `est_utilise` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
-) ENGINE=MyISAM AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `inscription_token`
@@ -273,7 +274,8 @@ INSERT INTO `inscription_token` (`id`, `token`, `type`, `date_creation`, `date_u
 (32, 'f670e1bb3a6f2caa700aeb666f46be7e5a4561158f55ae36f6afa03d57cd4ae1', 'responsable', '2025-05-21 03:10:42', NULL, NULL, 0),
 (33, '2b3d5c9b29e18a650bef82d72e89bcd208353f265c93ef5826f095b7da231e11', 'responsable', '2025-05-21 03:11:07', NULL, NULL, 0),
 (34, 'fa91ad781ccde73171e5b916c3a6e9cd8d45759d11f6c1ed0ac6155d1f07e5e9', 'responsable', '2025-05-21 03:11:57', NULL, NULL, 0),
-(35, 'd12e82bb907b7394d85270df673ba74739f41977d95225ac8585f24058187857', 'responsable', '2025-05-21 05:22:34', NULL, NULL, 0);
+(35, 'd12e82bb907b7394d85270df673ba74739f41977d95225ac8585f24058187857', 'responsable', '2025-05-21 05:22:34', NULL, NULL, 0),
+(36, '8b14a603b987a09b5ce847c5797b9619e74ca2af3049f105b76ee51fdd2a5057', 'responsable', '2025-05-21 16:25:08', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -290,7 +292,14 @@ CREATE TABLE IF NOT EXISTS `membreclub` (
   PRIMARY KEY (`id_membre`),
   UNIQUE KEY `id_etudiant` (`id_etudiant`),
   KEY `fk_membre_club` (`club_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `membreclub`
+--
+
+INSERT INTO `membreclub` (`id_membre`, `id_etudiant`, `club_id`, `role`) VALUES
+(1, 1, 1, 'membre');
 
 -- --------------------------------------------------------
 

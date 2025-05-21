@@ -8,13 +8,14 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     echo "<h2>Mise à jour de la table demandeactivite</h2>";
-    
-    // Vérifier si les colonnes existent déjà
+      // Vérifier si les colonnes existent déjà
     $columnsToAdd = [
         'date_debut' => 'DATETIME DEFAULT NULL',
         'date_fin' => 'DATETIME DEFAULT NULL',
         'statut' => "enum('en_attente','approuvee','rejetee') NOT NULL DEFAULT 'en_attente'",
-        'date_creation' => 'DATETIME DEFAULT NULL'
+        'date_creation' => 'DATETIME DEFAULT NULL',
+        'nombre_max' => 'INT DEFAULT NULL COMMENT \'Nombre maximum de participants\'',
+        'Poster_URL' => 'VARCHAR(255) DEFAULT NULL'
     ];
     
     $existingColumns = [];

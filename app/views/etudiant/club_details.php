@@ -119,12 +119,12 @@
                         </div>
                     <?php else: ?>
                         <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
+                            <table class="table table-hover">                                <thead>
                                     <tr>
                                         <th>Titre</th>
                                         <th>Date</th>
                                         <th>Lieu</th>
+                                        <th>Max. participants</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -150,6 +150,9 @@
                                             ?>
                                         </td>                                        <td>
                                             <?php echo !empty($activite['lieu']) ? htmlspecialchars($activite['lieu']) : '<span class="text-muted">Non précisé</span>'; ?>
+                                        </td>
+                                        <td>
+                                            <?php echo !empty($activite['nombre_max']) ? htmlspecialchars($activite['nombre_max']) : '<span class="text-muted">Non limité</span>'; ?>
                                         </td>
                                         <td>
                                             <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/activite/<?php echo $activite['activite_id']; ?>" class="btn btn-sm btn-outline-primary">

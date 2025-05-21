@@ -91,11 +91,10 @@ class DemandeActiviteModel extends Model {    /**
      */
     public function create($data) {
         // Déterminer le SQL en fonction des champs disponibles
-        if (isset($data['date_debut']) && isset($data['date_fin'])) {
-            // Nouveau format avec date_debut, date_fin, statut
+        if (isset($data['date_debut']) && isset($data['date_fin'])) {            // Nouveau format avec date_debut, date_fin, statut
             $sql = "INSERT INTO demandeactivite 
-                   (nom_activite, description, date_debut, date_fin, lieu, club_id, statut, date_creation) 
-                   VALUES (:nom, :description, :date_debut, :date_fin, :lieu, :club_id, :statut, :date_creation)";
+                   (nom_activite, description, date_debut, date_fin, lieu, club_id, statut, date_creation, nombre_max, Poster_URL) 
+                   VALUES (:nom, :description, :date_debut, :date_fin, :lieu, :club_id, :statut, :date_creation, :nombre_max, :poster_url)";
             
             $params = [
                 'nom' => $data['titre'] ?? ($data['nom'] ?? null),
@@ -105,13 +104,14 @@ class DemandeActiviteModel extends Model {    /**
                 'lieu' => $data['lieu'] ?? null,
                 'club_id' => $data['club_id'] ?? null,
                 'statut' => $data['statut'] ?? 'en_attente',
-                'date_creation' => $data['date_creation'] ?? date('Y-m-d H:i:s')
+                'date_creation' => $data['date_creation'] ?? date('Y-m-d H:i:s'),
+                'nombre_max' => $data['nombre_max'] ?? null,
+                'poster_url' => $data['poster_url'] ?? null
             ];
-        } else {
-            // Ancien format avec date_activite, nombre_max
+        } else {            // Ancien format avec date_activite, nombre_max
             $sql = "INSERT INTO demandeactivite 
-                   (nom_activite, description, date_activite, nombre_max, lieu, club_id) 
-                   VALUES (:nom, :description, :date, :nombre_max, :lieu, :club_id)";
+                   (nom_activite, description, date_activite, nombre_max, lieu, club_id, Poster_URL) 
+                   VALUES (:nom, :description, :date, :nombre_max, :lieu, :club_id, :poster_url)";
             
             $params = [
                 'nom' => $data['titre'] ?? ($data['nom'] ?? null),
@@ -119,7 +119,8 @@ class DemandeActiviteModel extends Model {    /**
                 'date' => $data['date'] ?? ($data['date_activite'] ?? null),
                 'nombre_max' => $data['nombre_max'] ?? null,
                 'lieu' => $data['lieu'] ?? null,
-                'club_id' => $data['club_id'] ?? null
+                'club_id' => $data['club_id'] ?? null,
+                'poster_url' => $data['poster_url'] ?? null
             ];
         }
         
@@ -137,13 +138,13 @@ class DemandeActiviteModel extends Model {    /**
      * @param array $data Nouvelles données
      * @return bool Succès ou échec
      */
-    public function update($id, $data) {
-        $sql = "UPDATE demandeactivite SET 
+    public function update($id, $data) {        $sql = "UPDATE demandeactivite SET 
                 nom_activite = :nom,
                 description = :description,
                 date_activite = :date,
                 nombre_max = :nombre_max,
-                lieu = :lieu
+                lieu = :lieu,
+                Poster_URL = :poster_url
                 WHERE id_demande_act = :id";
         
         $params = [
@@ -152,6 +153,7 @@ class DemandeActiviteModel extends Model {    /**
             'date' => $data['date'] ?? null,
             'nombre_max' => $data['nombre_max'] ?? null,
             'lieu' => $data['lieu'] ?? null,
+            'poster_url' => $data['poster_url'] ?? null,
             'id' => $id
         ];
         
@@ -217,13 +219,14 @@ class DemandeActiviteModel extends Model {    /**
         
         try {
             // Préparer les données pour la nouvelle activité
-            $activiteData = [
-                'titre' => $demande['nom_activite'],
+            $activiteData = [                'titre' => $demande['nom_activite'],
                 'description' => $demande['description'],
                 'lieu' => $demande['lieu'],
                 'club_id' => $demande['club_id'],
                 'date_debut' => $demande['date_debut'] ?? ($demande['date_activite'] ?? null),
-                'date_fin' => $demande['date_fin'] ?? null 
+                'date_fin' => $demande['date_fin'] ?? null,
+                'nombre_max' => $demande['nombre_max'] ?? null,
+                'poster_url' => $demande['Poster_URL'] ?? null
             ];
             file_put_contents('debug_model.log', "DA_Model::approveAndCreateActivite - Data for ActiviteModel::create: " . print_r($activiteData, true) . "\n", FILE_APPEND);
             
