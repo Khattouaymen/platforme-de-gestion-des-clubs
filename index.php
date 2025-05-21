@@ -15,6 +15,9 @@ error_reporting(E_ALL);
 // Inclure la configuration de la base de données
 require_once(CONFIG_PATH . '/database.php');
 
+// Inclure les helpers
+require_once(APP_PATH . '/helpers/url_helper.php');
+
 // Chargement du router
 require_once(APP_PATH . '/core/Router.php');
 
