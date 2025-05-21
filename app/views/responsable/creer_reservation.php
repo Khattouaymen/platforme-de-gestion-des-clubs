@@ -45,7 +45,7 @@
                         <option value="">Sélectionnez une ressource</option>
                         <?php foreach ($ressources as $ressource): ?>
                             <option value="<?php echo $ressource['id_ressource']; ?>">
-                                <?php echo htmlspecialchars($ressource['nom_ressource']); ?> - <?php echo htmlspecialchars($ressource['description']); ?>
+                                <?php echo htmlspecialchars($ressource['nom_ressource']); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
