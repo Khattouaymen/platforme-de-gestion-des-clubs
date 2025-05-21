@@ -92,14 +92,37 @@
                                         <div class="chart-responsive">
                                             <canvas id="presenceChart" height="300"></canvas>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6">
+                                    </div>                                    <div class="col-md-6">
                                         <ul class="chart-legend clearfix">
                                             <li><i class="far fa-circle text-success"></i> Présents</li>
                                             <li><i class="far fa-circle text-warning"></i> Absents</li>
                                             <li><i class="far fa-circle text-info"></i> Non vérifiés</li>
                                         </ul>
                                         <div class="alert alert-light">
+                                            <p><strong>Statistiques globales :</strong></p>
+                                            <?php 
+                                            $totalPresents = 0;
+                                            $totalAbsents = 0;
+                                            $totalNonVerifies = 0;
+                                            $totalParticipants = 0;
+                                            
+                                            foreach ($activites as $activite) {
+                                                $totalPresents += $activite['presents'];
+                                                $totalAbsents += $activite['absents'];
+                                                $totalNonVerifies += $activite['non_verifies'];
+                                                $totalParticipants += ($activite['presents'] + $activite['absents'] + $activite['non_verifies']);
+                                            }
+                                            
+                                            $tauxPresence = $totalParticipants > 0 ? round(($totalPresents / $totalParticipants) * 100, 1) : 0;
+                                            $tauxAbsence = $totalParticipants > 0 ? round(($totalAbsents / $totalParticipants) * 100, 1) : 0;
+                                            $tauxNonVerifies = $totalParticipants > 0 ? round(($totalNonVerifies / $totalParticipants) * 100, 1) : 0;
+                                            ?>
+                                            <ul>
+                                                <li>Présents: <?= $totalPresents ?> (<?= $tauxPresence ?>%)</li>
+                                                <li>Absents: <?= $totalAbsents ?> (<?= $tauxAbsence ?>%)</li>
+                                                <li>Non vérifiés: <?= $totalNonVerifies ?> (<?= $tauxNonVerifies ?>%)</li>
+                                                <li>Total participants: <?= $totalParticipants ?></li>
+                                            </ul>
                                             <p><i class="fas fa-info-circle"></i> Cliquez sur une activité pour gérer sa feuille de présence.</p>
                                             <p><i class="fas fa-exclamation-circle"></i> Rappel: Il est important de faire l'appel pour chaque activité.</p>
                                         </div>

@@ -640,9 +640,7 @@ class ResponsableController extends Controller {
         
         // Retourner le chemin relatif
         return '/uploads/blog/' . $fileName;
-    }
-    
-    /**
+    }    /**
      * Gestion des feuilles de présence
      * 
      * @return void
@@ -650,6 +648,26 @@ class ResponsableController extends Controller {
     public function gestionPresence() {
         $clubId = $this->getClubId();
         $activites = $this->activiteModel->getByClubId($clubId);
+        
+        // Calculer les statistiques de présence pour chaque activité
+        foreach ($activites as &$activite) {
+            // Récupérer les statistiques de présence pour cette activité
+            $stats = $this->activiteModel->getPresenceStatsByActiviteId($activite['activite_id']);
+            
+            // Si aucun résultat n'est trouvé, initialiser les statistiques à zéro
+            if (!$stats) {
+                $activite['presents'] = 0;
+                $activite['absents'] = 0;
+                $activite['non_verifies'] = 0;
+                $activite['total_participants'] = 0;
+            } else {
+                // Ajouter les statistiques à l'activité
+                $activite['presents'] = (int)$stats['presents'];
+                $activite['absents'] = (int)$stats['absents'];
+                $activite['non_verifies'] = (int)$stats['non_verifies'];
+                $activite['total_participants'] = (int)$stats['total'];
+            }
+        }
         
         $data = [
             'activites' => $activites

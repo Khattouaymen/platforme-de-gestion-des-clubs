@@ -44,8 +44,7 @@ class ActiviteModel extends Model {    /**
                 LEFT JOIN club c ON a.club_id = c.id 
                 WHERE a.activite_id = :id";
         return $this->single($sql, ['id' => $id]);
-    }
-      /**
+    }    /**
      * Récupère les participants à une activité
      * 
      * @param int $activiteId ID de l'activité
@@ -57,6 +56,23 @@ class ActiviteModel extends Model {    /**
                 WHERE pa.activite_id = :activite_id
                 ORDER BY pa.statut, e.nom, e.prenom";
         return $this->multiple($sql, ['activite_id' => $activiteId]);
+    }
+    
+    /**
+     * Récupère les statistiques de présence pour une activité
+     * 
+     * @param int $activiteId ID de l'activité
+     * @return array Statistiques de présence (présents, absents, non vérifiés)
+     */
+    public function getPresenceStatsByActiviteId($activiteId) {
+        $sql = "SELECT 
+                SUM(CASE WHEN pa.statut = 'participe' THEN 1 ELSE 0 END) as presents,
+                SUM(CASE WHEN pa.statut = 'absent' THEN 1 ELSE 0 END) as absents,
+                SUM(CASE WHEN pa.statut NOT IN ('participe', 'absent') THEN 1 ELSE 0 END) as non_verifies,
+                COUNT(*) as total
+                FROM participationactivite pa
+                WHERE pa.activite_id = :activite_id";
+        return $this->single($sql, ['activite_id' => $activiteId]);
     }
       /**
      * Ajoute un participant à une activité
