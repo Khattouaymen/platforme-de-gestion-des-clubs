@@ -697,14 +697,13 @@ class ResponsableController extends Controller {
         $clubId = $this->getClubId();
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $activiteId = $_POST['activite_id'] ?? 0;
-            $etudiantId = $_POST['etudiant_id'] ?? 0;
+            $activiteId = $_POST['activite_id'] ?? 0;            $etudiantId = $_POST['etudiant_id'] ?? 0;
             $present = isset($_POST['present']) ? (($_POST['present'] === 'true') ? true : false) : false;
             
             // Vérifier que l'activité appartient bien au club du responsable
             $activite = $this->activiteModel->getById($activiteId);
             if ($activite && $activite['club_id'] == $clubId) {
-                $this->activiteModel->updateParticipantStatut($activiteId, $etudiantId, $present ? 'present' : 'absent');
+                $this->activiteModel->updateParticipantStatut($etudiantId, $activiteId, $present ? 'participe' : 'absent');
                 echo json_encode(['success' => true]);
             } else {
                 echo json_encode([

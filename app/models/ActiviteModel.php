@@ -42,81 +42,73 @@ class ActiviteModel extends Model {
                 WHERE a.activite_id = :id";
         return $this->single($sql, ['id' => $id]);
     }
-    
-    /**
+      /**
      * Récupère les participants à une activité
      * 
      * @param int $activiteId ID de l'activité
      * @return array Liste des participants
      */
     public function getParticipantsByActiviteId($activiteId) {
-        $sql = "SELECT pa.*, e.id_etudiant, e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email, mc.role
+        $sql = "SELECT pa.*, e.id_etudiant, e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email
                 FROM participationactivite pa
-                JOIN membreclub mc ON pa.membre_id = mc.id_membre
-                JOIN etudiant e ON mc.id_etudiant = e.id_etudiant
+                JOIN etudiant e ON pa.etudiant_id = e.id_etudiant
                 WHERE pa.activite_id = :activite_id
                 ORDER BY pa.statut, e.nom, e.prenom";
         return $this->multiple($sql, ['activite_id' => $activiteId]);
     }
-    
-    /**
+      /**
      * Ajoute un participant à une activité
      * 
-     * @param int $membreId ID du membre
+     * @param int $etudiantId ID de l'étudiant
      * @param int $activiteId ID de l'activité
      * @param string $statut Statut de la participation ('inscrit', 'absent', 'participe')
      * @return bool Succès de l'opération
-     */
-    public function addParticipant($membreId, $activiteId, $statut = 'inscrit', $nom = '', $prenom = '') {
-        $sql = "INSERT INTO participationactivite (membre_id, activite_id, statut, nom, prenom) 
-                VALUES (:membre_id, :activite_id, :statut, :nom, :prenom)
+     */    public function addParticipant($etudiantId, $activiteId, $statut = 'inscrit') {
+        $sql = "INSERT INTO participationactivite (etudiant_id, activite_id, statut, date_inscription) 
+                VALUES (:etudiant_id, :activite_id, :statut, NOW())
                 ON DUPLICATE KEY UPDATE statut = :statut";
         
         $stmt = $this->prepare($sql);
         return $stmt->execute([
-            'membre_id' => $membreId,
-            'activite_id' => $activiteId,
-            'statut' => $statut,
-            'nom' => $nom,
-            'prenom' => $prenom
-        ]);
-    }
-    
-    /**
-     * Met à jour le statut d'un participant
-     * 
-     * @param int $membreId ID du membre
-     * @param int $activiteId ID de l'activité
-     * @param string $statut Nouveau statut
-     * @return bool Succès de l'opération
-     */
-    public function updateParticipantStatut($membreId, $activiteId, $statut) {
-        $sql = "UPDATE participationactivite 
-                SET statut = :statut 
-                WHERE membre_id = :membre_id AND activite_id = :activite_id";
-                
-        $stmt = $this->prepare($sql);
-        return $stmt->execute([
-            'membre_id' => $membreId,
+            'etudiant_id' => $etudiantId,
             'activite_id' => $activiteId,
             'statut' => $statut
         ]);
     }
     
     /**
-     * Supprime un participant d'une activité
+     * Met à jour le statut d'un participant
      * 
-     * @param int $membreId ID du membre
+     * @param int $etudiantId ID de l'étudiant
      * @param int $activiteId ID de l'activité
-     * @return bool Succès de la suppression
-     */
-    public function removeParticipant($membreId, $activiteId) {
-        $sql = "DELETE FROM participationactivite 
-                WHERE membre_id = :membre_id AND activite_id = :activite_id";
+     * @param string $statut Nouveau statut
+     * @return bool Succès de l'opération
+     */    public function updateParticipantStatut($etudiantId, $activiteId, $statut) {
+        $sql = "UPDATE participationactivite 
+                SET statut = :statut 
+                WHERE etudiant_id = :etudiant_id AND activite_id = :activite_id";
                 
         $stmt = $this->prepare($sql);
         return $stmt->execute([
-            'membre_id' => $membreId,
+            'etudiant_id' => $etudiantId,
+            'activite_id' => $activiteId,
+            'statut' => $statut
+        ]);
+    }
+      /**
+     * Supprime un participant d'une activité
+     * 
+     * @param int $etudiantId ID de l'étudiant
+     * @param int $activiteId ID de l'activité
+     * @return bool Succès de la suppression
+     */
+    public function removeParticipant($etudiantId, $activiteId) {
+        $sql = "DELETE FROM participationactivite 
+                WHERE etudiant_id = :etudiant_id AND activite_id = :activite_id";
+                
+        $stmt = $this->prepare($sql);
+        return $stmt->execute([
+            'etudiant_id' => $etudiantId,
             'activite_id' => $activiteId
         ]);
     }
