@@ -95,7 +95,7 @@
     </section>
 </div>
 
-<script src="https://cdn.ckeditor.com/4.16.1/standard/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/4.25.1-lts/standard/ckeditor.js"></script>
 <script>
 $(document).ready(function() {
     // Initialiser l'éditeur de texte
