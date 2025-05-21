@@ -1,0 +1,84 @@
+AdminController::addRessource() appelée
+Contenu de $_POST: Array
+(
+    [nom] => mic
+    [type] => materiel
+    [quantite] => 1
+    [club_id] => 
+    [disponibilite] => disponible
+)
+
+Données filtrées: nom=mic, type=materiel, quantite=1, clubId=, dispo=disponible
+AdminController::addRessource() - Données pour le modèle: Array
+(
+    [nom_ressource] => mic
+    [type_ressource] => materiel
+    [quantite] => 1
+    [club_id] => 
+    [disponibilite] => disponible
+)
+
+RessourceModel::create - ENTER - Data: Array
+(
+    [nom_ressource] => mic
+    [type_ressource] => materiel
+    [quantite] => 1
+    [club_id] => 
+    [disponibilite] => disponible
+)
+
+RessourceModel::create - SQL: INSERT INTO ressource (nom_ressource, type_ressource, quantite, club_id, disponibilite, description) 
+                VALUES (:nom, :type, :quantite, :club_id, :disponibilite, :description)
+Params: Array
+(
+    [nom] => 
+    [type] => 
+    [quantite] => 1
+    [club_id] => 
+    [disponibilite] => disponible
+    [description] => 
+)
+
+AdminController::addRessource() appelée
+Contenu de $_POST: Array
+(
+    [nom] => mic
+    [type] => materiel
+    [quantite] => 1
+    [club_id] => 
+    [disponibilite] => disponible
+)
+
+Données filtrées: nom=mic, type=materiel, quantite=1, clubId=, dispo=disponible
+AdminController::addRessource() - Données pour le modèle: Array
+(
+    [nom_ressource] => mic
+    [type_ressource] => materiel
+    [quantite] => 1
+    [club_id] => 
+    [disponibilite] => disponible
+)
+
+RessourceModel::create - ENTER - Data: Array
+(
+    [nom_ressource] => mic
+    [type_ressource] => materiel
+    [quantite] => 1
+    [club_id] => 
+    [disponibilite] => disponible
+)
+
+RessourceModel::create - SQL: INSERT INTO ressource (nom_ressource, type_ressource, quantite, club_id, disponibilite) 
+                VALUES (:nom_ressource, :type_ressource, :quantite, :club_id, :disponibilite)
+Params: Array
+(
+    [nom_ressource] => mic
+    [type_ressource] => materiel
+    [quantite] => 1
+    [club_id] => 
+    [disponibilite] => disponible
+)
+
+RessourceModel::create - Result from execute: 1
+RessourceModel::create - LastInsertId: 1. EXITING.
+AdminController::addRessource() - Ressource ajoutée avec ID: 1

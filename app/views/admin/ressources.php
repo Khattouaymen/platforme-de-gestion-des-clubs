@@ -95,7 +95,7 @@
                 <h5 class="modal-title" id="addResourceModalLabel">Ajouter une ressource</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/ressources/add" method="POST">
+            <form action="/admin/ressources/add" method="POST">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="nom" class="form-label">Nom de la ressource</label>
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const ressourceId = button.getAttribute('data-id');
             
             // Récupérer les données de la ressource via AJAX
-            fetch(`<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/ressources/get/${ressourceId}`, {
+            fetch(`/admin/ressources/get/${ressourceId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Définir l'action du formulaire
                     document.getElementById('editRessourceForm').action = 
-                        `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/ressources/edit/${ressourceId}`;
+                        `/admin/ressources/edit/${ressourceId}`;
                 }
             })
             .catch(error => console.error('Error:', error));
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             document.getElementById('deleteRessourceName').textContent = ressourceName;
             document.getElementById('confirmDeleteRessourceBtn').href = 
-                `<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/ressources/delete/${ressourceId}`;
+                `/admin/ressources/delete/${ressourceId}`;
         });
     }
 });

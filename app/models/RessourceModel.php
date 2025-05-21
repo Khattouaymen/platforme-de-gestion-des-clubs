@@ -73,21 +73,29 @@ class RessourceModel extends Model {
      * @return int|false ID de la nouvelle ressource ou false
      */
     public function create($data) {
+        file_put_contents('debug_ressource.log', "RessourceModel::create - ENTER - Data: " . print_r($data, true) . "\n", FILE_APPEND);
         $sql = "INSERT INTO ressource (nom_ressource, type_ressource, quantite, club_id, disponibilite) 
-                VALUES (:nom, :type, :quantite, :club_id, :disponibilite)";
+                VALUES (:nom_ressource, :type_ressource, :quantite, :club_id, :disponibilite)";
         
         $params = [
-            'nom' => $data['nom'],
-            'type' => $data['type'],
+            'nom_ressource' => $data['nom_ressource'], // Corrected key
+            'type_ressource' => $data['type_ressource'], // Corrected key
             'quantite' => $data['quantite'] ?? 1,
             'club_id' => $data['club_id'] ?? null,
             'disponibilite' => $data['disponibilite'] ?? 'disponible'
         ];
+        file_put_contents('debug_ressource.log', "RessourceModel::create - SQL: $sql\nParams: " . print_r($params, true) . "\n", FILE_APPEND);
         
-        if ($this->execute($sql, $params)) {
-            return $this->lastInsertId();
+        $executeResult = $this->execute($sql, $params);
+        file_put_contents('debug_ressource.log', "RessourceModel::create - Result from execute: " . print_r($executeResult, true) . "\n", FILE_APPEND);
+
+        if ($executeResult) {
+            $lastId = $this->lastInsertId();
+            file_put_contents('debug_ressource.log', "RessourceModel::create - LastInsertId: " . print_r($lastId, true) . ". EXITING.\n", FILE_APPEND);
+            return $lastId;
         }
         
+        file_put_contents('debug_ressource.log', "RessourceModel::create - Execute FAILED. EXITING.\n", FILE_APPEND);
         return false;
     }
     
@@ -104,7 +112,8 @@ class RessourceModel extends Model {
                 type_ressource = :type,
                 quantite = :quantite,
                 club_id = :club_id,
-                disponibilite = :disponibilite
+                disponibilite = :disponibilite,
+                description = :description 
                 WHERE id_ressource = :id";
         
         $params = [
@@ -113,6 +122,7 @@ class RessourceModel extends Model {
             'quantite' => $data['quantite'] ?? 1,
             'club_id' => $data['club_id'] ?? null,
             'disponibilite' => $data['disponibilite'] ?? 'disponible',
+            'description' => $data['description'] ?? '', // Added description
             'id' => $id
         ];
         

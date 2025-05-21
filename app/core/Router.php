@@ -85,6 +85,49 @@ class Router {
                     return;
                 } // End of if ($action === 'clubs') block
 
+                // Traitement spécial pour les actions de gestion des ressources
+                if ($action === 'ressources') {
+                    // Vérifier s'il y a une sous-action (admin/ressources/<sous-action>)
+                    if (isset($url[2]) && !empty($url[2])) {
+                        $subAction = $url[2];
+                        
+                        // Déterminer la méthode à appeler en fonction de la sous-action
+                        $methodToCall = '';
+                        switch ($subAction) {
+                            case 'add':
+                                $methodToCall = 'addRessource';
+                                break;
+                            case 'edit':
+                                $methodToCall = 'editRessource';
+                                break;
+                            case 'delete':
+                                $methodToCall = 'deleteRessource';
+                                break;
+                            case 'get':
+                                $methodToCall = 'getRessource'; // Assurez-vous que cette méthode existe
+                                break;
+                            // Ajoutez d'autres cas si nécessaire
+                        }
+
+                        if (!empty($methodToCall) && method_exists($controllerInstance, $methodToCall)) {
+                            // Paramètres restants (par exemple, l'ID pour edit, delete, get)
+                            $params = [];
+                            if (isset($url[3])) { // ID est $url[3] pour edit/delete/get
+                                for ($i = 3; $i < count($url); $i++) {
+                                    $params[] = $url[$i];
+                                }
+                            }
+                            call_user_func_array([$controllerInstance, $methodToCall], $params);
+                        } else {
+                            $this->handleError("Sous-action '{$subAction}' pour les ressources non valide ou méthode '{$methodToCall}' non trouvée.");
+                        }
+                    } else {
+                        // Si aucune sous-action, afficher la page de gestion des ressources (admin/ressources)
+                        call_user_func([$controllerInstance, 'ressources']); // Assurez-vous que la méthode 'ressources' existe pour afficher la liste
+                    }
+                    return;
+                } // End of if ($action === 'ressources') block
+
                 // Vérifier si la méthode existe dans le contrôleur pour les autres actions
                 if (method_exists($controllerInstance, $action)) {
                     // Paramètres restants

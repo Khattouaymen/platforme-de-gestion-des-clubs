@@ -134,8 +134,8 @@ class AdminController extends Controller {
         }
         
         // Récupérer les données du formulaire
-        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
-        $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
+        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $logoUrl = filter_input(INPUT_POST, 'logo', FILTER_SANITIZE_URL);
         
         // Valider les entrées
@@ -207,8 +207,8 @@ class AdminController extends Controller {
         }
         
         // Récupérer les données du formulaire
-        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
-        $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
+        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         
         // Valider les entrées
         $errors = [];
@@ -628,19 +628,26 @@ class AdminController extends Controller {
      * @return void
      */
     public function addRessource() {
+        // Log l'entrée dans la méthode
+        file_put_contents('debug_ressource.log', "AdminController::addRessource() appelée\n", FILE_APPEND);
+        file_put_contents('debug_ressource.log', "Contenu de \$_POST: " . print_r($_POST, true) . "\n", FILE_APPEND);
+
         // Vérifier si la requête est de type POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            file_put_contents('debug_ressource.log', "AdminController::addRessource() - Requête non POST, redirection.\n", FILE_APPEND);
             $this->redirect('/admin/ressources');
             return;
         }
         
         // Récupérer les données du formulaire
-        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
-        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_STRING);
+        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $quantite = filter_input(INPUT_POST, 'quantite', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'default' => 1]]);
         $clubId = filter_input(INPUT_POST, 'club_id', FILTER_VALIDATE_INT);
-        $disponibilite = filter_input(INPUT_POST, 'disponibilite', FILTER_SANITIZE_STRING);
+        $disponibilite = filter_input(INPUT_POST, 'disponibilite', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         
+        file_put_contents('debug_ressource.log', "Données filtrées: nom=$nom, type=$type, quantite=$quantite, clubId=$clubId, dispo=$disponibilite\n", FILE_APPEND);
+
         // Valider les entrées
         $errors = [];
         
@@ -655,25 +662,30 @@ class AdminController extends Controller {
         // S'il y a des erreurs
         if (!empty($errors)) {
             $errorMessage = implode(', ', $errors);
+            file_put_contents('debug_ressource.log', "AdminController::addRessource() - Erreurs de validation: $errorMessage\n", FILE_APPEND);
             $this->redirect('/admin/ressources?error=' . urlencode($errorMessage));
             return;
         }
         
         // Préparer les données de la ressource
         $ressourceData = [
-            'nom' => $nom,
-            'type' => $type,
+            'nom_ressource' => $nom, // Ensure key matches column name
+            'type_ressource' => $type, // Ensure key matches column name
             'quantite' => $quantite,
             'club_id' => $clubId ?: null,
             'disponibilite' => $disponibilite ?: 'disponible'
         ];
         
+        file_put_contents('debug_ressource.log', "AdminController::addRessource() - Données pour le modèle: " . print_r($ressourceData, true) . "\n", FILE_APPEND);
+        
         // Ajouter la ressource
         $ressourceId = $this->ressourceModel->create($ressourceData);
         
         if ($ressourceId) {
+            file_put_contents('debug_ressource.log', "AdminController::addRessource() - Ressource ajoutée avec ID: $ressourceId\n", FILE_APPEND);
             $this->redirect('/admin/ressources?success=1');
         } else {
+            file_put_contents('debug_ressource.log', "AdminController::addRessource() - Échec de l'ajout de la ressource.\n", FILE_APPEND);
             $this->redirect('/admin/ressources?error=Une+erreur+est+survenue+lors+de+l%27ajout+de+la+ressource');
         }
     }
@@ -706,11 +718,11 @@ class AdminController extends Controller {
         }
         
         // Récupérer les données du formulaire
-        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
-        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_STRING);
+        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $quantite = filter_input(INPUT_POST, 'quantite', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'default' => 1]]);
         $clubId = filter_input(INPUT_POST, 'club_id', FILTER_VALIDATE_INT);
-        $disponibilite = filter_input(INPUT_POST, 'disponibilite', FILTER_SANITIZE_STRING);
+        $disponibilite = filter_input(INPUT_POST, 'disponibilite', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         
         // Valider les entrées
         $errors = [];
@@ -726,14 +738,14 @@ class AdminController extends Controller {
         // S'il y a des erreurs
         if (!empty($errors)) {
             $errorMessage = implode(', ', $errors);
-            $this->redirect('/admin/ressources?error=' . urlencode($errorMessage));
+            $this->redirect('/admin/ressources?error=' . urlencode($errorMessage) . '&id_edit=' . $id);
             return;
         }
         
         // Mettre à jour la ressource
         $ressourceData = [
-            'nom' => $nom,
-            'type' => $type,
+            'nom_ressource' => $nom, // Ensure key matches column name
+            'type_ressource' => $type, // Ensure key matches column name
             'quantite' => $quantite,
             'club_id' => $clubId ?: null,
             'disponibilite' => $disponibilite ?: 'disponible'
@@ -744,7 +756,7 @@ class AdminController extends Controller {
         if ($success) {
             $this->redirect('/admin/ressources?update_success=1');
         } else {
-            $this->redirect('/admin/ressources?error=Une+erreur+est+survenue+lors+de+la+mise+à+jour+de+la+ressource');
+            $this->redirect('/admin/ressources?error=Une+erreur+est+survenue+lors+de+la+mise+à+jour+de+la+ressource' . '&id_edit=' . $id);
         }
     }
     
