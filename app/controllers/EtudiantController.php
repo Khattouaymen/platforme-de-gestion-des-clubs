@@ -211,49 +211,31 @@ class EtudiantController extends Controller {
      * Mise à jour du profil
      * 
      * @return void
-     */
-    public function updateProfil() {
+     */    public function updateProfil() {
         // Vérifier si la requête est de type POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect('/etudiant/profil');
             return;
         }
         
-        // Récupérer les données du formulaire
-        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
-        $prenom = filter_input(INPUT_POST, 'prenom', FILTER_SANITIZE_STRING);
-        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-        $filiere = filter_input(INPUT_POST, 'filiere', FILTER_SANITIZE_STRING);
-        $niveau = filter_input(INPUT_POST, 'niveau', FILTER_SANITIZE_STRING);
-        $numero_etudiant = filter_input(INPUT_POST, 'numero_etudiant', FILTER_SANITIZE_STRING);
-        
-        // Valider les entrées
-        $errors = [];
-        
-        if (empty($nom)) {
-            $errors[] = 'Le nom est obligatoire';
+        // Récupérer d'abord les informations actuelles de l'étudiant pour préserver nom, prénom et email
+        $etudiant = $this->etudiantModel->getById($_SESSION['user_id']);
+        if (!$etudiant) {
+            $this->redirect('/etudiant/profil?error=Étudiant+introuvable');
+            return;
         }
         
-        if (empty($prenom)) {
-            $errors[] = 'Le prénom est obligatoire';
-        }
+        // Récupérer les données du formulaire (uniquement les champs modifiables)
+        $filiere = htmlspecialchars(trim($_POST['filiere'] ?? ''));
+        $niveau = htmlspecialchars(trim($_POST['niveau'] ?? ''));
+        $numero_etudiant = htmlspecialchars(trim($_POST['numero_etudiant'] ?? ''));
         
-        if (empty($email)) {
-            $errors[] = 'L\'email est obligatoire';
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'L\'email n\'est pas valide';
-        }
-
-        if (empty($filiere)) {
-            $errors[] = 'La filière est obligatoire';
-        }
-
-        if (empty($niveau)) {
-            $errors[] = 'Le niveau est obligatoire';
-        }
-
-        if (empty($numero_etudiant)) {
-            $errors[] = 'Le numéro d\'étudiant est obligatoire';
+        // On ne bloque pas la mise à jour si les champs spécifiques sont vides
+        // Mais on avertit l'utilisateur que son profil est incomplet
+        $profileIncomplete = false;
+        
+        if (empty($filiere) || empty($niveau) || empty($numero_etudiant)) {
+            $profileIncomplete = true;
         }
         
         // S'il y a des erreurs
@@ -268,25 +250,34 @@ class EtudiantController extends Controller {
             
             $this->view('etudiant/profil', $data);
             return;
-        }
-        
-        // Mettre à jour le profil
+        }        // Mettre à jour le profil (ne pas modifier nom, prénom et email)
         $userData = [
-            'nom' => $nom,
-            'prenom' => $prenom,
-            'email' => $email,
             'filiere' => $filiere,
             'niveau' => $niveau,
             'numero_etudiant' => $numero_etudiant
         ];
         
         $success = $this->etudiantModel->update($_SESSION['user_id'], $userData);
-        
-        if ($success) {
-            // Mettre à jour le nom dans la session
-            $_SESSION['user_name'] = $prenom . ' ' . $nom;
+          if ($success) {
+            // Ne pas mettre à jour le nom dans la session car il reste inchangé
             
-            $this->redirect('/etudiant/profil?success=1');
+            // Vérifier si c'était la première fois que l'utilisateur complétait son profil
+            $etudiantAvant = $this->etudiantModel->getById($_SESSION['user_id']);
+            $profilCompletAvant = !empty($etudiantAvant['filiere']) && 
+                                  !empty($etudiantAvant['niveau']) && 
+                                  !empty($etudiantAvant['numero_etudiant']);
+            
+            $profilCompletApres = !empty($filiere) && !empty($niveau) && !empty($numero_etudiant);
+              if (!$profilCompletAvant && $profilCompletApres) {
+                // Le profil vient d'être complété
+                $this->redirect('/etudiant/profil?success=1&completed=1');
+            } else if ($profileIncomplete) {
+                // Le profil a été mis à jour mais est toujours incomplet
+                $_SESSION['profile_completion_error'] = 'Votre profil a été mis à jour, mais il reste des informations manquantes (filière, niveau, numéro étudiant) nécessaires pour rejoindre des clubs ou participer à des activités.';
+                $this->redirect('/etudiant/profil?success=1');
+            } else {
+                $this->redirect('/etudiant/profil?success=1');
+            }
         } else {
             $etudiant = $this->etudiantModel->getById($_SESSION['user_id']);
             
@@ -375,8 +366,7 @@ class EtudiantController extends Controller {
             $this->view('etudiant/profil', $data);
         }
     }
-    
-    /**
+      /**
      * Permet à un étudiant de demander l'adhésion à un club
      * @param int $clubId
      * @return void
@@ -395,15 +385,42 @@ class EtudiantController extends Controller {
             $this->redirect('/etudiant/clubs?error=Club+introuvable');
             return;
         }
-        require_once APP_PATH . '/models/DemandeAdhesionModel.php';
-        $demandeAdhesionModel = new DemandeAdhesionModel();
-        $demandeAdhesionModel->create([
-            'etudiant_id' => $etudiantId,
-            'club_id' => $clubId,
-            'statut' => 'en_attente',
-            'date_demande' => date('Y-m-d H:i:s')
-        ]);
-        $this->redirect('/etudiant/clubs?success=Votre+demande+a+été+envoyée');
+
+        // Si c'est une soumission de formulaire
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $motivation = filter_input(INPUT_POST, 'motivation', FILTER_SANITIZE_STRING);
+            
+            if (empty($motivation)) {
+                $data = [
+                    'title' => 'Demande d\'adhésion - ' . $club['nom'],
+                    'club' => $club,
+                    'error' => 'Veuillez expliquer votre motivation pour rejoindre ce club'
+                ];
+                
+                $this->view('etudiant/demande_adhesion', $data);
+                return;
+            }
+            
+            require_once APP_PATH . '/models/DemandeAdhesionModel.php';
+            $demandeAdhesionModel = new DemandeAdhesionModel();
+            $demandeAdhesionModel->create([
+                'etudiant_id' => $etudiantId,
+                'club_id' => $clubId,
+                'statut' => 'en_attente',
+                'date_demande' => date('Y-m-d H:i:s'),
+                'motivation' => $motivation
+            ]);
+            
+            $this->redirect('/etudiant/clubs?success=Votre+demande+a+été+envoyée');
+        } else {
+            // Afficher le formulaire de motivation
+            $data = [
+                'title' => 'Demande d\'adhésion - ' . $club['nom'],
+                'club' => $club
+            ];
+            
+            $this->view('etudiant/demande_adhesion', $data);
+        }
     }
 }
 ?>

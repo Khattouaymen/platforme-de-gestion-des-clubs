@@ -65,32 +65,31 @@ class DemandeAdhesionModel extends Model {
     /**
      * Récupère les demandes d'adhésion pour un club spécifique
      * 
-     * @param int $clubId ID du club
-     * @return array Liste des demandes pour ce club
+     * @param int $clubId ID du club     * @return array Liste des demandes pour ce club
      */
     public function getByClubId($clubId) {
-        $sql = "SELECT d.*, e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email, e.filiere as etudiant_filiere, e.niveau as etudiant_niveau 
+        $sql = "SELECT d.*, e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email, e.filiere as etudiant_filiere, e.niveau as etudiant_niveau, e.numero_etudiant as etudiant_numero 
                 FROM demandeadhesion d 
                 LEFT JOIN etudiant e ON d.etudiant_id = e.id_etudiant 
                 WHERE d.club_id = :club_id";
         return $this->multiple($sql, ['club_id' => $clubId]);
     }
-    
-    /**
+      /**
      * Crée une nouvelle demande d'adhésion
      * 
      * @param array $data Données de la demande
      * @return int|false ID de la nouvelle demande ou false
      */
     public function create($data) {
-        $sql = "INSERT INTO demandeadhesion (etudiant_id, club_id, date_demande, statut) 
-                VALUES (:etudiant_id, :club_id, :date_demande, :statut)";
+        $sql = "INSERT INTO demandeadhesion (etudiant_id, club_id, date_demande, statut, motivation) 
+                VALUES (:etudiant_id, :club_id, :date_demande, :statut, :motivation)";
         
         $params = [
             'etudiant_id' => $data['etudiant_id'],
             'club_id' => $data['club_id'],
             'date_demande' => $data['date_demande'] ?? date('Y-m-d'),
-            'statut' => $data['statut'] ?? 'en_attente'
+            'statut' => $data['statut'] ?? 'en_attente',
+            'motivation' => $data['motivation'] ?? null
         ];
         
         if ($this->execute($sql, $params)) {
