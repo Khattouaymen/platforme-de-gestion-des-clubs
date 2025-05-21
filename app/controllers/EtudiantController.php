@@ -3,6 +3,7 @@ require_once APP_PATH . '/core/Controller.php';
 require_once APP_PATH . '/models/EtudiantModel.php';
 require_once APP_PATH . '/models/ClubModel.php';
 require_once APP_PATH . '/models/ActiviteModel.php';
+require_once APP_PATH . '/models/ParticipationActiviteModel.php';
 
 /**
  * Classe EtudiantController - Contrôleur pour les étudiants
@@ -11,16 +12,19 @@ class EtudiantController extends Controller {
     private $etudiantModel;
     private $clubModel;
     private $activiteModel;
+    private $participationActiviteModel;
     
     /**
      * Constructeur
-     */    public function __construct() {
+     */    
+    public function __construct() {
         // Vérifier si l'utilisateur est connecté en tant qu'étudiant
         $this->checkAuth();
         
         $this->etudiantModel = new EtudiantModel();
         $this->clubModel = new ClubModel();
         $this->activiteModel = new ActiviteModel();
+        $this->participationActiviteModel = new ParticipationActiviteModel();
         
         // Si l'URL courante n'est pas la page de profil, et que le profil est incomplet,
         // rediriger vers la page de profil avec un message
@@ -75,7 +79,8 @@ class EtudiantController extends Controller {
      * Tableau de bord de l'étudiant
      * 
      * @return void
-     */    public function index() {
+     */    
+    public function index() {
         // Récupérer les informations de l'étudiant
         $etudiant = $this->etudiantModel->getById($_SESSION['user_id']);
         
@@ -95,11 +100,13 @@ class EtudiantController extends Controller {
         
         $this->view('etudiant/dashboard', $data);
     }
-      /**
+    
+    /**
      * Liste des clubs disponibles
      * 
      * @return void
-     */    public function clubs() {
+     */    
+    public function clubs() {
         $etudiantId = $_SESSION['user_id'];
         
         // Récupérer tous les clubs
@@ -140,7 +147,8 @@ class EtudiantController extends Controller {
      * 
      * @param int $id ID du club
      * @return void
-     */    public function club($id) {
+     */    
+    public function club($id) {
         $etudiantId = $_SESSION['user_id'];
         
         // Récupérer les informations du club
@@ -224,7 +232,8 @@ class EtudiantController extends Controller {
      * 
      * @param int $id ID de l'activité
      * @return void
-     */    public function activite($id) {
+     */    
+    public function activite($id) {
         // Récupérer les informations de l'activité
         $activite = $this->activiteModel->getById($id);
         
@@ -238,13 +247,128 @@ class EtudiantController extends Controller {
             $this->redirectToCompleteProfile();
             return;
         }
+
+        // Vérifier si l'étudiant est déjà inscrit
+        $estInscrit = $this->participationActiviteModel->getByEtudiantAndActivite($_SESSION['user_id'], $id);
+        $nombreParticipants = $this->participationActiviteModel->getParticipantCount($id);
         
         $data = [
             'title' => 'Détails de l\'activité - ' . $activite['titre'],
-            'activite' => $activite
+            'activite' => $activite,
+            'estInscrit' => $estInscrit,
+            'nombreParticipants' => $nombreParticipants
         ];
         
         $this->view('etudiant/activite_details', $data);
+    }
+
+    /**
+     * Permet à un étudiant de s'inscrire à une activité.
+     * @return void
+     */
+    public function inscrireActivite()
+    {
+        // Check if it's a POST request
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/etudiant/activites');
+            return;
+        }
+
+        // Get activite_id from the POST data
+        $activiteId = isset($_POST['activite_id']) ? (int)$_POST['activite_id'] : 0;
+        if (!$activiteId) {
+            $_SESSION['error_message'] = 'ID d\'activité manquant.';
+            $this->redirect('/etudiant/activites');
+            return;
+        }
+
+        $etudiantId = $_SESSION['user_id'];
+
+        // Vérifier si le profil est complet avant de permettre l'inscription
+        if (!$this->isProfileComplete($etudiantId)) {
+            $_SESSION['error_message'] = 'Veuillez compléter votre profil avant de vous inscrire à une activité.';
+            $this->redirect('/etudiant/profil');
+            return;
+        }
+
+        $activite = $this->activiteModel->getById($activiteId);
+        if (!$activite) {
+            $_SESSION['error_message'] = 'Activité introuvable.';
+            $this->redirect('/etudiant/activites');
+            return;
+        }
+
+        // Vérifier si l'activité a une limite de participants et si elle est atteinte
+        if (isset($activite['nombre_max']) && $activite['nombre_max'] !== null) {
+            $nombreParticipants = $this->participationActiviteModel->getParticipantCount($activiteId);
+            if ($nombreParticipants >= $activite['nombre_max']) {
+                $_SESSION['error_message'] = 'Cette activité a atteint son nombre maximum de participants.';
+                $this->redirect('/etudiant/activite/' . $activiteId);
+                return;
+            }
+        }
+
+        $result = $this->participationActiviteModel->create([
+            'etudiant_id' => $etudiantId,
+            'activite_id' => $activiteId,
+            'statut' => 'inscrit',
+            'date_inscription' => date('Y-m-d H:i:s')
+        ]);
+
+        if (is_array($result) && !$result['success']) {
+             $_SESSION['error_message'] = $result['message'];
+        } elseif ($result) {
+            $_SESSION['success_message'] = 'Inscription à l\'activité \"' . htmlspecialchars($activite['titre']) . '\" réussie!';
+        } else {
+            $_SESSION['error_message'] = 'Une erreur est survenue lors de l\'inscription.';
+        }
+
+        $this->redirect('/etudiant/activite/' . $activiteId);
+    }
+
+    /**
+     * Permet à un étudiant de se désinscrire d'une activité.
+     * @param int $activiteId ID de l'activité
+     * @return void
+     */
+    public function desinscrireActivite($activiteId)
+    {
+        $etudiantId = $_SESSION['user_id'];
+
+        $activite = $this->activiteModel->getById($activiteId);
+        if (!$activite) {
+            $_SESSION['error_message'] = 'Activité introuvable.';
+            $this->redirect('/etudiant/activites');
+            return;
+        }
+
+        $success = $this->participationActiviteModel->deleteByEtudiantAndActivite($etudiantId, $activiteId); 
+
+        if ($success) {
+            $_SESSION['success_message'] = 'Désinscription de l\'activité \"' . htmlspecialchars($activite['titre']) . '\" réussie.';
+        } else {
+            $_SESSION['error_message'] = 'Une erreur est survenue lors de la désinscription.';
+        }
+
+        $this->redirect('/etudiant/activite/' . $activiteId);
+    }
+
+    /**
+     * Affiche les participations de l'étudiant.
+     * 
+     * @return void
+     */
+    public function mesParticipations()
+    {
+        $etudiantId = $_SESSION['user_id'];
+        $participations = $this->participationActiviteModel->getParticipationsByEtudiant($etudiantId);
+
+        $data = [
+            'title' => 'Mes Participations aux Activités',
+            'participations' => $participations
+        ];
+
+        $this->view('etudiant/mes_participations', $data);
     }
     
     /**
@@ -268,7 +392,8 @@ class EtudiantController extends Controller {
      * Mise à jour du profil
      * 
      * @return void
-     */    public function updateProfil() {
+     */    
+    public function updateProfil() {
         // Vérifier si la requête est de type POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect('/etudiant/profil');
@@ -307,7 +432,8 @@ class EtudiantController extends Controller {
             
             $this->view('etudiant/profil', $data);
             return;
-        }        // Mettre à jour le profil (ne pas modifier nom, prénom et email)
+        }        
+        // Mettre à jour le profil (ne pas modifier nom, prénom et email)
         $userData = [
             'filiere' => $filiere,
             'niveau' => $niveau,
@@ -315,7 +441,7 @@ class EtudiantController extends Controller {
         ];
         
         $success = $this->etudiantModel->update($_SESSION['user_id'], $userData);
-          if ($success) {
+        if ($success) {
             // Ne pas mettre à jour le nom dans la session car il reste inchangé
             
             // Vérifier si c'était la première fois que l'utilisateur complétait son profil
@@ -325,7 +451,7 @@ class EtudiantController extends Controller {
                                   !empty($etudiantAvant['numero_etudiant']);
             
             $profilCompletApres = !empty($filiere) && !empty($niveau) && !empty($numero_etudiant);
-              if (!$profilCompletAvant && $profilCompletApres) {
+            if (!$profilCompletAvant && $profilCompletApres) {
                 // Le profil vient d'être complété
                 $this->redirect('/etudiant/profil?success=1&completed=1');
             } else if ($profileIncomplete) {
@@ -423,11 +549,13 @@ class EtudiantController extends Controller {
             $this->view('etudiant/profil', $data);
         }
     }
-      /**
+    
+    /**
      * Permet à un étudiant de demander l'adhésion à un club
      * @param int $clubId
      * @return void
-     */    public function demandeAdhesion($clubId)
+     */    
+    public function demandeAdhesion($clubId)
     {
         $etudiantId = $_SESSION['user_id'];
         
@@ -441,7 +569,8 @@ class EtudiantController extends Controller {
         if (!$club) {
             $this->redirect('/etudiant/clubs?error=Club+introuvable');
             return;
-        }        // Si c'est une soumission de formulaire
+        }        
+        // Si c'est une soumission de formulaire
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Using htmlspecialchars instead of deprecated FILTER_SANITIZE_STRING
             $motivation = isset($_POST['motivation']) ? htmlspecialchars($_POST['motivation'], ENT_QUOTES, 'UTF-8') : '';
@@ -478,7 +607,8 @@ class EtudiantController extends Controller {
             $this->view('etudiant/demande_adhesion', $data);
         }
     }
-      /**
+    
+    /**
      * Affiche les clubs auxquels l'étudiant est membre ainsi que ses demandes d'adhésion
      * 
      * @return void
