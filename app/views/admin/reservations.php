@@ -77,10 +77,10 @@
                                     <td>
                                         <?php if ($reservation['statut'] === 'en_attente'): ?>
                                             <div class="btn-group btn-group-sm">
-                                                <a href="<?php echo isset($asset) ? $asset('') : ''; ?>/admin/approuverReservation/<?php echo $reservation['id_reservation']; ?>" class="btn btn-success" onclick="return confirm('Êtes-vous sûr de vouloir approuver cette réservation?')">
+                                                <a href="/admin/approuverReservation/<?php echo $reservation['id_reservation']; ?>" class="btn btn-success" onclick="return confirm('Êtes-vous sûr de vouloir approuver cette réservation?')">
                                                     <i class="fas fa-check"></i> Approuver
                                                 </a>
-                                                <a href="<?php echo isset($asset) ? $asset('') : ''; ?>/admin/rejeterReservation/<?php echo $reservation['id_reservation']; ?>" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir rejeter cette réservation?')">
+                                                <a href="/admin/rejeterReservation/<?php echo $reservation['id_reservation']; ?>" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir rejeter cette réservation?')">
                                                     <i class="fas fa-times"></i> Rejeter
                                                 </a>
                                             </div>
