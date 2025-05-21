@@ -74,11 +74,9 @@ class ParticipationActiviteModel extends Model {
         $stmt->bindParam(':etudiant_id', $etudiantId);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    // Add a method to get participations for a specific activity (useful for admins/responsables)
+    }    // Add a method to get participations for a specific activity (useful for admins/responsables)
     public function getParticipantsByActivite($activiteId) {
-        $sql = "SELECT pa.*, e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email 
+        $sql = "SELECT pa.*, e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email, e.filiere 
                 FROM {$this->table} pa
                 JOIN etudiant e ON pa.etudiant_id = e.id_etudiant
                 WHERE pa.activite_id = :activite_id";

@@ -47,9 +47,8 @@ class ActiviteModel extends Model {
      * 
      * @param int $activiteId ID de l'activité
      * @return array Liste des participants
-     */
-    public function getParticipantsByActiviteId($activiteId) {
-        $sql = "SELECT pa.*, e.id_etudiant, e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email
+     */    public function getParticipantsByActiviteId($activiteId) {
+        $sql = "SELECT pa.*, e.id_etudiant, e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email, e.filiere
                 FROM participationactivite pa
                 JOIN etudiant e ON pa.etudiant_id = e.id_etudiant
                 WHERE pa.activite_id = :activite_id
@@ -74,9 +73,7 @@ class ActiviteModel extends Model {
             'activite_id' => $activiteId,
             'statut' => $statut
         ]);
-    }
-    
-    /**
+    }    /**
      * Met à jour le statut d'un participant
      * 
      * @param int $etudiantId ID de l'étudiant
@@ -88,12 +85,37 @@ class ActiviteModel extends Model {
                 SET statut = :statut 
                 WHERE etudiant_id = :etudiant_id AND activite_id = :activite_id";
                 
-        $stmt = $this->prepare($sql);
-        return $stmt->execute([
+        $params = [
             'etudiant_id' => $etudiantId,
             'activite_id' => $activiteId,
             'statut' => $statut
-        ]);
+        ];
+        
+        // Exécuter la requête et vérifier s'il y a une erreur
+        // Nous ne regardons pas le nombre de lignes affectées car il pourrait être 0
+        // si le statut était déjà le même
+        try {
+            $this->execute($sql, $params);
+            
+            // Si aucune ligne n'a été affectée, vérifions si l'entrée existe
+            $check = "SELECT COUNT(*) as count FROM participationactivite 
+                     WHERE etudiant_id = :etudiant_id AND activite_id = :activite_id";
+            $result = $this->single($check, $params);
+            
+            if ($result && $result['count'] > 0) {
+                // L'entrée existe déjà, considérer comme un succès
+                return true;
+            } else {
+                // L'entrée n'existe pas, ajoutons-la
+                $insert = "INSERT INTO participationactivite (etudiant_id, activite_id, statut, date_inscription) 
+                           VALUES (:etudiant_id, :activite_id, :statut, NOW())";
+                return $this->execute($insert, $params) > 0;
+            }
+        } catch (Exception $e) {
+            // Journalisation de l'erreur
+            file_put_contents('debug_presence.log', date('Y-m-d H:i:s') . " - Erreur SQL: " . $e->getMessage() . "\n", FILE_APPEND);
+            return false;
+        }
     }
       /**
      * Supprime un participant d'une activité

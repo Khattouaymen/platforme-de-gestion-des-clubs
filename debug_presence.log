@@ -1,0 +1,31 @@
+2025-05-21 20:09:38 - Requête de marquage présence:
+activiteId: 1, etudiantId: 1, present: true
+2025-05-21 20:11:07 - Requête de marquage présence:
+activiteId: 1, etudiantId: 1, present: true
+Activité trouvée: oui
+club_id de l'activité: 1, club_id responsable: 1
+Appel de updateParticipantStatut avec etudiantId=1, activiteId=1, statut=participe
+2025-05-21 20:11:07 - Requête de marquage présence:
+activiteId: 1, etudiantId: 1, present: true
+Activité trouvée: oui
+club_id de l'activité: 1, club_id responsable: 1
+Appel de updateParticipantStatut avec etudiantId=1, activiteId=1, statut=participe
+2025-05-21 20:11:08 - Requête de marquage présence:
+activiteId: 1, etudiantId: 1, present: false
+Activité trouvée: oui
+club_id de l'activité: 1, club_id responsable: 1
+Appel de updateParticipantStatut avec etudiantId=1, activiteId=1, statut=absent
+2025-05-21 20:20:08 - Requête de marquage présence:
+activiteId: 1, etudiantId: 1, present: false
+Activité trouvée: oui
+club_id de l'activité: 1, club_id responsable: 1
+Appel de updateParticipantStatut avec etudiantId=1, activiteId=1, statut=absent
+2025-05-21 20:20:08 - Erreur SQL: SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens
+Résultat de updateParticipantStatut: échec
+2025-05-21 20:20:16 - Requête de marquage présence:
+activiteId: 1, etudiantId: 1, present: true
+Activité trouvée: oui
+club_id de l'activité: 1, club_id responsable: 1
+Appel de updateParticipantStatut avec etudiantId=1, activiteId=1, statut=participe
+2025-05-21 20:20:16 - Erreur SQL: SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens
+Résultat de updateParticipantStatut: échec

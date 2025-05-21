@@ -112,28 +112,26 @@
                                                 <tr>
                                                     <td colspan="6" class="text-center">Aucun participant pour cette activité</td>
                                                 </tr>
-                                            <?php else: ?>
-                                                <?php foreach ($participants as $participant): ?>
+                                            <?php else: ?>                                                <?php foreach ($participants as $participant): ?>
                                                     <tr>
                                                         <td><?= $participant['etudiant_id'] ?></td>
-                                                        <td><?= $participant['nom'] . ' ' . $participant['prenom'] ?></td>
-                                                        <td><?= $participant['email'] ?></td>
-                                                        <td><?= $participant['filiere'] ?></td>
+                                                        <td><?= $participant['etudiant_nom'] . ' ' . $participant['etudiant_prenom'] ?></td>
+                                                        <td><?= $participant['etudiant_email'] ?></td>
+                                                        <td><?= $participant['filiere'] ?? 'Non spécifiée' ?></td>
                                                         <td>
-                                                            <?php if ($participant['statut'] === 'present'): ?>
+                                                            <?php if ($participant['statut'] === 'participe'): ?>
                                                                 <span class="badge bg-success">Présent</span>
                                                             <?php elseif ($participant['statut'] === 'absent'): ?>
                                                                 <span class="badge bg-danger">Absent</span>
                                                             <?php else: ?>
                                                                 <span class="badge bg-warning">Non vérifié</span>
                                                             <?php endif; ?>
-                                                        </td>
-                                                        <td>
+                                                        </td>                                                        <td>
                                                             <div class="btn-group">
-                                                                <button class="btn btn-xs btn-success mark-present" data-activite-id="<?= $activite['id'] ?>" data-etudiant-id="<?= $participant['etudiant_id'] ?>">
+                                                                <button class="btn btn-xs btn-success mark-present" data-activite-id="<?= $activite['activite_id'] ?>" data-etudiant-id="<?= $participant['etudiant_id'] ?>">
                                                                     <i class="fas fa-check"></i> Présent
                                                                 </button>
-                                                                <button class="btn btn-xs btn-danger mark-absent" data-activite-id="<?= $activite['id'] ?>" data-etudiant-id="<?= $participant['etudiant_id'] ?>">
+                                                                <button class="btn btn-xs btn-danger mark-absent" data-activite-id="<?= $activite['activite_id'] ?>" data-etudiant-id="<?= $participant['etudiant_id'] ?>">
                                                                     <i class="fas fa-times"></i> Absent
                                                                 </button>
                                                             </div>
@@ -194,10 +192,14 @@ $(document).ready(function() {
         var etudiantId = $(this).data("etudiant-id");
         
         updatePresence(activiteId, etudiantId, false);
-    });
-    
-    // Fonction pour mettre à jour la présence
+    });      // Fonction pour mettre à jour la présence
     function updatePresence(activiteId, etudiantId, present) {
+        console.log("Mise à jour de présence:", {
+            activite_id: activiteId,
+            etudiant_id: etudiantId,
+            present: present
+        });
+
         $.ajax({
             url: '/responsable/marquerPresence',
             type: 'POST',
@@ -207,16 +209,35 @@ $(document).ready(function() {
                 present: present
             },
             success: function(response) {
-                var result = JSON.parse(response);
-                if (result.success) {
-                    toastr.success("Le statut a été mis à jour avec succès");
-                    // Recharger la page pour mettre à jour les informations
-                    location.reload();
-                } else {
-                    toastr.error(result.message || "Une erreur est survenue lors de la mise à jour du statut");
+                console.log("Réponse brute du serveur:", response);
+                
+                var result;
+                try {
+                    if (typeof response === 'object') {
+                        // Si la réponse est déjà un objet (ce qui peut arriver si le serveur inclut un header Content-Type: application/json)
+                        result = response;
+                    } else {
+                        result = JSON.parse(response);
+                    }
+                    
+                    console.log("Réponse parsée:", result);
+                    
+                    if (result.success) {
+                        toastr.success("Le statut a été mis à jour avec succès");
+                        // Recharger la page pour mettre à jour les informations
+                        location.reload();
+                    } else {
+                        toastr.error(result.message || "Une erreur est survenue lors de la mise à jour du statut");
+                    }
+                } catch (e) {
+                    console.error("Erreur de parsing JSON:", e);
+                    console.error("Contenu de la réponse:", response);
+                    toastr.error("Format de réponse non valide");
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error("Erreur AJAX:", status, error);
+                console.error("Détails de l'erreur:", xhr.responseText);
                 toastr.error("Une erreur est survenue lors de la communication avec le serveur");
             }
         });

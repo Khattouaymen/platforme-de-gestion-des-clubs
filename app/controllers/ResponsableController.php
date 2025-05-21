@@ -687,25 +687,44 @@ class ResponsableController extends Controller {
         
         $this->view('responsable/presence_activite', $data);
     }
-    
-    /**
+      /**
      * Marquer la présence d'un participant
      * 
      * @return void
-     */
-    public function marquerPresence() {
+     */    public function marquerPresence() {
         $clubId = $this->getClubId();
+        $logFile = 'C:/Users/Pavilion/sfe/debug_presence.log';
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $activiteId = $_POST['activite_id'] ?? 0;            $etudiantId = $_POST['etudiant_id'] ?? 0;
+            $activiteId = $_POST['activite_id'] ?? 0;
+            $etudiantId = $_POST['etudiant_id'] ?? 0;
             $present = isset($_POST['present']) ? (($_POST['present'] === 'true') ? true : false) : false;
+            
+            // Journalisation des données reçues pour débogage
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " - Requête de marquage présence:\n", FILE_APPEND);
+            file_put_contents($logFile, "activiteId: $activiteId, etudiantId: $etudiantId, present: " . ($present ? 'true' : 'false') . "\n", FILE_APPEND);
             
             // Vérifier que l'activité appartient bien au club du responsable
             $activite = $this->activiteModel->getById($activiteId);
+            file_put_contents($logFile, "Activité trouvée: " . ($activite ? 'oui' : 'non') . "\n", FILE_APPEND);
+            if ($activite) {
+                file_put_contents($logFile, "club_id de l'activité: " . $activite['club_id'] . ", club_id responsable: $clubId\n", FILE_APPEND);
+            }
+            
+            $statut = $present ? 'participe' : 'absent';
+            
             if ($activite && $activite['club_id'] == $clubId) {
-                $this->activiteModel->updateParticipantStatut($etudiantId, $activiteId, $present ? 'participe' : 'absent');
-                echo json_encode(['success' => true]);
+                file_put_contents($logFile, "Appel de updateParticipantStatut avec etudiantId=$etudiantId, activiteId=$activiteId, statut=$statut\n", FILE_APPEND);
+                $result = $this->activiteModel->updateParticipantStatut($etudiantId, $activiteId, $statut);
+                file_put_contents($logFile, "Résultat de updateParticipantStatut: " . ($result ? 'success' : 'échec') . "\n", FILE_APPEND);
+                
+                // Assurons-nous que le navigateur comprend que la réponse est du JSON
+                header('Content-Type: application/json');
+                echo json_encode(['success' => $result]);
             } else {
+                file_put_contents($logFile, "Activité non trouvée ou n'appartient pas au club.\n", FILE_APPEND);
+                
+                header('Content-Type: application/json');
                 echo json_encode([
                     'success' => false, 
                     'message' => 'Cette activité n\'appartient pas à votre club'
