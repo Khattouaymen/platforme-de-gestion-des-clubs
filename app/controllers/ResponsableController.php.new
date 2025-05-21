@@ -1,4 +1,3 @@
-// Enhanced ResponsableController.php with fixed adhésion handling
 <?php
 require_once APP_PATH . '/core/Controller.php';
 require_once APP_PATH . '/models/ClubModel.php';
