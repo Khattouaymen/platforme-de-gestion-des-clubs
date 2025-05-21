@@ -216,12 +216,54 @@ class EtudiantController extends Controller {
      * @return void
      */
     public function activites() {
+        $etudiantId = $_SESSION['user_id'];
+        
         // Récupérer toutes les activités
         $activites = $this->activiteModel->getAll();
         
+        // Préparer les tableaux pour les trois catégories d'activités
+        $activitesDisponibles = [];
+        $activitesInscrites = [];
+        $activitesTerminees = [];
+        
+        $dateCourante = date('Y-m-d H:i:s');
+        
+        // Récupérer les activités auxquelles l'étudiant est inscrit
+        $inscriptions = [];
+        
+        foreach ($activites as $activite) {
+            // Vérifier si l'étudiant est inscrit à cette activité
+            $estInscrit = $this->participationActiviteModel->getByEtudiantAndActivite($etudiantId, $activite['activite_id']);
+            
+            if ($estInscrit) {
+                $inscriptions[$activite['activite_id']] = true;
+            }
+            
+            // Déterminer si l'activité est terminée
+            $dateFinActivite = $activite['date_fin'] ?? null;
+            if ($dateFinActivite === null && isset($activite['date_activite'])) {
+                // Si pas de date_fin, on considère que l'activité se termine à la fin de la journée de date_activite
+                $dateFinActivite = date('Y-m-d 23:59:59', strtotime($activite['date_activite']));
+            }
+            
+            $estTerminee = ($dateFinActivite !== null && $dateFinActivite < $dateCourante);
+            
+            // Classer l'activité dans la catégorie appropriée
+            if ($estTerminee) {
+                $activitesTerminees[] = $activite;
+            } elseif ($estInscrit) {
+                $activitesInscrites[] = $activite;
+            } else {
+                $activitesDisponibles[] = $activite;
+            }
+        }
+        
         $data = [
-            'title' => 'Activités disponibles',
-            'activites' => $activites
+            'title' => 'Activités',
+            'activitesDisponibles' => $activitesDisponibles,
+            'activitesInscrites' => $activitesInscrites,
+            'activitesTerminees' => $activitesTerminees,
+            'inscriptions' => $inscriptions
         ];
         
         $this->view('etudiant/activites', $data);
@@ -328,11 +370,24 @@ class EtudiantController extends Controller {
 
     /**
      * Permet à un étudiant de se désinscrire d'une activité.
-     * @param int $activiteId ID de l'activité
      * @return void
      */
-    public function desinscrireActivite($activiteId)
+    public function desinscrireActivite()
     {
+        // Check if it's a POST request
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/etudiant/activites');
+            return;
+        }
+
+        // Get activite_id from the POST data
+        $activiteId = isset($_POST['activite_id']) ? (int)$_POST['activite_id'] : 0;
+        if (!$activiteId) {
+            $_SESSION['error_message'] = 'ID d\'activité manquant.';
+            $this->redirect('/etudiant/activites');
+            return;
+        }
+
         $etudiantId = $_SESSION['user_id'];
 
         $activite = $this->activiteModel->getById($activiteId);
@@ -342,10 +397,18 @@ class EtudiantController extends Controller {
             return;
         }
 
-        $success = $this->participationActiviteModel->deleteByEtudiantAndActivite($etudiantId, $activiteId); 
+        // Vérifier si l'étudiant est inscrit à cette activité
+        $inscription = $this->participationActiviteModel->getByEtudiantAndActivite($etudiantId, $activiteId);
+        if (!$inscription) {
+            $_SESSION['error_message'] = 'Vous n\'êtes pas inscrit à cette activité.';
+            $this->redirect('/etudiant/activite/' . $activiteId);
+            return;
+        }
+
+        $success = $this->participationActiviteModel->deleteByEtudiantAndActivite($etudiantId, $activiteId);
 
         if ($success) {
-            $_SESSION['success_message'] = 'Désinscription de l\'activité \"' . htmlspecialchars($activite['titre']) . '\" réussie.';
+            $_SESSION['success_message'] = 'Désinscription de l\'activité "' . htmlspecialchars($activite['titre']) . '" réussie.';
         } else {
             $_SESSION['error_message'] = 'Une erreur est survenue lors de la désinscription.';
         }

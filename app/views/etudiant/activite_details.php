@@ -93,18 +93,26 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="card-title mb-0">Participer à cette activité</h5>
-                </div>
-                <div class="card-body">
-                    <?php if (isset($already_registered) && $already_registered): ?>
-                    <div class="alert alert-success">
+                </div>                <div class="card-body">
+                    <?php if (isset($estInscrit) && $estInscrit): ?>
+                    <div class="alert alert-success mb-3">
                         <i class="fas fa-check-circle me-2"></i>Vous êtes inscrit à cette activité!
                     </div>
-                    <?php elseif (isset($is_full) && $is_full): ?>
+                    <form action="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/desinscrireActivite" method="post">
+                        <input type="hidden" name="activite_id" value="<?php echo $activite['activite_id']; ?>">
+                        <button type="submit" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-user-minus me-2"></i>Se désinscrire
+                        </button>
+                    </form>
+                    <?php elseif (isset($activite['nombre_max']) && $nombreParticipants >= $activite['nombre_max']): ?>
                     <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-circle me-2"></i>Cette activité est complète.
+                        <i class="fas fa-exclamation-circle me-2"></i>Cette activité est complète (<?php echo $nombreParticipants; ?>/<?php echo $activite['nombre_max']; ?> participants).
                     </div>
                     <?php else: ?>
                     <p>Vous pouvez vous inscrire pour participer à cette activité organisée par le club.</p>
+                    <?php if (isset($activite['nombre_max'])): ?>
+                    <p class="small text-muted mb-3">Places disponibles: <?php echo $nombreParticipants; ?>/<?php echo $activite['nombre_max']; ?></p>
+                    <?php endif; ?>
                     <form action="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/inscrireActivite" method="post">
                         <input type="hidden" name="activite_id" value="<?php echo $activite['activite_id']; ?>">
                         <button type="submit" class="btn btn-primary w-100">
