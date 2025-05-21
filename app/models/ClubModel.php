@@ -404,5 +404,19 @@ class ClubModel extends Model {
         // return $this->multiple($sql, ['club_id' => $clubId]);
         return [];
     }
+
+    /**
+     * Récupère les clubs dont un étudiant est membre
+     *
+     * @param int $etudiantId ID de l'étudiant
+     * @return array Liste des clubs
+     */
+    public function getClubsByEtudiantId($etudiantId) {
+        $sql = "SELECT c.*, mc.role 
+                FROM club c
+                JOIN membreclub mc ON c.id = mc.club_id
+                WHERE mc.id_etudiant = :etudiantId
+                ORDER BY c.nom";
+        return $this->multiple($sql, ['etudiantId' => $etudiantId]);
+    }
 }
-?>

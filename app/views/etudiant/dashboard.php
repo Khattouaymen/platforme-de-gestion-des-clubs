@@ -50,7 +50,7 @@
                     <p class="card-text">Consultez les clubs dont vous êtes membre et accédez à leurs activités.</p>
                 </div>
                 <div class="card-footer bg-transparent border-0">
-                    <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/mes-clubs" class="btn btn-primary">
+                    <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/mesClubs" class="btn btn-primary">
                         <i class="fas fa-user-check me-1"></i> Mes adhésions
                     </a>
                 </div>

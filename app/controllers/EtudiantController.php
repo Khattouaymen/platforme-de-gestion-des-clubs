@@ -421,5 +421,35 @@ class EtudiantController extends Controller {
             $this->view('etudiant/demande_adhesion', $data);
         }
     }
+      /**
+     * Affiche les clubs auxquels l'étudiant est membre ainsi que ses demandes d'adhésion
+     * 
+     * @return void
+     */
+    public function mesClubs() {
+        $etudiantId = $_SESSION['user_id'];
+        
+        // Vérifier si le profil est complet avant d'afficher les clubs
+        if (!$this->isProfileComplete($etudiantId)) {
+            $this->redirectToCompleteProfile();
+            return;
+        }
+        
+        // Récupérer les clubs de l'étudiant
+        $clubs = $this->clubModel->getClubsByEtudiantId($etudiantId);
+        
+        // Récupérer les demandes d'adhésion en attente de l'étudiant
+        require_once APP_PATH . '/models/DemandeAdhesionModel.php';
+        $demandeAdhesionModel = new DemandeAdhesionModel();
+        $demandes = $demandeAdhesionModel->getByEtudiantId($etudiantId);
+        
+        $data = [
+            'title' => 'Mes clubs',
+            'clubs' => $clubs,
+            'demandes' => $demandes
+        ];
+        
+        $this->view('etudiant/mes_clubs', $data);
+    }
 }
 ?>
