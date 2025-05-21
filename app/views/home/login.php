@@ -92,8 +92,7 @@
                     </div>
                     <div class="col-md-6">
                         <input type="text" name="prenom" placeholder="Prénom" value="<?php echo isset($prenom) ? $prenom : ''; ?>" required>
-                    </div>
-                 </div>
+                    </div>                 </div>
                  <input type="email" name="email" placeholder="Email" value="<?php echo isset($email) ? $email : ''; ?>" required>
                  <input type="password" name="password" placeholder="mot de passe" required>
                  <input type="password" name="confirm_password" placeholder="Confirmer le mot de passe" required>

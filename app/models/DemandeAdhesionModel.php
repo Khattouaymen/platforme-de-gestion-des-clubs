@@ -69,9 +69,9 @@ class DemandeAdhesionModel extends Model {
      * @return array Liste des demandes pour ce club
      */
     public function getByClubId($clubId) {
-        $sql = "SELECT d.*, e.nom as etudiant_nom, e.prenom as etudiant_prenom
-                FROM demandeadhesion d
-                LEFT JOIN etudiant e ON d.etudiant_id = e.id_etudiant
+        $sql = "SELECT d.*, e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email, e.filiere as etudiant_filiere, e.niveau as etudiant_niveau 
+                FROM demandeadhesion d 
+                LEFT JOIN etudiant e ON d.etudiant_id = e.id_etudiant 
                 WHERE d.club_id = :club_id";
         return $this->multiple($sql, ['club_id' => $clubId]);
     }

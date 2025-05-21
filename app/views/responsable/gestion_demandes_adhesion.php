@@ -56,11 +56,11 @@
                                 <?php foreach ($demandes as $demande): ?>
                                     <?php if ($demande['statut'] === 'en_attente'): ?>
                                         <tr>
-                                            <td><?= $demande['id'] ?></td>
-                                            <td><?= $demande['nom'] . ' ' . $demande['prenom'] ?></td>
-                                            <td><?= $demande['email'] ?></td>
-                                            <td><?= $demande['filiere'] ?></td>
-                                            <td><?= $demande['niveau'] ?></td>
+                                            <td><?= $demande['demande_adh_id'] ?></td>
+                                            <td><?= $demande['etudiant_nom'] . ' ' . $demande['etudiant_prenom'] ?></td>
+                                            <td><?= $demande['etudiant_email'] ?></td>
+                                            <td><?= $demande['etudiant_filiere'] ?></td>
+                                            <td><?= $demande['etudiant_niveau'] ?></td>
                                             <td><?= date('d/m/Y', strtotime($demande['date_creation'])) ?></td>
                                             <td>
                                                 <button class="btn btn-xs btn-info show-motivation" data-toggle="modal" data-target="#motivationModal" data-motivation="<?= htmlspecialchars($demande['motivation']) ?>">
@@ -68,10 +68,10 @@
                                                 </button>
                                             </td>
                                             <td>
-                                                <button class="btn btn-xs btn-success accept-btn" data-id="<?= $demande['id'] ?>">
+                                                <button class="btn btn-xs btn-success accept-btn" data-id="<?= $demande['demande_adh_id'] ?>">
                                                     <i class="fas fa-check"></i> Accepter
                                                 </button>
-                                                <button class="btn btn-xs btn-danger reject-btn" data-id="<?= $demande['id'] ?>">
+                                                <button class="btn btn-xs btn-danger reject-btn" data-id="<?= $demande['demande_adh_id'] ?>">
                                                     <i class="fas fa-times"></i> Refuser
                                                 </button>
                                             </td>
@@ -110,8 +110,8 @@
                                     <?php else: ?>
                                         <?php foreach ($acceptees as $demande): ?>
                                             <tr>
-                                                <td><?= $demande['nom'] . ' ' . $demande['prenom'] ?></td>
-                                                <td><?= $demande['email'] ?></td>
+                                                <td><?= $demande['etudiant_nom'] . ' ' . $demande['etudiant_prenom'] ?></td>
+                                                <td><?= $demande['etudiant_email'] ?></td>
                                                 <td><?= date('d/m/Y', strtotime($demande['date_traitement'])) ?></td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -147,8 +147,8 @@
                                     <?php else: ?>
                                         <?php foreach ($refusees as $demande): ?>
                                             <tr>
-                                                <td><?= $demande['nom'] . ' ' . $demande['prenom'] ?></td>
-                                                <td><?= $demande['email'] ?></td>
+                                                <td><?= $demande['etudiant_nom'] . ' ' . $demande['etudiant_prenom'] ?></td>
+                                                <td><?= $demande['etudiant_email'] ?></td>
                                                 <td><?= date('d/m/Y', strtotime($demande['date_traitement'])) ?></td>
                                             </tr>
                                         <?php endforeach; ?>

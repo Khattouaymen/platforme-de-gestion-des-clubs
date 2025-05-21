@@ -5,9 +5,7 @@
             <?php echo htmlspecialchars($_GET['success']); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
         </div>
-    <?php endif; ?>
-
-    <!-- Entête de page -->
+    <?php endif; ?>    <!-- Entête de page -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">Tableau de bord étudiant</h1>
         
@@ -17,6 +15,17 @@
             </span>
         <?php endif; ?>
     </div>
+    
+    <!-- Alerte pour profil incomplet -->
+    <?php if (isset($profileComplete) && !$profileComplete): ?>
+    <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Profil incomplet!</h4>
+        <p>Votre profil est incomplet. Pour pouvoir rejoindre des clubs ou participer à des activités, vous devez compléter votre profil.</p>
+        <hr>
+        <p class="mb-0">Rendez-vous sur <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/profil" class="alert-link">votre page de profil</a> pour ajouter les informations manquantes (filière, niveau, numéro étudiant).</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+    </div>
+    <?php endif; ?>
 
     <!-- Section principales actions -->
     <div class="row mb-4">

@@ -14,14 +14,26 @@ class EtudiantController extends Controller {
     
     /**
      * Constructeur
-     */
-    public function __construct() {
+     */    public function __construct() {
         // Vérifier si l'utilisateur est connecté en tant qu'étudiant
         $this->checkAuth();
         
         $this->etudiantModel = new EtudiantModel();
         $this->clubModel = new ClubModel();
         $this->activiteModel = new ActiviteModel();
+        
+        // Si l'URL courante n'est pas la page de profil, et que le profil est incomplet,
+        // rediriger vers la page de profil avec un message
+        $currentUrl = $_SERVER['REQUEST_URI'];
+        if (!strpos($currentUrl, '/etudiant/profil') && isset($_SESSION['user_id'])) {
+            if (!$this->isProfileComplete($_SESSION['user_id'])) {
+                // Uniquement suggérer de compléter le profil sur la page d'accueil
+                // Ne pas rediriger automatiquement pour ne pas bloquer l'utilisateur
+                if ($currentUrl === "/etudiant" || $currentUrl === "/etudiant/") {
+                    $_SESSION['profile_completion_error'] = 'Pour profiter pleinement des fonctionnalités, veuillez compléter votre profil (filière, niveau, numéro étudiant).';
+                }
+            }
+        }
     }
     
     /**
@@ -36,11 +48,34 @@ class EtudiantController extends Controller {
     }
     
     /**
-     * Tableau de bord de l'étudiant
+     * Vérifie si le profil de l'étudiant est complet
+     * 
+     * @param int $etudiantId ID de l'étudiant
+     * @return bool Retourne true si le profil est complet, false sinon
+     */
+    private function isProfileComplete($etudiantId) {
+        $etudiant = $this->etudiantModel->getById($etudiantId);
+        
+        return !empty($etudiant['filiere']) 
+               && !empty($etudiant['niveau']) 
+               && !empty($etudiant['numero_etudiant']);
+    }
+    
+    /**
+     * Rediriger vers la page de profil avec un message demandant de compléter le profil
      * 
      * @return void
      */
-    public function index() {
+    private function redirectToCompleteProfile() {
+        $_SESSION['profile_completion_error'] = 'Veuillez compléter toutes les informations de votre profil (filière, niveau, numéro étudiant) pour continuer.';
+        $this->redirect('/etudiant/profil');
+    }
+    
+    /**
+     * Tableau de bord de l'étudiant
+     * 
+     * @return void
+     */    public function index() {
         // Récupérer les informations de l'étudiant
         $etudiant = $this->etudiantModel->getById($_SESSION['user_id']);
         
@@ -54,7 +89,8 @@ class EtudiantController extends Controller {
             'title' => 'Tableau de bord - Étudiant',
             'etudiant' => $etudiant,
             'clubs' => $clubs,
-            'activites' => $activites
+            'activites' => $activites,
+            'profileComplete' => $this->isProfileComplete($_SESSION['user_id'])
         ];
         
         $this->view('etudiant/dashboard', $data);
@@ -82,13 +118,18 @@ class EtudiantController extends Controller {
      * 
      * @param int $id ID du club
      * @return void
-     */
-    public function club($id) {
+     */    public function club($id) {
         // Récupérer les informations du club
         $club = $this->clubModel->getById($id);
         
         if (!$club) {
             $this->redirect('/etudiant/clubs');
+            return;
+        }
+        
+        // Vérifier si le profil est complet avant d'afficher les détails du club
+        if (!$this->isProfileComplete($_SESSION['user_id'])) {
+            $this->redirectToCompleteProfile();
             return;
         }
         
@@ -126,13 +167,18 @@ class EtudiantController extends Controller {
      * 
      * @param int $id ID de l'activité
      * @return void
-     */
-    public function activite($id) {
+     */    public function activite($id) {
         // Récupérer les informations de l'activité
         $activite = $this->activiteModel->getById($id);
         
         if (!$activite) {
             $this->redirect('/etudiant/activites');
+            return;
+        }
+        
+        // Vérifier si le profil est complet avant d'afficher les détails de l'activité
+        if (!$this->isProfileComplete($_SESSION['user_id'])) {
+            $this->redirectToCompleteProfile();
             return;
         }
         
@@ -177,6 +223,9 @@ class EtudiantController extends Controller {
         $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
         $prenom = filter_input(INPUT_POST, 'prenom', FILTER_SANITIZE_STRING);
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+        $filiere = filter_input(INPUT_POST, 'filiere', FILTER_SANITIZE_STRING);
+        $niveau = filter_input(INPUT_POST, 'niveau', FILTER_SANITIZE_STRING);
+        $numero_etudiant = filter_input(INPUT_POST, 'numero_etudiant', FILTER_SANITIZE_STRING);
         
         // Valider les entrées
         $errors = [];
@@ -193,6 +242,18 @@ class EtudiantController extends Controller {
             $errors[] = 'L\'email est obligatoire';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'L\'email n\'est pas valide';
+        }
+
+        if (empty($filiere)) {
+            $errors[] = 'La filière est obligatoire';
+        }
+
+        if (empty($niveau)) {
+            $errors[] = 'Le niveau est obligatoire';
+        }
+
+        if (empty($numero_etudiant)) {
+            $errors[] = 'Le numéro d\'étudiant est obligatoire';
         }
         
         // S'il y a des erreurs
@@ -213,7 +274,10 @@ class EtudiantController extends Controller {
         $userData = [
             'nom' => $nom,
             'prenom' => $prenom,
-            'email' => $email
+            'email' => $email,
+            'filiere' => $filiere,
+            'niveau' => $niveau,
+            'numero_etudiant' => $numero_etudiant
         ];
         
         $success = $this->etudiantModel->update($_SESSION['user_id'], $userData);
@@ -316,10 +380,16 @@ class EtudiantController extends Controller {
      * Permet à un étudiant de demander l'adhésion à un club
      * @param int $clubId
      * @return void
-     */
-    public function demandeAdhesion($clubId)
+     */    public function demandeAdhesion($clubId)
     {
         $etudiantId = $_SESSION['user_id'];
+        
+        // Vérifier si le profil est complet avant de permettre l'adhésion
+        if (!$this->isProfileComplete($etudiantId)) {
+            $this->redirectToCompleteProfile();
+            return;
+        }
+        
         $club = $this->clubModel->getById($clubId);
         if (!$club) {
             $this->redirect('/etudiant/clubs?error=Club+introuvable');

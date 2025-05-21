@@ -52,14 +52,17 @@ class EtudiantModel extends UserModel {
         // Hachage du mot de passe
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
         
-        $sql = "INSERT INTO etudiant (nom, prenom, email, password) 
-                VALUES (:nom, :prenom, :email, :password)";
+        $sql = "INSERT INTO etudiant (nom, prenom, email, password, filiere, niveau, numero_etudiant) 
+                VALUES (:nom, :prenom, :email, :password, :filiere, :niveau, :numero_etudiant)";
         
         $params = [
             'nom' => $data['nom'],
             'prenom' => $data['prenom'],
             'email' => $data['email'],
-            'password' => $hashedPassword
+            'password' => $hashedPassword,
+            'filiere' => $data['filiere'],
+            'niveau' => $data['niveau'],
+            'numero_etudiant' => $data['numero_etudiant']
         ];
         
         if ($this->execute($sql, $params)) {
@@ -122,18 +125,41 @@ class EtudiantModel extends UserModel {
      * @return bool Succès de la mise à jour
      */
     public function update($id, $data) {
-        $sql = "UPDATE etudiant SET 
-                nom = :nom, 
-                prenom = :prenom, 
-                email = :email 
-                WHERE id_etudiant = :id";
-        
-        $params = [
-            'nom' => $data['nom'],
-            'prenom' => $data['prenom'],
-            'email' => $data['email'],
-            'id' => $id
-        ];
+        // Build the SQL query dynamically based on provided data
+        $setClauses = [];
+        $params = ['id' => $id];
+
+        if (isset($data['nom'])) {
+            $setClauses[] = "nom = :nom";
+            $params['nom'] = $data['nom'];
+        }
+        if (isset($data['prenom'])) {
+            $setClauses[] = "prenom = :prenom";
+            $params['prenom'] = $data['prenom'];
+        }
+        if (isset($data['email'])) {
+            $setClauses[] = "email = :email";
+            $params['email'] = $data['email'];
+        }
+        if (isset($data['filiere'])) {
+            $setClauses[] = "filiere = :filiere";
+            $params['filiere'] = $data['filiere'];
+        }
+        if (isset($data['niveau'])) {
+            $setClauses[] = "niveau = :niveau";
+            $params['niveau'] = $data['niveau'];
+        }
+        if (isset($data['numero_etudiant'])) {
+            $setClauses[] = "numero_etudiant = :numero_etudiant";
+            $params['numero_etudiant'] = $data['numero_etudiant'];
+        }
+
+        if (empty($setClauses)) {
+            // Nothing to update
+            return true; 
+        }
+
+        $sql = "UPDATE etudiant SET " . implode(", ", $setClauses) . " WHERE id_etudiant = :id";
         
         return $this->execute($sql, $params) > 0;
     }

@@ -105,6 +105,8 @@ class AuthController extends Controller {
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'];
         $confirmPassword = $_POST['confirm_password'];
+        // Les champs filière, niveau et numéro d'étudiant ne sont plus requis à l'inscription
+        // Ils seront remplis plus tard dans le profil
         
         // Valider les entrées
         $errors = [];
@@ -116,8 +118,7 @@ class AuthController extends Controller {
         if (empty($prenom)) {
             $errors[] = 'Le prénom est obligatoire';
         }
-        
-        if (empty($email)) {
+          if (empty($email)) {
             $errors[] = 'L\'email est obligatoire';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'L\'email n\'est pas valide';
@@ -132,8 +133,7 @@ class AuthController extends Controller {
         } elseif ($password !== $confirmPassword) {
             $errors[] = 'Les mots de passe ne correspondent pas';
         }
-        
-        // S'il y a des erreurs
+          // S'il y a des erreurs
         if (!empty($errors)) {
             $data = [
                 'title' => 'Inscription',
@@ -143,16 +143,17 @@ class AuthController extends Controller {
                 'email' => $email
             ];
             
-            $this->view('home/register', $data);
+            $this->view('home/login', $data);
             return;
-        }
-        
-        // Enregistrer l'étudiant
+        }        // Enregistrer l'étudiant
         $userData = [
             'nom' => $nom,
             'prenom' => $prenom,
             'email' => $email,
-            'password' => $password
+            'password' => $password,
+            'filiere' => '',
+            'niveau' => '',
+            'numero_etudiant' => ''
         ];
         
         $userId = $this->etudiantModel->register($userData);
@@ -163,7 +164,9 @@ class AuthController extends Controller {
             $_SESSION['user_type'] = 'etudiant';
             $_SESSION['user_name'] = $prenom . ' ' . $nom;
             
-            $this->redirect('/etudiant');
+            // Rediriger vers la page de profil avec un message
+            $_SESSION['profile_completion_error'] = 'Veuillez compléter votre profil (filière, niveau, numéro étudiant) pour pouvoir rejoindre des clubs ou participer à des activités.';
+            $this->redirect('/etudiant/profil');
         } else {
             $data = [
                 'title' => 'Inscription',
@@ -173,7 +176,7 @@ class AuthController extends Controller {
                 'email' => $email
             ];
             
-            $this->view('home/register', $data);
+            $this->view('home/login', $data);
         }
     }
       /**
@@ -225,6 +228,10 @@ class AuthController extends Controller {
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
             $password = $_POST['password'];
             $confirmPassword = $_POST['confirm_password'];
+            // Nouveaux champs pour le responsable (qui est aussi un étudiant)
+            $filiere = filter_input(INPUT_POST, 'filiere', FILTER_SANITIZE_STRING);
+            $niveau = filter_input(INPUT_POST, 'niveau', FILTER_SANITIZE_STRING);
+            $numero_etudiant = filter_input(INPUT_POST, 'numero_etudiant', FILTER_SANITIZE_STRING);
             
             // Valider les entrées
             $errors = [];
@@ -252,7 +259,20 @@ class AuthController extends Controller {
             } elseif ($password !== $confirmPassword) {
                 $errors[] = 'Les mots de passe ne correspondent pas';
             }
-            
+
+            // Validation pour les nouveaux champs
+            if (empty($filiere)) {
+                $errors[] = 'La filière est obligatoire';
+            }
+    
+            if (empty($niveau)) {
+                $errors[] = 'Le niveau est obligatoire';
+            }
+    
+            if (empty($numero_etudiant)) {
+                $errors[] = 'Le numéro d\'étudiant est obligatoire';
+            }
+
             // S'il y a des erreurs
             if (!empty($errors)) {
                 $data = [
@@ -261,6 +281,9 @@ class AuthController extends Controller {
                     'nom' => $nom,
                     'prenom' => $prenom,
                     'email' => $email,
+                    'filiere' => $filiere, // Passer les nouvelles données à la vue
+                    'niveau' => $niveau,
+                    'numero_etudiant' => $numero_etudiant,
                     'token' => $token,
                     'asset' => function($path) { return $this->asset($path); }
                 ];
@@ -274,7 +297,10 @@ class AuthController extends Controller {
                 'nom' => $nom,
                 'prenom' => $prenom,
                 'email' => $email,
-                'password' => $password
+                'password' => $password,
+                'filiere' => $filiere, // Inclure les nouveaux champs
+                'niveau' => $niveau,
+                'numero_etudiant' => $numero_etudiant
             ];
             
             $etudiantId = $etudiantModel->register($userData);
@@ -282,10 +308,13 @@ class AuthController extends Controller {
             if (!$etudiantId) {
                 $data = [
                     'title' => 'Inscription Responsable de Club',
-                    'error' => 'Une erreur est survenue lors de l\'inscription',
+                    'error' => 'Une erreur est survenue lors de l\'inscription de l\'étudiant.',
                     'nom' => $nom,
                     'prenom' => $prenom,
                     'email' => $email,
+                    'filiere' => $filiere,
+                    'niveau' => $niveau,
+                    'numero_etudiant' => $numero_etudiant,
                     'token' => $token,
                     'asset' => function($path) { return $this->asset($path); }
                 ];
