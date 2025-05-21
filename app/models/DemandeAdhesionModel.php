@@ -115,14 +115,12 @@ class DemandeAdhesionModel extends Model {
             'date_traitement' => date('Y-m-d'),
             'id' => $id
         ]);
-    }
-    
-    /**
+    }      /**
      * Accepte une demande d'adhésion et ajoute l'étudiant au club
      * 
      * @param int $id ID de la demande
      * @return bool Succès ou échec
-     */
+     */    
     public function accepterEtAjouterMembre($id) {
         // Récupérer les informations de la demande
         $demande = $this->getById($id);
@@ -130,49 +128,29 @@ class DemandeAdhesionModel extends Model {
         if (!$demande) {
             return false;
         }
-        
-        // Commencer une transaction
-        $this->beginTransaction();
+
+        if (!isset($demande['etudiant_id']) || !isset($demande['club_id'])) {
+            return false;
+        }
         
         try {
             // Mettre à jour le statut de la demande
-            $updateSuccess = $this->updateStatut($id, 'acceptee');
+            $updateStatutSuccess = $this->updateStatut($id, 'acceptee');
             
-            if (!$updateSuccess) {
-                $this->rollBack();
+            if (!$updateStatutSuccess) {
                 return false;
             }
+                
+            // Utiliser ClubModel pour ajouter le membre
+            require_once APP_PATH . '/models/ClubModel.php';
+            $clubModel = new ClubModel();
             
-            // Ajouter l'étudiant comme membre du club
-            $sql = "INSERT INTO membreclub (id_etudiant, club_id, role) 
-                    VALUES (:etudiant_id, :club_id, :role)";
-            
-            $params = [
-                'etudiant_id' => $demande['etudiant_id'],
-                'club_id' => $demande['club_id'],
-                'role' => 'membre' // Rôle par défaut
-            ];
-            
-            $createMembreSuccess = $this->execute($sql, $params);
-            
-            if (!$createMembreSuccess) {
-                $this->rollBack();
-                return false;
-            }
-            
-            // Mettre à jour le nombre de membres du club
-            $sql = "UPDATE club SET nombre_membres = nombre_membres + 1 WHERE id = :club_id";
-            $updateClubSuccess = $this->execute($sql, ['club_id' => $demande['club_id']]);
-            
-            if (!$updateClubSuccess) {
-                $this->rollBack();
-                return false;
-            }
-            
-            $this->commit();
-            return true;
+            // Ajouter l'étudiant au club
+            $membreId = $clubModel->addMember($demande['club_id'], $demande['etudiant_id'], 'membre');
+              
+            // Si l'ajout a réussi, retourner true
+            return $membreId !== false;
         } catch (Exception $e) {
-            $this->rollBack();
             return false;
         }
     }

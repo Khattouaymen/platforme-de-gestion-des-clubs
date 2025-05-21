@@ -49,24 +49,22 @@
                             <?php if (empty($membres)): ?>
                                 <tr>
                                     <td colspan="6" class="text-center">Aucun membre pour le moment</td>
-                                </tr>
-                            <?php else: ?>
+                                </tr>                            <?php else: ?>
                                 <?php foreach ($membres as $membre): ?>
                                     <tr>
-                                        <td><?= $membre['id'] ?></td>
+                                        <td><?= $membre['id_membre'] ?? $membre['id_etudiant'] ?? '—' ?></td>
                                         <td><?= $membre['nom'] . ' ' . $membre['prenom'] ?></td>
                                         <td><?= $membre['email'] ?></td>
                                         <td>
-                                            <select class="form-control form-control-sm role-select" data-membre-id="<?= $membre['id'] ?>">
+                                            <select class="form-control form-control-sm role-select" data-membre-id="<?= $membre['id_membre'] ?? $membre['id_etudiant'] ?? 0 ?>">
                                                 <option value="membre" <?= $membre['role'] === 'membre' ? 'selected' : '' ?>>Membre</option>
                                                 <option value="secretaire" <?= $membre['role'] === 'secretaire' ? 'selected' : '' ?>>Secrétaire</option>
                                                 <option value="tresorier" <?= $membre['role'] === 'tresorier' ? 'selected' : '' ?>>Trésorier</option>
                                                 <option value="vice_president" <?= $membre['role'] === 'vice_president' ? 'selected' : '' ?>>Vice-président</option>
                                             </select>
-                                        </td>
-                                        <td><?= date('d/m/Y', strtotime($membre['date_adhesion'])) ?></td>
+                                        </td>                                        <td><?= isset($membre['date_adhesion']) ? date('d/m/Y', strtotime($membre['date_adhesion'])) : 'N/A' ?></td>
                                         <td>
-                                            <button class="btn btn-xs btn-danger delete-membre" data-membre-id="<?= $membre['id'] ?>">
+                                            <button class="btn btn-xs btn-danger delete-membre" data-membre-id="<?= $membre['id_membre'] ?? $membre['id_etudiant'] ?? 0 ?>">
                                                 <i class="fas fa-trash"></i> Supprimer
                                             </button>
                                         </td>

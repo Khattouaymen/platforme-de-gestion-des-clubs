@@ -325,6 +325,20 @@ class ClubModel extends Model {
     }
 
     /**
+     * Récupère un membre par son ID
+     * 
+     * @param int $membreId ID du membre
+     * @return array|false Informations sur le membre ou false
+     */
+    public function getMembreById($membreId) {
+        $sql = "SELECT mc.*, e.nom, e.prenom, e.email 
+                FROM membreclub mc 
+                JOIN etudiant e ON mc.id_etudiant = e.id_etudiant 
+                WHERE mc.id_membre = :membreId";
+        return $this->single($sql, ['membreId' => $membreId]);
+    }
+
+    /**
      * Récupère les activités d'un club
      * 
      * @param int $clubId ID du club

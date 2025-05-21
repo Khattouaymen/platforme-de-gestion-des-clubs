@@ -621,20 +621,14 @@ class AdminController extends Controller {
         
         $this->view('admin/ressources', $data);
     }
-    
-    /**
+      /**
      * Ajouter une ressource
      * 
      * @return void
      */
     public function addRessource() {
-        // Log l'entrée dans la méthode
-        file_put_contents('debug_ressource.log', "AdminController::addRessource() appelée\n", FILE_APPEND);
-        file_put_contents('debug_ressource.log', "Contenu de \$_POST: " . print_r($_POST, true) . "\n", FILE_APPEND);
-
         // Vérifier si la requête est de type POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            file_put_contents('debug_ressource.log', "AdminController::addRessource() - Requête non POST, redirection.\n", FILE_APPEND);
             $this->redirect('/admin/ressources');
             return;
         }
@@ -644,11 +638,7 @@ class AdminController extends Controller {
         $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $quantite = filter_input(INPUT_POST, 'quantite', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'default' => 1]]);
         $clubId = filter_input(INPUT_POST, 'club_id', FILTER_VALIDATE_INT);
-        $disponibilite = filter_input(INPUT_POST, 'disponibilite', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        
-        file_put_contents('debug_ressource.log', "Données filtrées: nom=$nom, type=$type, quantite=$quantite, clubId=$clubId, dispo=$disponibilite\n", FILE_APPEND);
-
-        // Valider les entrées
+        $disponibilite = filter_input(INPUT_POST, 'disponibilite', FILTER_SANITIZE_FULL_SPECIAL_CHARS);        // Valider les entrées
         $errors = [];
         
         if (empty($nom)) {
@@ -662,30 +652,24 @@ class AdminController extends Controller {
         // S'il y a des erreurs
         if (!empty($errors)) {
             $errorMessage = implode(', ', $errors);
-            file_put_contents('debug_ressource.log', "AdminController::addRessource() - Erreurs de validation: $errorMessage\n", FILE_APPEND);
             $this->redirect('/admin/ressources?error=' . urlencode($errorMessage));
             return;
         }
         
         // Préparer les données de la ressource
         $ressourceData = [
-            'nom_ressource' => $nom, // Ensure key matches column name
-            'type_ressource' => $type, // Ensure key matches column name
+            'nom_ressource' => $nom, 
+            'type_ressource' => $type,
             'quantite' => $quantite,
             'club_id' => $clubId ?: null,
             'disponibilite' => $disponibilite ?: 'disponible'
         ];
         
-        file_put_contents('debug_ressource.log', "AdminController::addRessource() - Données pour le modèle: " . print_r($ressourceData, true) . "\n", FILE_APPEND);
-        
         // Ajouter la ressource
         $ressourceId = $this->ressourceModel->create($ressourceData);
-        
-        if ($ressourceId) {
-            file_put_contents('debug_ressource.log', "AdminController::addRessource() - Ressource ajoutée avec ID: $ressourceId\n", FILE_APPEND);
+          if ($ressourceId) {
             $this->redirect('/admin/ressources?success=1');
         } else {
-            file_put_contents('debug_ressource.log', "AdminController::addRessource() - Échec de l'ajout de la ressource.\n", FILE_APPEND);
             $this->redirect('/admin/ressources?error=Une+erreur+est+survenue+lors+de+l%27ajout+de+la+ressource');
         }
     }
@@ -910,13 +894,12 @@ class AdminController extends Controller {
             $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+du+rejet+de+la+demande');
         }
     }
-    
-    /**
+      /**
      * Accepter une demande d'adhésion
      * 
      * @param int $id ID de la demande
      * @return void
-     */
+     */    
     public function acceptDemandeAdhesion($id = null) {
         // Vérifier si l'ID est valide
         if ($id === null) {
@@ -956,8 +939,7 @@ class AdminController extends Controller {
             $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+du+refus+de+la+demande');
         }
     }
-    
-    /**
+      /**
      * Approuver une demande d'activité
      * 
      * @param int $id ID de la demande
@@ -970,14 +952,8 @@ class AdminController extends Controller {
             return;
         }
         
-        // Debug - enregistrer dans un fichier de log
-        file_put_contents('debug_approve.log', "Méthode approveActivite appelée avec ID: $id\n", FILE_APPEND);
-        
         // Approuver la demande et créer l'activité correspondante
         $success = $this->demandeActiviteModel->approveAndCreateActivite($id, $this->activiteModel);
-        
-        // Debug - enregistrer le résultat
-        file_put_contents('debug_approve.log', "Résultat de approveAndCreateActivite: " . ($success ? 'Succès' : 'Échec') . "\n", FILE_APPEND);
         
         if ($success) {
             $this->redirect('/admin/demandes?success=La+demande+d%27activité+a+été+approuvée+et+l\'activité+créée');
@@ -985,8 +961,7 @@ class AdminController extends Controller {
             $this->redirect('/admin/demandes?error=Une+erreur+est+survenue+lors+de+l%27approbation+de+la+demande+d%27activité');
         }
     }
-    
-    /**
+      /**
      * Rejeter une demande d'activité
      * 
      * @param int $id ID de la demande
@@ -999,10 +974,6 @@ class AdminController extends Controller {
             return;
         }
         
-        // Debug - enregistrer dans un fichier de log
-        file_put_contents('debug_reject.log', "Méthode rejectActivite appelée avec ID: $id\n", FILE_APPEND);
-        file_put_contents('debug_reject.log', "Données POST: " . print_r($_POST, true) . "\n", FILE_APPEND);
-        
         // Récupérer le commentaire de rejet s'il existe
         $commentaire = $_POST['commentaire'] ?? '';
         
@@ -1013,9 +984,6 @@ class AdminController extends Controller {
         ];
         
         $success = $this->demandeActiviteModel->updateStatut($id, $data);
-        
-        // Debug - enregistrer le résultat
-        file_put_contents('debug_reject.log', "Résultat de updateStatut: " . ($success ? 'Succès' : 'Échec') . "\n", FILE_APPEND);
         
         if ($success) {
             $this->redirect('/admin/demandes?success=La+demande+d%27activité+a+été+rejetée');

@@ -164,7 +164,9 @@ class ResponsableController extends Controller {
         ];
         
         $this->view('responsable/gestion_membres', $data);
-    }    /**
+    }
+    
+    /**
      * Modifier le rôle d'un membre
      * 
      * @return void
@@ -176,13 +178,9 @@ class ResponsableController extends Controller {
             
             // Vérifier que le membre appartient bien au club du responsable
             $clubId = $this->getClubId();
-            
-            // Récupérer les données du membre pour obtenir l'ID étudiant
-            $membre = $this->clubModel->getMembreById($membreId);
-            
-            if ($membre && $membre['club_id'] == $clubId) {
-                $success = $this->clubModel->updateMemberRole($clubId, $membre['id_etudiant'], $role);
-                echo json_encode(['success' => $success]);
+            if ($this->clubModel->isMembreDuClub($membreId, $clubId)) {
+                $this->clubModel->updateRoleMembre($membreId, $clubId, $role);
+                echo json_encode(['success' => true]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Ce membre n\'appartient pas à votre club']);
             }
@@ -190,7 +188,9 @@ class ResponsableController extends Controller {
         }
         
         $this->redirect('/responsable/gestionMembres');
-    }    /**
+    }
+    
+    /**
      * Supprimer un membre du club
      * 
      * @return void
@@ -201,13 +201,9 @@ class ResponsableController extends Controller {
             
             // Vérifier que le membre appartient bien au club du responsable
             $clubId = $this->getClubId();
-            
-            // Récupérer les données du membre pour obtenir l'ID étudiant
-            $membre = $this->clubModel->getMembreById($membreId);
-            
-            if ($membre && $membre['club_id'] == $clubId) {
-                $success = $this->clubModel->removeMember($clubId, $membre['id_etudiant']);
-                echo json_encode(['success' => $success]);
+            if ($this->clubModel->isMembreDuClub($membreId, $clubId)) {
+                $this->clubModel->removeMembre($membreId, $clubId);
+                echo json_encode(['success' => true]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Ce membre n\'appartient pas à votre club']);
             }
@@ -454,13 +450,18 @@ class ResponsableController extends Controller {
         
         $this->view('responsable/gestion_demandes_adhesion', $data);
     }
-      /**
+    
+    /**
      * Traiter une demande d'adhésion (accepter ou refuser)
      * 
      * @return void
      */
     public function traiterDemandeAdhesion() {
         $clubId = $this->getClubId();
+        
+        // Test de création de fichier de log pour vérifier les permissions et chemins
+        $logPath = 'c:\\Users\\Pavilion\\sfe\\resp_debug.log';
+        file_put_contents($logPath, "Traitement demande adhésion @ " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $demandeId = $_POST['demande_id'] ?? 0;
@@ -469,18 +470,25 @@ class ResponsableController extends Controller {
             // Vérifier que la demande appartient bien au club du responsable
             $demande = $this->demandeAdhesionModel->getById($demandeId);
             
+            file_put_contents($logPath, "Demande ID: $demandeId, Statut: $statut\n", FILE_APPEND);
+            
             if ($demande && $demande['club_id'] == $clubId) {
                 // Utiliser la bonne méthode selon le statut
                 $success = false;
                 
                 if ($statut === 'acceptee') {
+                    file_put_contents($logPath, "Tentative d'acceptation et ajout membre\n", FILE_APPEND);
                     $success = $this->demandeAdhesionModel->accepterEtAjouterMembre($demandeId);
+                    file_put_contents($logPath, "Résultat acceptation: " . ($success ? "succès" : "échec") . "\n", FILE_APPEND);
                 } else if ($statut === 'refusee') {
+                    file_put_contents($logPath, "Tentative de refus\n", FILE_APPEND);
                     $success = $this->demandeAdhesionModel->refuser($demandeId);
+                    file_put_contents($logPath, "Résultat refus: " . ($success ? "succès" : "échec") . "\n", FILE_APPEND);
                 }
                 
                 echo json_encode(['success' => $success]);
             } else {
+                file_put_contents($logPath, "Erreur: Demande non trouvée ou n'appartient pas au club\n", FILE_APPEND);
                 echo json_encode([
                     'success' => false, 
                     'message' => 'Cette demande n\'appartient pas à votre club'

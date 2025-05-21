@@ -384,11 +384,10 @@ class EtudiantController extends Controller {
         if (!$club) {
             $this->redirect('/etudiant/clubs?error=Club+introuvable');
             return;
-        }
-
-        // Si c'est une soumission de formulaire
+        }        // Si c'est une soumission de formulaire
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $motivation = filter_input(INPUT_POST, 'motivation', FILTER_SANITIZE_STRING);
+            // Using htmlspecialchars instead of deprecated FILTER_SANITIZE_STRING
+            $motivation = isset($_POST['motivation']) ? htmlspecialchars($_POST['motivation'], ENT_QUOTES, 'UTF-8') : '';
             
             if (empty($motivation)) {
                 $data = [
