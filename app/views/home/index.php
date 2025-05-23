@@ -1,7 +1,9 @@
 <?php
 // Le layout de base sera utilisé ici
 ?>
-
+<?php
+// Le layout de base sera utilisé ici
+?>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title><?php echo $title ?? 'Gestion des Clubs'; ?></title>
@@ -17,7 +19,44 @@
 <section class="hero text-center py-5 bg-light">
     <div class="container">
         <h1 class="display-4 fw-bold">Bienvenue dans la plateforme de gestion des clubs universitaires</h1>
-        <a href="<?php echo url('/login'); ?>" class="btn btn-warning btn-connexion mt-4">Connexion</a>
+        <?php
+        $button_text = "Connexion";
+        $button_url = url('login'); // Default to login page
+
+        // Ensure session is started if not already. 
+        // It's best practice to have session_start() in a global include like index.php or a base controller.
+        // Adding it here for robustness in case it's not handled globally.
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (isset($_SESSION['user_id'])) { // Check if user is logged in
+            $button_text = "Tableau de bord"; // "Dashboard"
+            if (isset($_SESSION['user_type'])) { // Changed from user_role to user_type
+                switch ($_SESSION['user_type']) { // Changed from user_role to user_type
+                    case 'admin':
+                        $button_url = url('admin'); 
+                        break;
+                    case 'etudiant':
+                        $button_url = url('etudiant'); 
+                        break;
+                    case 'responsable':
+                        $button_url = url('responsable'); 
+                        break;
+                    default:
+                        // Fallback for logged-in user with an unrecognized role
+                        $button_url = url('compte'); 
+                        $button_text = "Mon Espace"; // "My Space"
+                        break;
+                }
+            } else {
+                // Logged in but no role information? Fallback.
+                $button_url = url('compte'); // Changed from url('/')
+                $button_text = "Mon Espace";
+            }
+        }
+        ?>
+        <a href="<?php echo $button_url; ?>" class="btn btn-warning btn-connexion mt-4"><?php echo $button_text; ?></a>
     </div>
 </section>
 

@@ -18,6 +18,7 @@ Le projet suit une architecture MVC (Modèle-Vue-Contrôleur) structurée comme 
 - **Modèles** (`app/models/`) : Gestion des données et logique métier
 - **Vues** (`app/views/`) : Interface utilisateur et présentation
 - **Contrôleurs** (`app/controllers/`) : Gestion des requêtes et coordination
+- **Helpers** (`app/helpers/`) : Fonctions d'aide, notamment pour la génération d'URLs
 
 ## Structure du projet
 
@@ -26,7 +27,8 @@ Le projet suit une architecture MVC (Modèle-Vue-Contrôleur) structurée comme 
 │   ├── controllers/      # Contrôleurs de l'application
 │   ├── core/             # Classes fondamentales du MVC
 │   ├── models/           # Modèles de données
-│   └── views/            # Vues de l'interface utilisateur
+│   ├── views/            # Vues de l'interface utilisateur
+│   └── helpers/          # Fonctions d'aide (ex: url_helper.php)
 ├── config/               # Fichiers de configuration
 ├── public/               # Ressources accessibles publiquement
 │   ├── assets/
@@ -61,6 +63,27 @@ Le projet suit une architecture MVC (Modèle-Vue-Contrôleur) structurée comme 
 1. Ouvrez l'application dans un navigateur web
 2. Créez un compte étudiant ou connectez-vous en tant qu'administrateur
 3. Explorez les fonctionnalités disponibles selon votre rôle
+
+## Génération des URLs
+
+L'application gère dynamiquement la génération des URLs pour s'adapter à différents environnements (local, production, tunnels de développement).
+
+- Dans les **vues (.php)**, utilisez toujours la fonction `url()` pour générer des liens :
+  ```php
+  <a href="<?php echo url('chemin/vers/la/page'); ?>">Lien</a>
+  ```
+  Exemple : `url('login')` générera `http://localhost/sfe/login` en local ou `https://<tunnel_id>.devtunnels.ms/login` via un tunnel.
+
+- Dans les **contrôleurs (.php)**, vous pouvez utiliser la méthode `baseUrl()` (disponible dans les classes héritant de `Controller`) pour obtenir l'URL de base, ou également la fonction `url()` si `app/helpers/url_helper.php` est inclus :
+  ```php
+  // Avec la méthode baseUrl() de la classe Controller
+  $lienAbsolu = $this->baseUrl() . '/chemin/specifique';
+
+  // Avec la fonction url()
+  $lienAbsolu = url('chemin/specifique');
+  ```
+
+La logique de détection de l'URL de base prend en compte les en-têtes `HTTP_X_FORWARDED_HOST` et `HTTP_X_FORWARDED_PROTO` pour un fonctionnement correct derrière les proxys inverses ou les tunnels. Le fichier principal pour cette logique est `app/helpers/url_helper.php`.
 
 ## Exigences techniques
 

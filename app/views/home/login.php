@@ -72,7 +72,7 @@
 </style>
 
 <div class="container" id="container"><div class="form-container sign-up">
-             <form action="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/auth/register" method="POST">
+             <form action="<?php echo url('auth/register'); ?>" method="POST">
                  <h1>Créer un compte</h1>
                  <span>ou utilisez votre email pour vous inscrire</span>
                  
@@ -105,7 +105,7 @@
              </form>
          </div>
          <div class="form-container sign-in">
-             <form action="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/auth/login" method="POST">
+             <form action="<?php echo url('auth/login'); ?>" method="POST">
                  <h1>Se connecter</h1>                     
                      <?php if (isset($error) && !empty($error)): ?>
                 <div class="alert alert-danger w-100" role="alert">
@@ -285,7 +285,7 @@ body{
     }
 }
 
-.social-icons{
+social-icons{
     margin: 20px 0;
 }
 
