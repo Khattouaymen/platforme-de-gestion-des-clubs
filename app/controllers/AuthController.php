@@ -34,12 +34,12 @@ class AuthController extends Controller {
         $password = $_POST['password'];
         // Remplacer FILTER_SANITIZE_STRING déprécié par htmlspecialchars
         $userType = isset($_POST['user_type']) ? htmlspecialchars($_POST['user_type'], ENT_QUOTES, 'UTF-8') : '';
-        
-        // Valider les entrées
+          // Valider les entrées
         if (empty($email) || empty($password) || empty($userType)) {
             $data = [
                 'title' => 'Connexion',
-                'error' => 'Tous les champs sont obligatoires'
+                'error' => 'Tous les champs sont obligatoires',
+                'hideNavbar' => true  // Cacher la navbar dans la page de login
             ];
             
             $this->view('home/login', $data);
@@ -77,11 +77,11 @@ class AuthController extends Controller {
                 return;
             }
         }
-        
-        // Si l'authentification a échoué
+          // Si l'authentification a échoué
         $data = [
             'title' => 'Connexion',
-            'error' => 'Email ou mot de passe incorrect'
+            'error' => 'Email ou mot de passe incorrect',
+            'hideNavbar' => true  // Cacher la navbar dans la page de login
         ];
         
         $this->view('home/login', $data);
@@ -96,12 +96,11 @@ class AuthController extends Controller {
         // Vérifier si la requête est de type POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect('/');
-            return;
-        }
+            return;        }
         
         // Récupérer les données du formulaire
-        $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
-        $prenom = filter_input(INPUT_POST, 'prenom', FILTER_SANITIZE_STRING);
+        $nom = isset($_POST['nom']) ? htmlspecialchars(trim($_POST['nom']), ENT_QUOTES, 'UTF-8') : '';
+        $prenom = isset($_POST['prenom']) ? htmlspecialchars(trim($_POST['prenom']), ENT_QUOTES, 'UTF-8') : '';
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'];
         $confirmPassword = $_POST['confirm_password'];
@@ -132,20 +131,20 @@ class AuthController extends Controller {
             $errors[] = 'Le mot de passe doit contenir au moins 6 caractères';
         } elseif ($password !== $confirmPassword) {
             $errors[] = 'Les mots de passe ne correspondent pas';
-        }
-          // S'il y a des erreurs
+        }        // S'il y a des erreurs
         if (!empty($errors)) {
             $data = [
                 'title' => 'Inscription',
                 'errors' => $errors,
                 'nom' => $nom,
                 'prenom' => $prenom,
-                'email' => $email
+                'email' => $email,
+                'hideNavbar' => true  // Cacher la navbar dans la page de login
             ];
             
             $this->view('home/login', $data);
             return;
-        }        // Enregistrer l'étudiant
+        }// Enregistrer l'étudiant
         $userData = [
             'nom' => $nom,
             'prenom' => $prenom,
@@ -166,14 +165,14 @@ class AuthController extends Controller {
             
             // Rediriger vers la page de profil avec un message
             $_SESSION['profile_completion_error'] = 'Veuillez compléter votre profil (filière, niveau, numéro étudiant) pour pouvoir rejoindre des clubs ou participer à des activités.';
-            $this->redirect('/etudiant/profil');
-        } else {
+            $this->redirect('/etudiant/profil');        } else {
             $data = [
                 'title' => 'Inscription',
                 'error' => 'Une erreur est survenue lors de l\'inscription',
                 'nom' => $nom,
                 'prenom' => $prenom,
-                'email' => $email
+                'email' => $email,
+                'hideNavbar' => true  // Cacher la navbar dans la page de login
             ];
             
             $this->view('home/login', $data);
@@ -219,19 +218,18 @@ class AuthController extends Controller {
             $this->view('error/not_found', $data);
             return;
         }
-        
-        // Si la requête est de type POST, traiter l'inscription
+          // Si la requête est de type POST, traiter l'inscription
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Récupérer les données du formulaire
-            $nom = filter_input(INPUT_POST, 'nom', FILTER_SANITIZE_STRING);
-            $prenom = filter_input(INPUT_POST, 'prenom', FILTER_SANITIZE_STRING);
+            $nom = isset($_POST['nom']) ? htmlspecialchars(trim($_POST['nom']), ENT_QUOTES, 'UTF-8') : '';
+            $prenom = isset($_POST['prenom']) ? htmlspecialchars(trim($_POST['prenom']), ENT_QUOTES, 'UTF-8') : '';
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
             $password = $_POST['password'];
             $confirmPassword = $_POST['confirm_password'];
             // Nouveaux champs pour le responsable (qui est aussi un étudiant)
-            $filiere = filter_input(INPUT_POST, 'filiere', FILTER_SANITIZE_STRING);
-            $niveau = filter_input(INPUT_POST, 'niveau', FILTER_SANITIZE_STRING);
-            $numero_etudiant = filter_input(INPUT_POST, 'numero_etudiant', FILTER_SANITIZE_STRING);
+            $filiere = isset($_POST['filiere']) ? htmlspecialchars(trim($_POST['filiere']), ENT_QUOTES, 'UTF-8') : '';
+            $niveau = isset($_POST['niveau']) ? htmlspecialchars(trim($_POST['niveau']), ENT_QUOTES, 'UTF-8') : '';
+            $numero_etudiant = isset($_POST['numero_etudiant']) ? htmlspecialchars(trim($_POST['numero_etudiant']), ENT_QUOTES, 'UTF-8') : '';
             
             // Valider les entrées
             $errors = [];
