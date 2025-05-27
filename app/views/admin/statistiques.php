@@ -46,10 +46,9 @@
         <div class="col-md-3">
             <div class="card shadow-sm bg-warning text-white">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
+                    <div class="d-flex justify-content-between align-items-center">                        <div>
                             <h6 class="card-title mb-0">Activités en cours</h6>
-                            <h2 class="mt-2 mb-0">5</h2>
+                            <h2 class="mt-2 mb-0"><?php echo $activites_en_cours_count; ?></h2>
                         </div>
                         <i class="fas fa-calendar-check fa-2x"></i>
                     </div>
@@ -59,10 +58,9 @@
         <div class="col-md-3">
             <div class="card shadow-sm bg-danger text-white">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
+                    <div class="d-flex justify-content-between align-items-center">                        <div>
                             <h6 class="card-title mb-0">Demandes en attente</h6>
-                            <h2 class="mt-2 mb-0">3</h2>
+                            <h2 class="mt-2 mb-0"><?php echo $total_demandes_en_attente; ?></h2>
                         </div>
                         <i class="fas fa-clock fa-2x"></i>
                     </div>
@@ -114,16 +112,15 @@
                                     <th>Membres actifs</th>
                                     <th>Performance</th>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach (array_slice($clubs, 0, 5) as $index => $club): ?>
+                            </thead>                            <tbody>
+                                <?php foreach (array_slice($clubs_avec_activites, 0, 5) as $index => $club): ?>
                                 <tr>
                                     <td><?php echo $club['nom']; ?></td>
-                                    <td><?php echo rand(2, 10); ?></td>
+                                    <td><?php echo $club['nombre_activites']; ?></td>
                                     <td><?php echo $club['nombre_membres']; ?></td>
                                     <td>
                                         <div class="progress">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo rand(60, 95); ?>%" aria-valuenow="<?php echo rand(60, 95); ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $club['performance']; ?>%" aria-valuenow="<?php echo $club['performance']; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
                                     </td>
                                 </tr>
@@ -180,8 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
-    // Graphique d'évolution des activités
+      // Graphique d'évolution des activités
     const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
     const activitiesCtx = document.getElementById('activitiesChart').getContext('2d');
     new Chart(activitiesCtx, {
@@ -190,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: monthNames,
             datasets: [{
                 label: 'Nombre d\'activités',
-                data: [4, 6, 8, 7, 9, 5, 3, 2, 5, 8, 10, 12],
+                data: <?php echo json_encode(array_values($evolution_activites)); ?>,
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 2,
@@ -206,16 +202,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
-    // Graphique de répartition des étudiants par année
+      // Graphique de répartition des étudiants par année
     const studentsCtx = document.getElementById('studentsChart').getContext('2d');
     new Chart(studentsCtx, {
         type: 'pie',
         data: {
-            labels: ['1ère année', '2ème année', '3ème année', '4ème année', '5ème année'],
+            labels: <?php echo json_encode(array_keys($repartition_niveaux)); ?>,
             datasets: [{
                 label: 'Étudiants',
-                data: [30, 25, 20, 15, 10],
+                data: <?php echo json_encode(array_values($repartition_niveaux)); ?>,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.7)',
                     'rgba(54, 162, 235, 0.7)',

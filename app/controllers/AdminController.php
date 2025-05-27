@@ -554,8 +554,7 @@ class AdminController extends Controller {
         
         $this->view('admin/etudiants', $data);
     }
-    
-    /**
+      /**
      * Statistiques
      * 
      * @return void
@@ -568,12 +567,30 @@ class AdminController extends Controller {
         $etudiants = $this->etudiantModel->getAll();
         $etudiantCount = count($etudiants);
         
-        // Demandes en attente
+        // Demandes en attente - total
         $demandesClub = $this->demandeClubModel->getByStatut('en_attente');
         $demandesClubCount = count($demandesClub);
         
         $demandesAdhesion = $this->demandeAdhesionModel->getByStatut('en_attente');
         $demandesAdhesionCount = count($demandesAdhesion);
+        
+        $demandesActivite = $this->demandeActiviteModel->getByStatut('en_attente');
+        $demandesActiviteCount = count($demandesActivite);
+        
+        $totalDemandesEnAttente = $demandesClubCount + $demandesAdhesionCount + $demandesActiviteCount;
+        
+        // Activités en cours (activités approuvées et futures ou en cours)
+        $activitesEnCours = $this->getActivitesEnCours();
+        $activitesEnCoursCount = count($activitesEnCours);
+        
+        // Statistiques des clubs avec nombre d'activités réel
+        $clubsAvecActivites = $this->getClubsAvecStatistiques();
+        
+        // Répartition des étudiants par niveau
+        $repartitionNiveaux = $this->getRepartitionEtudiantsParNiveau($etudiants);
+        
+        // Évolution des activités par mois (12 derniers mois)
+        $evolutionActivites = $this->getEvolutionActivitesParMois();
         
         $data = [
             'title' => 'Statistiques',
@@ -583,10 +600,146 @@ class AdminController extends Controller {
             'etudiant_count' => $etudiantCount,
             'demandes_club_count' => $demandesClubCount,
             'demandes_adhesion_count' => $demandesAdhesionCount,
+            'demandes_activite_count' => $demandesActiviteCount,
+            'total_demandes_en_attente' => $totalDemandesEnAttente,
+            'activites_en_cours_count' => $activitesEnCoursCount,
+            'clubs_avec_activites' => $clubsAvecActivites,
+            'repartition_niveaux' => $repartitionNiveaux,
+            'evolution_activites' => $evolutionActivites,
             'asset' => function($path) { return $this->asset($path); }
         ];
         
         $this->view('admin/statistiques', $data);
+    }
+      /**
+     * Récupère les activités en cours (approuvées et futures/actuelles)
+     * 
+     * @return array Liste des activités en cours
+     */
+    private function getActivitesEnCours() {
+        // Utiliser l'ActiviteModel existant du contrôleur
+        $activites = $this->activiteModel->getAll();
+        
+        // Filtrer les activités en cours (futures ou actuelles)
+        $activitesEnCours = [];
+        $today = date('Y-m-d');
+        
+        foreach ($activites as $activite) {
+            // Vérifier si l'activité est encore en cours ou future
+            $dateActivite = $activite['date_activite'] ?? null;
+            $dateDebut = $activite['date_debut'] ?? null;
+            $dateFin = $activite['date_fin'] ?? null;
+            
+            $isEnCours = false;
+            
+            if ($dateDebut && $dateFin) {
+                // Si on a une période, vérifier si aujourd'hui est dans la période ou après le début
+                $isEnCours = ($dateDebut >= $today || $dateFin >= $today);
+            } elseif ($dateActivite) {
+                // Si on a juste une date d'activité, vérifier si elle est future ou aujourd'hui
+                $isEnCours = ($dateActivite >= $today);
+            }
+            
+            if ($isEnCours) {
+                $activitesEnCours[] = $activite;
+            }
+        }
+        
+        return $activitesEnCours;
+    }
+      /**
+     * Récupère les clubs avec leurs statistiques d'activités
+     * 
+     * @return array Clubs avec nombre d'activités et performance
+     */
+    private function getClubsAvecStatistiques() {
+        // Récupérer tous les clubs avec leurs détails
+        $clubs = $this->clubModel->getAllWithDetails();
+        
+        // Pour chaque club, calculer les statistiques réelles
+        foreach ($clubs as &$club) {
+            // Récupérer les activités du club
+            $activites = $this->activiteModel->getByClubId($club['id']);
+            $club['nombre_activites'] = count($activites);
+            
+            // Calculer la performance basée sur les participations
+            $totalParticipations = 0;
+            $totalPresents = 0;
+            
+            foreach ($activites as $activite) {
+                $participants = $this->activiteModel->getParticipantsByActiviteId($activite['activite_id']);
+                $totalParticipations += count($participants);
+                
+                foreach ($participants as $participant) {
+                    if ($participant['statut'] === 'participe') {
+                        $totalPresents++;
+                    }
+                }
+            }
+            
+            // Calculer le pourcentage de performance
+            if ($totalParticipations > 0) {
+                $club['performance'] = round(($totalPresents / $totalParticipations) * 100);
+            } else {
+                $club['performance'] = 0;
+            }
+        }
+        
+        // Trier par nombre d'activités décroissant
+        usort($clubs, function($a, $b) {
+            return $b['nombre_activites'] - $a['nombre_activites'];
+        });
+        
+        return $clubs;
+    }
+    
+    /**
+     * Calcule la répartition des étudiants par niveau
+     * 
+     * @param array $etudiants Liste des étudiants
+     * @return array Répartition par niveau
+     */
+    private function getRepartitionEtudiantsParNiveau($etudiants) {
+        $repartition = [];
+        
+        foreach ($etudiants as $etudiant) {
+            $niveau = $etudiant['niveau'] ?? 'Non défini';
+            if (!isset($repartition[$niveau])) {
+                $repartition[$niveau] = 0;
+            }
+            $repartition[$niveau]++;
+        }
+        
+        return $repartition;
+    }
+      /**
+     * Récupère l'évolution des activités par mois (12 derniers mois)
+     * 
+     * @return array Données d'évolution
+     */
+    private function getEvolutionActivitesParMois() {
+        // Récupérer toutes les activités pour analyser leur évolution
+        $activites = $this->activiteModel->getAll();
+        
+        // Créer un tableau avec les 12 derniers mois
+        $evolution = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $date = date('Y-m', strtotime("-$i months"));
+            $evolution[$date] = 0;
+        }
+        
+        // Compter les activités par mois de création
+        foreach ($activites as $activite) {
+            $dateCreation = $activite['date_creation'] ?? null;
+            if ($dateCreation) {
+                $moisCreation = date('Y-m', strtotime($dateCreation));
+                if (isset($evolution[$moisCreation])) {
+                    $evolution[$moisCreation]++;
+                }
+            }
+        }
+        
+        return array_values($evolution);
     }
       /**
      * Gestion des ressources
