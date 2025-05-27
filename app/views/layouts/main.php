@@ -34,8 +34,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/clubs') !== false ? 'active' : ''; ?>" href="/admin/clubs">Gestion des Clubs</a>
-                        </li>
-                    <?php elseif (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'responsable'): ?>
+                        </li>                    <?php elseif (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'responsable'): ?>
                         <!-- Barre de navigation spécifique pour le responsable -->
                         <li class="nav-item">
                             <a class="nav-link <?php echo $_SERVER['REQUEST_URI'] === '/responsable' ? 'active' : ''; ?>" href="/responsable">Tableau de Bord</a>
@@ -48,6 +47,28 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/responsable/membres') !== false ? 'active' : ''; ?>" href="/responsable/membres">Membres</a>
+                        </li>
+                    <?php elseif (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'etudiant'): ?>
+                        <!-- Barre de navigation spécifique pour l'étudiant -->
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $_SERVER['REQUEST_URI'] === '/etudiant' || $_SERVER['REQUEST_URI'] === '/etudiant/' ? 'active' : ''; ?>" href="/etudiant">
+                                <i class="fas fa-home me-1"></i> Accueil
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/etudiant/clubs') !== false ? 'active' : ''; ?>" href="/etudiant/clubs">
+                                <i class="fas fa-users me-1"></i> Clubs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/etudiant/activites') !== false ? 'active' : ''; ?>" href="/etudiant/activites">
+                                <i class="fas fa-calendar-alt me-1"></i> Activités
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/etudiant/blogs') !== false ? 'active' : ''; ?>" href="/etudiant/blogs">
+                                <i class="fas fa-newspaper me-1"></i> Blogs
+                            </a>
                         </li>
                     <?php else: ?>
                         <!-- Barre de navigation standard pour les autres utilisateurs -->
