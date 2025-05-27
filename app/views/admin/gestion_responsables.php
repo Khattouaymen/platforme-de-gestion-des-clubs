@@ -2,10 +2,9 @@
 // Contenu de la page de gestion des responsables
 ?>
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container py-4">    <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">Gestion des Responsables de Club</h1>
-        <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin/dashboard" class="btn btn-secondary">
+        <a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/admin" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Retour au tableau de bord
         </a>
     </div>

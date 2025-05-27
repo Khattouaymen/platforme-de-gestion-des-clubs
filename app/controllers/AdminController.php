@@ -397,31 +397,39 @@ class AdminController extends Controller {
      * Affiche la page de génération de lien pour responsable de club
      * 
      * @return void
-     */
-    public function responsableLink() {
-        // Générer un token unique
-        $token = bin2hex(random_bytes(32));
-        
-        // Sauvegarder le token dans la base de données
-        $tokenId = $this->adminModel->saveResponsableToken($token);
-        
-        if (!$tokenId) {
-            $this->redirect('/admin/dashboard?error=Erreur+lors+de+la+génération+du+lien');
-            return;
+     */    public function responsableLink() {
+        try {
+            // Générer un token unique
+            $token = bin2hex(random_bytes(32));
+            error_log("Token généré: $token");
+            
+            // Sauvegarder le token dans la base de données
+            $tokenId = $this->adminModel->saveResponsableToken($token);
+            error_log("Token ID retourné: " . ($tokenId ? $tokenId : 'false'));
+            
+            if (!$tokenId) {
+                error_log("Erreur: tokenId est false, redirection vers admin avec erreur");
+                $this->redirect('/admin?error=Erreur+lors+de+la+génération+du+lien');
+                return;
+            }
+            
+            // Créer le lien d'inscription
+            $baseUrl = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
+            $baseUrl .= $_SERVER['HTTP_HOST'];
+            $lien = $baseUrl . "/auth/register/responsable/" . $token;
+            error_log("Lien généré: $lien");
+            
+            $data = [
+                'title' => 'Lien d\'inscription pour responsable de club',
+                'lien' => $lien,
+                'asset' => function($path) { return $this->asset($path); }
+            ];
+            
+            $this->view('admin/responsable_link', $data);
+        } catch (Exception $e) {
+            error_log("Exception dans responsableLink: " . $e->getMessage());
+            $this->redirect('/admin?error=Erreur+lors+de+la+génération+du+lien');
         }
-        
-        // Créer le lien d'inscription
-        $baseUrl = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
-        $baseUrl .= $_SERVER['HTTP_HOST'];
-        $lien = $baseUrl . "/auth/register/responsable/" . $token;
-        
-        $data = [
-            'title' => 'Lien d\'inscription pour responsable de club',
-            'lien' => $lien,
-            'asset' => function($path) { return $this->asset($path); }
-        ];
-        
-        $this->view('admin/responsable_link', $data);
     }
     
     /**

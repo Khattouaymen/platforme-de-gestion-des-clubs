@@ -1,8 +1,3 @@
-<?php
-// Définir le contenu
-ob_start();
-?>
-
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-6">
@@ -36,10 +31,46 @@ ob_start();
                         
                         <div class="mb-3">
                             <label for="prenom" class="form-label">Prénom</label>
-                            <input type="text" class="form-control" id="prenom" name="prenom" value="<?php echo isset($prenom) ? $prenom : ''; ?>" required>
-                        </div>                          <div class="mb-3">
+                            <input type="text" class="form-control" id="prenom" name="prenom" value="<?php echo isset($prenom) ? $prenom : ''; ?>" required>                        </div>
+                        
+                        <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" name="email" value="<?php echo isset($email) ? $email : ''; ?>" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="filiere" class="form-label">Filière <span class="text-danger">*</span></label>
+                            <select class="form-control" id="filiere" name="filiere" required>
+                                <option value="">Sélectionnez votre filière</option>
+                                <option value="Informatique" <?php echo (isset($filiere) && $filiere == 'Informatique') ? 'selected' : ''; ?>>Informatique</option>
+                                <option value="Génie Civil" <?php echo (isset($filiere) && $filiere == 'Génie Civil') ? 'selected' : ''; ?>>Génie Civil</option>
+                                <option value="Génie Électrique" <?php echo (isset($filiere) && $filiere == 'Génie Électrique') ? 'selected' : ''; ?>>Génie Électrique</option>
+                                <option value="Génie Mécanique" <?php echo (isset($filiere) && $filiere == 'Génie Mécanique') ? 'selected' : ''; ?>>Génie Mécanique</option>
+                                <option value="Management" <?php echo (isset($filiere) && $filiere == 'Management') ? 'selected' : ''; ?>>Management</option>
+                                <option value="Finance" <?php echo (isset($filiere) && $filiere == 'Finance') ? 'selected' : ''; ?>>Finance</option>
+                                <option value="Marketing" <?php echo (isset($filiere) && $filiere == 'Marketing') ? 'selected' : ''; ?>>Marketing</option>
+                                <option value="Autre" <?php echo (isset($filiere) && $filiere == 'Autre') ? 'selected' : ''; ?>>Autre</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="niveau" class="form-label">Niveau <span class="text-danger">*</span></label>
+                            <select class="form-control" id="niveau" name="niveau" required>
+                                <option value="">Sélectionnez votre niveau</option>
+                                <option value="1ère année" <?php echo (isset($niveau) && $niveau == '1ère année') ? 'selected' : ''; ?>>1ère année</option>
+                                <option value="2ème année" <?php echo (isset($niveau) && $niveau == '2ème année') ? 'selected' : ''; ?>>2ème année</option>
+                                <option value="3ème année" <?php echo (isset($niveau) && $niveau == '3ème année') ? 'selected' : ''; ?>>3ème année</option>
+                                <option value="4ème année" <?php echo (isset($niveau) && $niveau == '4ème année') ? 'selected' : ''; ?>>4ème année</option>
+                                <option value="5ème année" <?php echo (isset($niveau) && $niveau == '5ème année') ? 'selected' : ''; ?>>5ème année</option>
+                                <option value="Master 1" <?php echo (isset($niveau) && $niveau == 'Master 1') ? 'selected' : ''; ?>>Master 1</option>
+                                <option value="Master 2" <?php echo (isset($niveau) && $niveau == 'Master 2') ? 'selected' : ''; ?>>Master 2</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="numero_etudiant" class="form-label">Numéro d'étudiant <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="numero_etudiant" name="numero_etudiant" value="<?php echo isset($numero_etudiant) ? $numero_etudiant : ''; ?>" required placeholder="Ex: 2024001234">
+                            <div class="form-text">Votre numéro d'étudiant unique.</div>
                         </div>
                         
                         <div class="mb-3">
@@ -64,13 +95,5 @@ ob_start();
                     </p>
                 </div>
             </div>
-        </div>
-    </div>
+        </div>    </div>
 </div>
-
-<?php
-$content = ob_get_clean();
-
-// Appeler le layout avec le contenu
-require_once APP_PATH . '/views/layouts/main.php';
-?>

@@ -53,13 +53,24 @@ class AdminModel extends UserModel {
      * 
      * @param string $token Token unique
      * @return int|false ID du token ou false
-     */    
-    public function saveResponsableToken($token) {
-        // Vérifier si une table pour les tokens existe déjà, sinon la créer
-        $this->createResponsableTokenTableIfNotExists();
-        
-        $sql = "INSERT INTO inscription_token (token, type, date_creation) VALUES (:token, 'responsable', NOW())";
-        return $this->execute($sql, ['token' => $token]) ? $this->lastInsertId() : false;
+     */      public function saveResponsableToken($token) {
+        try {
+            // Vérifier si une table pour les tokens existe déjà, sinon la créer
+            $this->createResponsableTokenTableIfNotExists();
+            
+            $sql = "INSERT INTO inscription_token (token, type, date_creation) VALUES (:token, 'responsable', NOW())";
+            $result = $this->execute($sql, ['token' => $token]);
+            
+            if ($result > 0) {
+                return $this->lastInsertId();
+            }
+            
+            return false;
+        } catch (Exception $e) {
+            // Log l'erreur pour debug
+            error_log("Erreur lors de la sauvegarde du token: " . $e->getMessage());
+            return false;
+        }
     }
     
     /**
@@ -122,20 +133,27 @@ class AdminModel extends UserModel {
      * Crée la table des tokens d'inscription si elle n'existe pas
      * 
      * @return void
-     */    
-    private function createResponsableTokenTableIfNotExists() {        
-        $sql = "CREATE TABLE IF NOT EXISTS inscription_token (
-            id INT NOT NULL AUTO_INCREMENT,
-            token VARCHAR(191) NOT NULL,
-            type VARCHAR(50) NOT NULL,
-            date_creation DATETIME NOT NULL,
-            date_utilisation DATETIME NULL,
-            est_utilise TINYINT(1) NOT NULL DEFAULT 0,
-            PRIMARY KEY (id),
-            UNIQUE KEY (token(191))
-        )";
-        
-        $this->execute($sql);
+     */      private function createResponsableTokenTableIfNotExists() {        
+        try {
+            $sql = "CREATE TABLE IF NOT EXISTS inscription_token (
+                id INT NOT NULL AUTO_INCREMENT,
+                token VARCHAR(191) NOT NULL,
+                type VARCHAR(50) NOT NULL,
+                date_creation DATETIME NOT NULL,
+                date_utilisation DATETIME NULL,
+                est_utilise TINYINT(1) NOT NULL DEFAULT 0,
+                etudiant_id INT NULL,
+                PRIMARY KEY (id),
+                UNIQUE KEY unique_token (token),
+                KEY idx_type_utilise (type, est_utilise)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+            
+            $this->execute($sql);
+        } catch (Exception $e) {
+            // Log l'erreur pour debug
+            error_log("Erreur lors de la création de la table inscription_token: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
