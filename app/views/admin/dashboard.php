@@ -116,58 +116,19 @@
                     <a href="/admin/demandes" class="btn btn-danger w-100">Accéder</a>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Gestion des ressources -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="border-bottom pb-2 mb-4">Gestion des Ressources</h2>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card text-center shadow-sm h-100">
-                <div class="card-body">
-                    <i class="fas fa-tools fa-2x text-danger mb-3"></i>
-                    <h5 class="card-title">Liste des Ressources</h5>
-                    <p class="card-text">Gérer les ressources disponibles</p>
-                    <a href="/admin/ressources" class="btn btn-danger w-100">Accéder</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card text-center shadow-sm h-100">
-                <div class="card-body">
-                    <i class="fas fa-plus-circle fa-2x text-danger mb-3"></i>
-                    <h5 class="card-title">Ajouter une Ressource</h5>
-                    <p class="card-text">Créer une nouvelle ressource dans le système</p>
-                    <a href="/admin/addRessource" class="btn btn-danger w-100">Créer</a>
-                </div>
-            </div>
-        </div>
-    </div>
+        </div>    </div>
 
     <!-- Section Gestion des Réservations -->
     <div class="row mb-4">
         <div class="col-12">
-            <h2 class="border-bottom pb-2 mb-4">Gestion des Ressources et Réservations</h2>
-        </div>
-        <div class="col-md-6 col-lg-3">
+            <h2 class="border-bottom pb-2 mb-4">Gestion des Réservations</h2>
+        </div>        <div class="col-md-6 col-lg-3">
             <div class="card text-center shadow-sm h-100">
                 <div class="card-body">
                     <i class="fas fa-calendar-check fa-2x text-danger mb-3"></i>
                     <h5 class="card-title">Réservations</h5>
                     <p class="card-text">Gérer les demandes de réservations de ressources</p>
                     <a href="/admin/gererReservations" class="btn btn-danger w-100">Accéder</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card text-center shadow-sm h-100">
-                <div class="card-body">
-                    <i class="fas fa-boxes fa-2x text-danger mb-3"></i>
-                    <h5 class="card-title">Ressources</h5>
-                    <p class="card-text">Gérer les ressources disponibles pour les clubs</p>
-                    <a href="/admin/ressources" class="btn btn-danger w-100">Accéder</a>
                 </div>
             </div>
         </div>
@@ -199,17 +160,15 @@
                                 <li><a href="/admin/responsableLink" class="text-decoration-none"><i class="fas fa-user-plus me-2"></i>Lien d'Inscription Responsable</a></li>
                             </ul>
                         </div>
-                        
-                        <div class="col-md-6">
+                          <div class="col-md-6">
                             <h6 class="fw-bold">Gestion des Demandes</h6>
                             <ul class="list-unstyled">
                                 <li><a href="/admin/demandes" class="text-decoration-none"><i class="fas fa-envelope-open-text me-2"></i>Toutes les Demandes</a></li>
                             </ul>
                             
-                            <h6 class="fw-bold mt-4">Gestion des Ressources</h6>
+                            <h6 class="fw-bold mt-4">Gestion des Réservations</h6>
                             <ul class="list-unstyled">
-                                <li><a href="/admin/ressources" class="text-decoration-none"><i class="fas fa-tools me-2"></i>Liste des Ressources</a></li>
-                                <li><a href="/admin/addRessource" class="text-decoration-none"><i class="fas fa-plus-circle me-2"></i>Ajouter une Ressource</a></li>
+                                <li><a href="/admin/gererReservations" class="text-decoration-none"><i class="fas fa-calendar-check me-2"></i>Réservations</a></li>
                             </ul>
                         </div>
                     </div>
