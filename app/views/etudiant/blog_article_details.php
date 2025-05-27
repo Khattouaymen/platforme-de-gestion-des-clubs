@@ -1,7 +1,5 @@
 <?php
-// Vue pour afficher les détails d'un article de blog spécifique
-require_once APPROOT . '/views/inc/header_etudiant.php';
-require_once APPROOT . '/views/inc/navigation_etudiant.php';
+// Cette vue utilise le layout principal (main.php) qui contient déjà le header et la navigation
 ?>
 
 <div class="container mt-5">
