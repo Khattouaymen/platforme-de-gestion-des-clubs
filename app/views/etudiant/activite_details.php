@@ -5,7 +5,7 @@
 <div class="container py-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/dashboard">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant">Tableau de bord</a></li>
             <li class="breadcrumb-item"><a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/clubs">Clubs</a></li>
             <?php if (isset($activite['club_id'])): ?>
             <li class="breadcrumb-item"><a href="<?php echo isset($asset) ? rtrim(dirname($asset('')), '/') : ''; ?>/etudiant/club/<?php echo $activite['club_id']; ?>">
