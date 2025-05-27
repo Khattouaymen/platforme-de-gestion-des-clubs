@@ -354,12 +354,10 @@ class ClubModel extends Model {
      * 
      * @param int $activiteId ID de l'activité
      * @return array Liste des présences
-     */
-    public function getPresenceByActiviteId($activiteId) {
+     */    public function getPresenceByActiviteId($activiteId) {
         $sql = "SELECT pa.*, e.nom, e.prenom, e.email 
                 FROM participationactivite pa 
-                JOIN membreclub mc ON pa.membre_id = mc.id_membre 
-                JOIN etudiant e ON mc.id_etudiant = e.id_etudiant 
+                JOIN etudiant e ON pa.etudiant_id = e.id_etudiant 
                 WHERE pa.activite_id = :activiteId";
         return $this->multiple($sql, ['activiteId' => $activiteId]);
     }
