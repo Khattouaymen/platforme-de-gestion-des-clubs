@@ -15,23 +15,19 @@
                             par le club : <?php echo htmlspecialchars($data['article']['nom_club']); ?>
                         <?php endif; ?>
                     </p>
-                    
-                    <?php if (!empty($data['article']['image_url'])): ?>
-                        <img src="<?php echo URLROOT . '/' . htmlspecialchars($data['article']['image_url']); ?>" class="img-fluid mb-3" alt="Image de l'article" style="max-height: 400px; width: auto;">
+                      <?php if (!empty($data['article']['image_url'])): ?>
+                        <img src="<?php echo url('public/' . htmlspecialchars($data['article']['image_url'])); ?>" class="img-fluid mb-3" alt="Image de l'article" style="max-height: 400px; width: auto;">
                     <?php endif; ?>
 
                     <div class="article-content">
                         <?php echo nl2br(htmlspecialchars($data['article']['contenu'])); ?>
                     </div>
-                </article>
-
-                <hr>
-                <a href="<?php echo URLROOT; ?>/etudiant/blogs" class="btn btn-secondary">&laquo; Retour à la liste des articles</a>
+                </article>                <hr>
+                <a href="<?php echo url('etudiant/blogs'); ?>" class="btn btn-secondary">&laquo; Retour à la liste des articles</a>
             
             <?php else: ?>
-                <p class="text-center">L'article demandé n'a pas été trouvé ou n'est pas accessible.</p>
-                <div class="text-center">
-                    <a href="<?php echo URLROOT; ?>/etudiant/blogs" class="btn btn-primary">Voir tous les articles</a>
+                <p class="text-center">L'article demandé n'a pas été trouvé ou n'est pas accessible.</p>                <div class="text-center">
+                    <a href="<?php echo url('etudiant/blogs'); ?>" class="btn btn-primary">Voir tous les articles</a>
                 </div>
             <?php endif; ?>
         </div>
@@ -39,5 +35,5 @@
 </div>
 
 <?php 
-require_once APPROOT . '/views/inc/footer_etudiant.php'; 
+// Footer déjà inclus dans le layout principal (main.php)
 ?>
