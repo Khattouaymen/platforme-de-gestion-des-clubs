@@ -34,7 +34,23 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/clubs') !== false ? 'active' : ''; ?>" href="/admin/clubs">Gestion des Clubs</a>
-                        </li>                    <?php elseif (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'responsable'): ?>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/messages') !== false ? 'active' : ''; ?>" href="/admin/messages">
+                                Messages Contact 
+                                <?php 
+                                // Afficher le nombre de messages non lus
+                                if (isset($_SESSION['user_id']) && $_SESSION['user_type'] === 'admin') {
+                                    require_once APP_PATH . '/models/ContactModel.php';
+                                    $contactModel = new ContactModel();
+                                    $unreadCount = $contactModel->getUnreadCount();
+                                    if ($unreadCount > 0) {
+                                        echo '<span class="badge bg-warning ms-1">' . $unreadCount . '</span>';
+                                    }
+                                }
+                                ?>
+                            </a>
+                        </li><?php elseif (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'responsable'): ?>
                         <!-- Barre de navigation spécifique pour le responsable -->
                         <li class="nav-item">
                             <a class="nav-link <?php echo $_SERVER['REQUEST_URI'] === '/responsable' ? 'active' : ''; ?>" href="/responsable">Tableau de Bord</a>

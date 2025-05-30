@@ -91,18 +91,81 @@ class HomeController extends Controller {
         
         $this->view('home/about', $data);
     }
-    
-    /**
+      /**
      * Page de contact
      * 
      * @return void
      */
     public function contact() {
+        // Charger le modèle de contact
+        require_once APP_PATH . '/models/ContactModel.php';
+        $contactModel = new ContactModel();
+        
         $data = [
-            'title' => 'Contact'
+            'title' => 'Contact',
+            'success' => false,
+            'error' => false
         ];
         
+        // Traitement du formulaire de contact
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->handleContactForm($contactModel, $data);
+        }
+        
         $this->view('home/contact', $data);
+    }
+    
+    /**
+     * Traite la soumission du formulaire de contact
+     * 
+     * @param ContactModel $contactModel
+     * @param array &$data
+     * @return void
+     */
+    private function handleContactForm($contactModel, &$data) {
+        // Validation des données
+        $nom = trim($_POST['nom'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $sujet = trim($_POST['sujet'] ?? '');
+        $message = trim($_POST['message'] ?? '');
+        
+        // Vérifications de base
+        if (empty($nom) || empty($email) || empty($sujet) || empty($message)) {
+            $data['error'] = 'Tous les champs sont obligatoires.';
+            return;
+        }
+        
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $data['error'] = 'Adresse email invalide.';
+            return;
+        }
+        
+        if (strlen($message) < 10) {
+            $data['error'] = 'Le message doit contenir au moins 10 caractères.';
+            return;
+        }
+        
+        // Sujets autorisés
+        $sujetsAutorises = ['information', 'adhesion', 'activite', 'technique', 'suggestion', 'autre'];
+        if (!in_array($sujet, $sujetsAutorises)) {
+            $data['error'] = 'Sujet non valide.';
+            return;
+        }
+        
+        // Préparer les données pour l'enregistrement
+        $messageData = [
+            'nom' => $nom,
+            'email' => $email,
+            'sujet' => $sujet,
+            'message' => $message
+        ];
+        
+        // Enregistrer le message
+        if ($contactModel->createMessage($messageData)) {
+            $data['success'] = 'Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.';
+        } else {
+            $data['error'] = 'Une erreur est survenue lors de l\'envoi de votre message. Veuillez réessayer.';
+        }
     }
 }
 ?>

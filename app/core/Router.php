@@ -22,14 +22,29 @@ class Router {
             call_user_func([$controllerInstance, 'login']);
             return;
         }
-        
-        // Route pour l'inscription - redirige vers login qui contient maintenant les deux formulaires
+          // Route pour l'inscription - redirige vers login qui contient maintenant les deux formulaires
         if (isset($url[0]) && $url[0] === 'register') {
             require_once APP_PATH . '/controllers/HomeController.php';
             $controllerInstance = new HomeController();
             call_user_func([$controllerInstance, 'register']);
             return;
-        }        
+        }
+
+        // Route pour la page À propos
+        if (isset($url[0]) && $url[0] === 'about') {
+            require_once APP_PATH . '/controllers/HomeController.php';
+            $controllerInstance = new HomeController();
+            call_user_func([$controllerInstance, 'about']);
+            return;
+        }
+
+        // Route pour la page Contact
+        if (isset($url[0]) && $url[0] === 'contact') {
+            require_once APP_PATH . '/controllers/HomeController.php';
+            $controllerInstance = new HomeController();
+            call_user_func([$controllerInstance, 'contact']);
+            return;
+        }
         // Route pour le tableau de bord admin
         if (isset($url[0]) && $url[0] === 'admin') {
             require_once APP_PATH . '/controllers/AdminController.php';

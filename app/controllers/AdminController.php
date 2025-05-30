@@ -9,6 +9,7 @@ require_once APP_PATH . '/models/DemandeActiviteModel.php';
 require_once APP_PATH . '/models/DemandeAdhesionModel.php';
 require_once APP_PATH . '/models/ReservationModel.php';
 require_once APP_PATH . '/models/ActiviteModel.php'; // Added this line
+require_once APP_PATH . '/models/ContactModel.php';
 
 /**
  * Classe AdminController - Contrôleur pour les administrateurs
@@ -20,9 +21,9 @@ class AdminController extends Controller {
     private $ressourceModel;
     private $demandeClubModel;
     private $demandeActiviteModel;
-    private $demandeAdhesionModel;
-    private $reservationModel;
+    private $demandeAdhesionModel;    private $reservationModel;
     private $activiteModel; // Added this line
+    private $contactModel;
     
     /**
      * Constructeur
@@ -37,9 +38,9 @@ class AdminController extends Controller {
         $this->ressourceModel = new RessourceModel();
         $this->demandeClubModel = new DemandeClubModel();
         $this->demandeActiviteModel = new DemandeActiviteModel();
-        $this->demandeAdhesionModel = new DemandeAdhesionModel();
-        $this->reservationModel = new ReservationModel();
+        $this->demandeAdhesionModel = new DemandeAdhesionModel();        $this->reservationModel = new ReservationModel();
         $this->activiteModel = new ActiviteModel(); // Added this line
+        $this->contactModel = new ContactModel();
     }
     
     /**
@@ -1425,12 +1426,102 @@ class AdminController extends Controller {
             $this->redirect('/admin/gererReservations?error=' . urlencode('Cette réservation a déjà été traitée'));
             return;
         }
-        
-        // Rejeter la réservation
+          // Rejeter la réservation
         if ($this->reservationModel->reject($id)) {
             $this->redirect('/admin/gererReservations?success=' . urlencode('Réservation rejetée avec succès'));
         } else {
             $this->redirect('/admin/gererReservations?error=' . urlencode('Erreur lors du rejet de la réservation'));
+        }
+    }
+
+    /**
+     * Affiche la liste des messages de contact
+     * 
+     * @return void
+     */
+    public function messages() {
+        $messages = $this->contactModel->getAllMessages();
+        $stats = $this->contactModel->getStatistics();
+        
+        $data = [
+            'title' => 'Gestion des Messages de Contact',
+            'messages' => $messages,
+            'stats' => $stats,
+            'asset' => function($path) { return $this->asset($path); },
+            'alertSuccess' => $_GET['success'] ?? null,
+            'alertError' => $_GET['error'] ?? null
+        ];
+        
+        $this->view('admin/messages', $data);
+    }
+    
+    /**
+     * Affiche les détails d'un message de contact
+     * 
+     * @param int $id ID du message
+     * @return void
+     */
+    public function messageDetails($id = null) {
+        if (!$id) {
+            $this->redirect('/admin/messages?error=' . urlencode('ID du message non spécifié'));
+            return;
+        }
+        
+        $message = $this->contactModel->getMessageById($id);
+        
+        if (!$message) {
+            $this->redirect('/admin/messages?error=' . urlencode('Message non trouvé'));
+            return;
+        }
+        
+        // Marquer le message comme lu s'il ne l'était pas déjà
+        if ($message['statut'] === 'non_lu') {
+            $this->contactModel->markAsRead($id);
+        }
+        
+        $data = [
+            'title' => 'Détails du Message - ' . $message['nom'],
+            'message' => $message,
+            'asset' => function($path) { return $this->asset($path); }
+        ];
+        
+        $this->view('admin/message_details', $data);
+    }
+    
+    /**
+     * Marque un message comme traité
+     * 
+     * @param int $id ID du message
+     * @return void
+     */
+    public function markMessageProcessed($id = null) {
+        if (!$id) {
+            $this->redirect('/admin/messages?error=' . urlencode('ID du message non spécifié'));
+            return;
+        }
+        
+        if ($this->contactModel->markAsProcessed($id)) {
+            $this->redirect('/admin/messages?success=' . urlencode('Message marqué comme traité'));
+        } else {
+            $this->redirect('/admin/messages?error=' . urlencode('Erreur lors du traitement du message'));
+        }
+    }
+    
+    /**
+     * Supprime un message de contact
+     * 
+     * @param int $id ID du message
+     * @return void
+     */
+    public function deleteMessage($id = null) {
+        if (!$id) {
+            $this->redirect('/admin/messages?error=' . urlencode('ID du message non spécifié'));
+            return;
+        }
+          if ($this->contactModel->deleteMessage($id)) {
+            $this->redirect('/admin/messages?success=' . urlencode('Message supprimé avec succès'));
+        } else {
+            $this->redirect('/admin/messages?error=' . urlencode('Erreur lors de la suppression du message'));
         }
     }
 }
