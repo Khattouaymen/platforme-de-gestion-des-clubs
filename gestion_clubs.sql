@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : mer. 21 mai 2025 à 18:06
+-- Généré le : ven. 30 mai 2025 à 17:49
 -- Version du serveur : 9.1.0
 -- Version de PHP : 8.3.14
 
@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS `activite` (
   `lieu` varchar(100) DEFAULT NULL,
   `club_id` int DEFAULT NULL,
   `responsable_notifie` tinyint(1) NOT NULL DEFAULT '0',
+  `Poster_URL` varchar(255) DEFAULT NULL,
+  `nombre_max` int DEFAULT NULL COMMENT 'Nombre maximum de participants',
   PRIMARY KEY (`activite_id`),
   KEY `fk_activite_club` (`club_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -44,9 +46,9 @@ CREATE TABLE IF NOT EXISTS `activite` (
 -- Déchargement des données de la table `activite`
 --
 
-INSERT INTO `activite` (`activite_id`, `titre`, `description`, `date_activite`, `lieu`, `club_id`, `responsable_notifie`) VALUES
-(1, 'test', 'test', '2025-05-22', 'salle 1', 1, 1),
-(2, 'Capture The Flag (CTF)', 'Nous souhaitons organiser un événement de type Capture The Flag (CTF) destiné aux passionnés de cybersécurité. L\'objectif est de permettre aux participants de tester et d\'améliorer leurs compétences en matière de sécurité informatique à travers une série de défis pratiques. Les épreuves couvriront divers domaines tels que la cryptographie, l\'exploitation de vulnérabilités, l\'analyse de réseaux et le forensic.', '2025-05-21', 'salle 1', 1, 1);
+INSERT INTO `activite` (`activite_id`, `titre`, `description`, `date_activite`, `lieu`, `club_id`, `responsable_notifie`, `Poster_URL`, `nombre_max`) VALUES
+(1, 'test', 'test', '2025-05-22', 'salle 1', 1, 1, 'https://ik.imagekit.io/aymen/activite_cyber_dune.jpg', NULL),
+(2, 'Capture The Flag (CTF)', 'Nous souhaitons organiser un événement de type Capture The Flag (CTF) destiné aux passionnés de cybersécurité. L\'objectif est de permettre aux participants de tester et d\'améliorer leurs compétences en matière de sécurité informatique à travers une série de défis pratiques. Les épreuves couvriront divers domaines tels que la cryptographie, l\'exploitation de vulnérabilités, l\'analyse de réseaux et le forensic.', '2025-05-21', 'salle 1', 1, 1, 'https://ik.imagekit.io/aymen/activite_cyber_dune.jpg', NULL);
 
 -- --------------------------------------------------------
 
@@ -84,6 +86,8 @@ CREATE TABLE IF NOT EXISTS `blog` (
   `contenu` text NOT NULL,
   `date_creation` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `club_id` int DEFAULT NULL,
+  `image_url` varchar(255) DEFAULT NULL,
+  `visibility` varchar(10) NOT NULL DEFAULT 'public' COMMENT 'public or club',
   PRIMARY KEY (`blog_id`),
   KEY `fk_blog_club` (`club_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -205,7 +209,7 @@ CREATE TABLE IF NOT EXISTS `etudiant` (
   `niveau` varchar(255) DEFAULT NULL,
   `numero_etudiant` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_etudiant`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Déchargement des données de la table `etudiant`
@@ -215,7 +219,9 @@ INSERT INTO `etudiant` (`id_etudiant`, `nom`, `prenom`, `email`, `password`, `fi
 (1, 'khattou', 'Aymen', 'khattouaymen@gmail.com', '$2y$10$A50nb3HXRBcHTZ1R3oBsQOLdwTL.RiOsZJSacU1fRyqWMohKqzN1y', 'genie info', '2eme annee', '220704'),
 (2, 'issaad', 'badr', 'badr@example.com', '$2y$10$XYXvrXJ3CstyBEkiC4fYPuBJf6gBvm29jxKe.yDW3wNAklKtDpYxC', NULL, NULL, NULL),
 (3, 'abid', 'selma', 'selma@gmail.com', '$2y$10$7g.gm.If2l2nQLlvKEqgg.dw9lbtSrFp7z9zjpRPNvxs0Tc9UcXbW', NULL, NULL, NULL),
-(4, 'respo', 'test', 'respo@test.com', '$2y$10$6CY99KAR7LBCgcRnGbHHlefmV5poeCtdtpjStPSUb3djNQ.FkLwf6', NULL, NULL, NULL);
+(4, 'respo', 'test', 'respo@test.com', '$2y$10$6CY99KAR7LBCgcRnGbHHlefmV5poeCtdtpjStPSUb3djNQ.FkLwf6', NULL, NULL, NULL),
+(5, 'hamza', 'nassiri', 'hamza@test.com', '$2y$10$K2HJiY5Lifxh9URNX.1SkuH9lPwQzvPnF.3Qc8.x.1LIic3BLJEiG', '', '', ''),
+(6, 'issaad', 'badr', 'issaad@gmail.com', '$2y$10$qtChpZ9BYOLerNyVST5pZOW3lxxZTgbA7jV.6Y0qnH9XWOERecIkq', 'Informatique', '1ère année', '200145');
 
 -- --------------------------------------------------------
 
@@ -234,7 +240,7 @@ CREATE TABLE IF NOT EXISTS `inscription_token` (
   `est_utilise` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
-) ENGINE=MyISAM AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `inscription_token`
@@ -276,7 +282,15 @@ INSERT INTO `inscription_token` (`id`, `token`, `type`, `date_creation`, `date_u
 (33, '2b3d5c9b29e18a650bef82d72e89bcd208353f265c93ef5826f095b7da231e11', 'responsable', '2025-05-21 03:11:07', NULL, NULL, 0),
 (34, 'fa91ad781ccde73171e5b916c3a6e9cd8d45759d11f6c1ed0ac6155d1f07e5e9', 'responsable', '2025-05-21 03:11:57', NULL, NULL, 0),
 (35, 'd12e82bb907b7394d85270df673ba74739f41977d95225ac8585f24058187857', 'responsable', '2025-05-21 05:22:34', NULL, NULL, 0),
-(36, '8b14a603b987a09b5ce847c5797b9619e74ca2af3049f105b76ee51fdd2a5057', 'responsable', '2025-05-21 16:25:08', NULL, NULL, 0);
+(36, '8b14a603b987a09b5ce847c5797b9619e74ca2af3049f105b76ee51fdd2a5057', 'responsable', '2025-05-21 16:25:08', NULL, NULL, 0),
+(37, '86479ef647c710812222a3867a28842506feeab4732a5645624491f664312837', 'responsable', '2025-05-22 01:54:27', NULL, NULL, 0),
+(38, '08e8e35225685cf340cc41c7ddbeee4b69039e4e8641361d139b16a611638826', 'responsable', '2025-05-22 01:56:23', NULL, NULL, 0),
+(39, '4029dffa6fd89bdfa3f8b006830dc12cdf24c0e871815e98558d36ae673b0540', 'responsable', '2025-05-22 13:29:47', NULL, NULL, 0),
+(40, '0a0b977e9f21945feaaead40d2d0c7e372a77171a93b9a0ef8a20f1637cf1c15', 'responsable', '2025-05-22 22:56:36', NULL, NULL, 0),
+(41, '08ce90c6af679717dff7219d07db4492e253baaba5d450fcaa28a05b55776266', 'responsable', '2025-05-27 07:40:50', '2025-05-27 07:53:47', 6, 1),
+(42, 'a15f1b0a68a2864fb1106f78919638e54f61dc7aa49ad830cd2c40715f70a323', 'responsable', '2025-05-27 08:32:59', NULL, NULL, 0),
+(43, '9588bf7dfcdffe533d0e2982b4befa956cc21c5af324066633212e0e9d1644f8', 'responsable', '2025-05-27 08:35:28', NULL, NULL, 0),
+(44, 'f80e13a30cda87f1fd81fec6c791ec7f06e2c993f23cdd3d56031eb1946ce035', 'responsable', '2025-05-27 09:27:42', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -310,14 +324,20 @@ INSERT INTO `membreclub` (`id_membre`, `id_etudiant`, `club_id`, `role`) VALUES
 
 DROP TABLE IF EXISTS `participationactivite`;
 CREATE TABLE IF NOT EXISTS `participationactivite` (
-  `membre_id` int NOT NULL,
   `activite_id` int NOT NULL,
+  `etudiant_id` int NOT NULL,
+  `date_inscription` datetime DEFAULT CURRENT_TIMESTAMP,
   `statut` enum('inscrit','absent','participe') DEFAULT 'inscrit',
-  `prenom` varchar(255) NOT NULL,
-  `nom` varchar(255) NOT NULL,
-  PRIMARY KEY (`membre_id`,`activite_id`),
+  PRIMARY KEY (`etudiant_id`,`activite_id`),
   KEY `fk_participation_activite` (`activite_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `participationactivite`
+--
+
+INSERT INTO `participationactivite` (`activite_id`, `etudiant_id`, `date_inscription`, `statut`) VALUES
+(1, 1, '2025-05-21 19:05:12', 'participe');
 
 -- --------------------------------------------------------
 
@@ -443,8 +463,8 @@ ALTER TABLE `membreclub`
 -- Contraintes pour la table `participationactivite`
 --
 ALTER TABLE `participationactivite`
-  ADD CONSTRAINT `fk_participation_activite` FOREIGN KEY (`activite_id`) REFERENCES `activite` (`activite_id`),
-  ADD CONSTRAINT `fk_participation_membre` FOREIGN KEY (`membre_id`) REFERENCES `membreclub` (`id_membre`);
+  ADD CONSTRAINT `fk_pa_activite` FOREIGN KEY (`activite_id`) REFERENCES `activite` (`activite_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_pa_etudiant` FOREIGN KEY (`etudiant_id`) REFERENCES `etudiant` (`id_etudiant`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `reservation`
