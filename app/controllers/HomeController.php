@@ -28,12 +28,12 @@ class HomeController extends Controller {
         
         // Récupérer les activités à venir
         $activites = $this->activiteModel->getAll();
-        
-        $data = [
+          $data = [
             'title' => 'Accueil - Gestion des Clubs',
             'clubs' => $clubs,
             'activites' => $activites,
-            'asset' => function($path) { return $this->asset($path); }
+            'asset' => function($path) { return $this->asset($path); },
+            'hideNavbar' => true  // Paramètre pour cacher la navbar sur la page d'accueil
         ];
         
         $this->view('home/index', $data);

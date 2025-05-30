@@ -198,15 +198,29 @@ class Router {
         if (file_exists($controllerFile)) {
             require_once $controllerFile;
             $controllerName = $controller . 'Controller';
-            $controllerInstance = new $controllerName();
-            
-            // Vérifier si l'action est spécifiée
+            $controllerInstance = new $controllerName();              // Vérifier si l'action est spécifiée
             if (isset($url[1]) && !empty($url[1])) {
                 $action = $url[1];
                 unset($url[1]);
+                
+                // Si l'action est numérique, traiter comme un paramètre pour l'action index
+                if (is_numeric($action)) {
+                    // Remettre le paramètre dans la liste des paramètres
+                    $params = [$action];
+                    if ($url) {
+                        $params = array_merge($params, array_values($url));
+                    }
+                    $action = 'index';
+                    
+                    // Appeler l'action index avec l'ID comme paramètre
+                    call_user_func_array([$controllerInstance, $action], $params);
+                    return;
+                }
+            } else {
+                // Aucune action spécifiée, utiliser 'index' par défaut
+                $action = 'index';
             }
-            
-            // Vérifier si la méthode existe dans le contrôleur
+              // Vérifier si la méthode existe dans le contrôleur
             if (method_exists($controllerInstance, $action)) {
                 // Paramètres restants
                 $params = $url ? array_values($url) : [];
@@ -214,8 +228,17 @@ class Router {
                 // Appeler l'action avec les paramètres
                 call_user_func_array([$controllerInstance, $action], $params);
             } else {
-                // Action non trouvée
-                $this->handleError("La méthode {$action} n'existe pas dans le contrôleur {$controllerName}");
+                // Action non trouvée, essayer l'action par défaut 'index'
+                if ($action !== 'index' && method_exists($controllerInstance, 'index')) {
+                    // Remettre l'action manquante comme paramètre pour index
+                    $params = [$action];
+                    if ($url) {
+                        $params = array_merge($params, array_values($url));
+                    }
+                    call_user_func_array([$controllerInstance, 'index'], $params);
+                } else {
+                    $this->handleError("La méthode {$action} n'existe pas dans le contrôleur {$controllerName}");
+                }
             }
         } else {
             // Contrôleur non trouvé
