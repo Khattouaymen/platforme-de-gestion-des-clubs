@@ -148,11 +148,10 @@
                         Aucun club disponible pour le moment.
                     </div>
                 </div>
-            <?php endif; ?>
-        </div>
+            <?php endif; ?>        </div>
         
         <div class="text-center mt-3">
-            <a href="/clubs" class="btn btn-outline-primary">Voir tous les clubs</a>
+            <a href="/club" class="btn btn-outline-primary">Voir tous les clubs</a>
         </div>
     </div>
 </section>
@@ -196,21 +195,19 @@
                         Aucune activité disponible pour le moment.
                     </div>
                 </div>
-            <?php endif; ?>
-        </div>
+            <?php endif; ?>        </div>
         
         <div class="text-center mt-3">
-            <a href="/activites" class="btn btn-outline-primary">Voir toutes les activités</a>
+            <a href="/activite" class="btn btn-outline-primary">Voir toutes les activités</a>
         </div>
     </div>
 </section>
 
 <!-- Call to Action Section -->
-<section class="py-5 text-center">
-    <div class="container">
+<section class="py-5 text-center">    <div class="container">
         <h2 class="mb-3">Rejoignez notre communauté dès aujourd'hui !</h2>
         <p class="lead mb-4">Créez un compte pour pouvoir rejoindre des clubs, participer à des activités et interagir avec d'autres étudiants</p>
-        <a href="/register" class="btn btn-primary btn-lg">S'inscrire maintenant</a>
+        <a href="/auth/register" class="btn btn-primary btn-lg">S'inscrire maintenant</a>
     </div>
 </section>
 

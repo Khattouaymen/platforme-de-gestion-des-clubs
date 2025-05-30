@@ -68,17 +68,16 @@
                             <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/etudiant/blogs') !== false ? 'active' : ''; ?>" href="/etudiant/blogs">
                                 <i class="fas fa-newspaper me-1"></i> Blogs
                             </a>
-                        </li>
-                    <?php else: ?>
+                        </li>                    <?php else: ?>
                         <!-- Barre de navigation standard pour les autres utilisateurs -->
                         <li class="nav-item">
                             <a class="nav-link" href="/">Accueil</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/clubs">Clubs</a>
+                            <a class="nav-link" href="/club">Clubs</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/activites">Activités</a>
+                            <a class="nav-link" href="/activite">Activités</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/about">À propos</a>
@@ -105,15 +104,14 @@
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/auth/logout">Déconnexion</a></li>
                             </ul>
-                        </li>
-                    <?php else: ?>
+                        </li>                    <?php else: ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="/login">Connexion</a>
+                            <a class="nav-link" href="/auth/login">Connexion</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/register">Inscription</a>
+                            <a class="nav-link" href="/auth/register">Inscription</a>
                         </li>
-                    <?php endif; ?>                </ul>
+                    <?php endif; ?></ul>
             </div>
         </div>
     </nav>
