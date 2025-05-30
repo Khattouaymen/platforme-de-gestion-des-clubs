@@ -64,18 +64,16 @@ class ClubController extends Controller {
         $membres = $this->clubModel->getMembresByClubId($id);
         $nombreMembres = count($membres);        // Récupérer le responsable du club
         $responsable = $this->clubModel->getResponsableByClubId($id);
-        
-        // Préparer les données pour la vue
+          // Préparer les données pour la vue
         $data = [
             'title' => $club['nom'] . ' - Détails du Club',
             'club' => $club,
             'activites' => $activites,
             'nombreMembres' => $nombreMembres,
-            'responsable' => $responsable,
-            'hideNavbar' => false // Afficher la navbar sur cette page
+            'responsable' => $responsable
         ];
-          // Afficher la vue publique des détails du club
-        $this->view('public/club_details', $data);
+          // Afficher la vue publique des détails du club (sans layout)
+        $this->renderPublic('public/club_details', $data);
     }
     
     /**
@@ -93,15 +91,13 @@ class ClubController extends Controller {
         
         // Récupérer tous les clubs
         $clubs = $this->clubModel->getAll();
-        
-        // Préparer les données pour la vue
+          // Préparer les données pour la vue
         $data = [
             'title' => 'Liste des Clubs',
-            'clubs' => $clubs,
-            'hideNavbar' => false // Afficher la navbar sur cette page
+            'clubs' => $clubs
         ];
-          // Afficher la vue publique de la liste des clubs
-        $this->view('public/clubs', $data);
+          // Afficher la vue publique de la liste des clubs (sans layout)
+        $this->renderPublic('public/clubs', $data);
     }
     
     /**

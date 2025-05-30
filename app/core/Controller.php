@@ -52,8 +52,37 @@ class Controller {
         } else {
             die("La vue '{$view}' n'existe pas");
         }
+    }    /**
+     * Affiche une vue publique autonome (sans layout)
+     * 
+     * @param string $view Chemin de la vue
+     * @param array $data Données à passer à la vue
+     * @return void
+     */
+    protected function renderPublic($view, $data = []) {
+        // Extraire les données pour les rendre accessibles dans la vue
+        extract($data);
+        
+        // Chemin complet de la vue
+        $viewFile = APP_PATH . '/views/' . $view . '.php';
+        
+        if (file_exists($viewFile)) {
+            // Définir une fonction asset pour les fichiers statiques
+            $asset = function($path) {
+                return '/public/' . ltrim($path, '/');
+            };
+            
+            // Définir un titre par défaut
+            $title = $title ?? 'Gestion des Clubs';
+            
+            // Charger la vue directement sans layout
+            require $viewFile;
+        } else {
+            die("La vue '{$view}' n'existe pas");
+        }
     }
-      /**
+
+    /**
      * Redirige vers une autre URL
      * 
      * @param string $url URL de redirection

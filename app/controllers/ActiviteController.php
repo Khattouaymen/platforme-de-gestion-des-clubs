@@ -36,15 +36,13 @@ class ActiviteController extends Controller {
         
         // Sinon, afficher la liste des activités
         $activites = $this->activiteModel->getAll();
-        
-        $data = [
+          $data = [
             'title' => 'Activités - Gestion des Clubs',
             'activites' => $activites,
-            'asset' => function($path) { return $this->asset($path); },
-            'hideNavbar' => true
+            'asset' => function($path) { return $this->asset($path); }
         ];
         
-        $this->view('public/activites', $data);
+        $this->renderPublic('public/activites', $data);
     }
     
     /**
@@ -87,16 +85,14 @@ class ActiviteController extends Controller {
         
         // Compter le nombre de participants
         $nombreParticipants = $this->participationActiviteModel->getParticipantCount($id);
-        
-        $data = [
+          $data = [
             'title' => 'Détails de l\'activité - ' . $activite['titre'],
             'activite' => $activite,
             'nombreParticipants' => $nombreParticipants,
-            'asset' => function($path) { return $this->asset($path); },
-            'hideNavbar' => true
+            'asset' => function($path) { return $this->asset($path); }
         ];
         
-        $this->view('public/activite_details', $data);
+        $this->renderPublic('public/activite_details', $data);
     }
     
     /**

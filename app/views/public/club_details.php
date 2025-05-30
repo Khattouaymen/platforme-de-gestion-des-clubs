@@ -1,4 +1,32 @@
-<?php require_once APP_PATH . '/views/layouts/main.php'; ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $title ?? 'Détails du Club'; ?></title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="<?php echo isset($asset) ? $asset('assets/css/style.css') : '/public/assets/css/style.css'; ?>">
+</head>
+<body>
+
+<div class="container-fluid">
+    <!-- Navigation simple pour revenir à l'accueil -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-home"></i> Retour à l'accueil
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/auth/login">Connexion</a>
+                <a class="nav-link" href="/club">Tous les clubs</a>
+                <a class="nav-link" href="/activite">Activités</a>
+            </div>
+        </div>
+    </nav>
 
 <div class="container mt-4">
     <!-- Breadcrumb -->
@@ -184,3 +212,8 @@
     box-shadow: 0 4px 25px 0 rgba(0,0,0,.1);
 }
 </style>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
