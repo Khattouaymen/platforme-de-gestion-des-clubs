@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : ven. 30 mai 2025 à 17:49
+-- Généré le : dim. 01 juin 2025 à 16:05
 -- Version du serveur : 9.1.0
 -- Version de PHP : 8.3.14
 
@@ -114,6 +114,38 @@ CREATE TABLE IF NOT EXISTS `club` (
 
 INSERT INTO `club` (`id`, `nom`, `description`, `nombre_membres`, `Logo_URL`) VALUES
 (1, 'CyberDune', 'CyberDune est un club &eacute;tudiant orient&eacute; vers le num&eacute;rique et les technologies. Il a pour objectif de d&eacute;velopper les comp&eacute;tences des &eacute;tudiants en programmation, cybers&eacute;curit&eacute;, intelligence artificielle et technologies modernes &agrave; travers des ateliers, des comp&eacute;titions et des activit&eacute;s &eacute;ducatives.', 1, 'https://ik.imagekit.io/aymen/logo_cyberdune.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `contact_messages`
+--
+
+DROP TABLE IF EXISTS `contact_messages`;
+CREATE TABLE IF NOT EXISTS `contact_messages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nom` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `sujet` enum('information','adhesion','activite','technique','suggestion','autre') COLLATE utf8mb4_general_ci NOT NULL,
+  `message` text COLLATE utf8mb4_general_ci NOT NULL,
+  `statut` enum('non_lu','lu','traite') COLLATE utf8mb4_general_ci DEFAULT 'non_lu',
+  `date_creation` datetime NOT NULL,
+  `date_lecture` datetime DEFAULT NULL,
+  `date_traitement` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_contact_statut` (`statut`),
+  KEY `idx_contact_date` (`date_creation`),
+  KEY `idx_contact_sujet` (`sujet`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `contact_messages`
+--
+
+INSERT INTO `contact_messages` (`id`, `nom`, `email`, `sujet`, `message`, `statut`, `date_creation`, `date_lecture`, `date_traitement`, `created_at`, `updated_at`) VALUES
+(1, 'Aymen KHATTOU', 'khattouaymen@gmail.com', 'information', 'test  j  niybyuv', 'traite', '2025-05-30 20:10:33', '2025-05-30 20:10:53', '2025-05-30 20:11:09', '2025-05-30 19:10:33', '2025-05-30 19:11:09');
 
 -- --------------------------------------------------------
 
