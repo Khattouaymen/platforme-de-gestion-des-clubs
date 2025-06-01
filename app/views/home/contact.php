@@ -23,13 +23,12 @@
                         <div class="d-flex mb-3">
                             <div class="flex-shrink-0">
                                 <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
+                            </div>                            <div class="flex-grow-1 ms-3">
                                 <h6 class="mb-1">Adresse</h6>
                                 <p class="text-muted mb-0">
-                                    Université Cadi Ayyad<br>
-                                    Faculté des Sciences et Techniques<br>
-                                    Marrakech, Maroc
+                                    OFPPT ISTA Guelmim<br>
+                                    Institut Spécialisé de Technologie Appliquée<br>
+                                    Guelmim, Maroc
                                 </p>
                             </div>
                         </div>
@@ -37,20 +36,18 @@
                         <div class="d-flex mb-3">
                             <div class="flex-shrink-0">
                                 <i class="fas fa-phone fa-lg text-primary"></i>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
+                            </div>                            <div class="flex-grow-1 ms-3">
                                 <h6 class="mb-1">Téléphone</h6>
-                                <p class="text-muted mb-0">+212 524 43 46 49</p>
+                                <p class="text-muted mb-0">+212 528 87 20 45</p>
                             </div>
                         </div>
                         
                         <div class="d-flex mb-3">
                             <div class="flex-shrink-0">
                                 <i class="fas fa-envelope fa-lg text-primary"></i>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
+                            </div>                            <div class="flex-grow-1 ms-3">
                                 <h6 class="mb-1">Email</h6>
-                                <p class="text-muted mb-0">clubs@fstg.ac.ma</p>
+                                <p class="text-muted mb-0">clubs@ista-guelmim.ma</p>
                             </div>
                         </div>
                         
@@ -85,7 +82,7 @@
                             </div>
                         <?php endif; ?>
                         
-                        <form method="POST" action="/contact">
+                        <form method="POST" action="<?php echo url('contact'); ?>">
                             <div class="mb-3">
                                 <label for="nom" class="form-label">Nom complet *</label>
                                 <input type="text" class="form-control" id="nom" name="nom" 
@@ -208,7 +205,7 @@
                                 <i class="fas fa-question-circle fa-3x text-info mb-3"></i>
                                 <h5>Support Technique</h5>
                                 <p class="card-text">Problèmes de connexion, bugs ou questions techniques</p>
-                                <a href="mailto:support@fstg.ac.ma" class="btn btn-outline-info">Contacter le support</a>
+                                <a href="mailto:support@ista-guelmim.ma" class="btn btn-outline-info">Contacter le support</a>
                             </div>
                         </div>
                     </div>
@@ -219,18 +216,17 @@
                                 <i class="fas fa-users fa-3x text-success mb-3"></i>
                                 <h5>Administration</h5>
                                 <p class="card-text">Questions sur les clubs, demandes spéciales</p>
-                                <a href="mailto:admin@fstg.ac.ma" class="btn btn-outline-success">Contacter l'admin</a>
+                                <a href="mailto:clubs@ista-guelmim.ma" class="btn btn-outline-success">Contacter l'admin</a>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-md-4 mb-3">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body text-center">
+                        <div class="card border-0 shadow-sm h-100">                            <div class="card-body text-center">
                                 <i class="fas fa-graduation-cap fa-3x text-warning mb-3"></i>
                                 <h5>Vie Étudiante</h5>
                                 <p class="card-text">Questions générales sur la vie associative</p>
-                                <a href="mailto:vie-etudiante@fstg.ac.ma" class="btn btn-outline-warning">Nous écrire</a>
+                                <a href="mailto:clubs@ista-guelmim.ma" class="btn btn-outline-warning">Nous écrire</a>
                             </div>
                         </div>
                     </div>
